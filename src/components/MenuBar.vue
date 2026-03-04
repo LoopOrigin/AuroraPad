@@ -1,0 +1,225 @@
+<template>
+  <div class="menu-bar">
+    <div class="menu-bar-left">
+      <div
+        v-for="menu in menus"
+        :key="menu.id"
+        ref="menuRefs"
+        class="menu-bar-item"
+        :class="{ open: openMenuId === menu.id }"
+        @click.stop="toggleMenu(menu.id)"
+      >
+        {{ menu.label }}
+      </div>
+    </div>
+    <div class="menu-bar-right">
+      <button type="button" class="menu-bar-icon" title="New" @click="emit('new')">+</button>
+      <button type="button" class="menu-bar-icon" title="Open files" @click="emit('open')">▼</button>
+      <button type="button" class="menu-bar-icon" title="Close tab" @click="emit('close-tab')">×</button>
+    </div>
+    <Teleport to="body">
+      <div
+        v-if="openMenuId"
+        class="menu-bar-overlay"
+        @click="closeMenu"
+      />
+      <div
+        v-if="openMenuId && menuStyle"
+        class="menu-bar-dropdown"
+        :style="menuStyle"
+        @click.stop
+      >
+        <template v-for="(item, idx) in currentMenuItems" :key="idx">
+          <div
+            v-if="item.type === 'separator'"
+            class="menu-dropdown-sep"
+          />
+          <button
+            v-else
+            type="button"
+            class="menu-dropdown-item"
+            :class="{ disabled: item.enabled === false }"
+            :disabled="item.enabled === false"
+            @click="runItem(item)"
+          >
+            <span>{{ item.label }}</span>
+            <span v-if="item.shortcut" class="menu-dropdown-shortcut">{{ item.shortcut }}</span>
+          </button>
+        </template>
+      </div>
+    </Teleport>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+
+const props = defineProps({
+  menus: { type: Array, required: true },
+})
+
+const emit = defineEmits(['new', 'open', 'close-tab', 'action'])
+
+const openMenuId = ref(null)
+const menuStyle = ref(null)
+const menuRefs = ref([])
+
+const currentMenuItems = computed(() => {
+  if (!openMenuId.value) return []
+  const menu = props.menus.find(m => m.id === openMenuId.value)
+  return menu?.items ?? []
+})
+
+function toggleMenu(id) {
+  if (openMenuId.value === id) {
+    closeMenu()
+    return
+  }
+  openMenuId.value = id
+  positionDropdown()
+}
+
+function positionDropdown() {
+  if (!openMenuId.value || !menuRefs.value.length) return
+  const menu = props.menus.find(m => m.id === openMenuId.value)
+  const idx = props.menus.indexOf(menu)
+  const el = Array.isArray(menuRefs.value) ? menuRefs.value[idx] : menuRefs.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  menuStyle.value = {
+    position: 'fixed',
+    left: `${rect.left}px`,
+    top: `${rect.bottom}px`,
+    minWidth: `${Math.max(rect.width, 200)}px`,
+  }
+}
+
+function closeMenu() {
+  openMenuId.value = null
+  menuStyle.value = null
+}
+
+function runItem(item) {
+  if (item.action) emit('action', item.action, item)
+  closeMenu()
+}
+
+function onKeydown(e) {
+  if (e.key === 'Escape') closeMenu()
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
+</script>
+
+<style scoped>
+.menu-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 22px;
+  padding: 0 6px 0 4px;
+  background: var(--npp-menubar-bg, #f0f0f0);
+  border-bottom: 1px solid var(--npp-toolbar-border);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.menu-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.menu-bar-item {
+  padding: 2px 10px;
+  cursor: default;
+  user-select: none;
+  color: var(--npp-text);
+}
+
+.menu-bar-item:hover,
+.menu-bar-item.open {
+  background: var(--npp-menubar-hover, #cce8ff);
+}
+
+.menu-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.menu-bar-icon {
+  width: 22px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--npp-text);
+  border: 1px solid transparent;
+}
+
+.menu-bar-icon:hover {
+  background: var(--npp-toolbar-hover);
+  border-color: var(--npp-toolbar-border);
+}
+
+.menu-bar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+.menu-bar-dropdown {
+  position: fixed;
+  z-index: 1000;
+  padding: 4px 0;
+  background: var(--npp-tab-active-bg);
+  border: 1px solid var(--npp-tab-border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 13px;
+}
+
+.menu-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 24px 4px 12px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--npp-text);
+  background: transparent;
+  border: none;
+  font: inherit;
+}
+
+.menu-dropdown-item:hover:not(.disabled) {
+  background: var(--npp-menubar-hover, #cce8ff);
+}
+
+.menu-dropdown-item.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.menu-dropdown-shortcut {
+  margin-left: 24px;
+  font-size: 12px;
+  color: var(--npp-text-dim);
+}
+
+.menu-dropdown-sep {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--npp-toolbar-border);
+}
+</style>

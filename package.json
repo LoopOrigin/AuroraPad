@@ -1,0 +1,46 @@
+{
+  "name": "notepad-clone",
+  "version": "1.0.0",
+  "description": "Notepad++ clone with Monaco Editor",
+  "main": "electron/main/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "vite build && electron-builder",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@vueuse/core": "^10.7.0",
+    "chokidar": "^3.5.3",
+    "electron-store": "^8.1.0",
+    "file-type": "^19.0.0",
+    "iconv-lite": "^0.6.3",
+    "monaco-editor": "^0.47.0",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1",
+    "vite": "^5.0.0",
+    "vite-plugin-monaco-editor": "^1.1.0",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.notepad-clone.app",
+    "productName": "Notepad Clone",
+    "directories": { "output": "release" },
+    "files": ["dist/**/*", "electron/**/*"],
+    "forceCodeSigning": false,
+    "mac": { "category": "public.app-category.developer-tools" },
+    "win": {
+      "target": ["nsis"],
+      "signAndEditExecutable": false
+    },
+    "linux": { "target": ["AppImage"] }
+  }
+}
