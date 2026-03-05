@@ -13,9 +13,15 @@
       </div>
     </div>
     <div class="menu-bar-right">
-      <button type="button" class="menu-bar-icon" title="New" @click="emit('new')">+</button>
-      <button type="button" class="menu-bar-icon" title="Open files" @click="emit('open')">▼</button>
-      <button type="button" class="menu-bar-icon" title="Close tab" @click="emit('close-tab')">×</button>
+      <button type="button" class="menu-bar-icon" title="New" @click="emit('new')">
+        <i class="fa-solid fa-file menu-bar-icon-inner"></i>
+      </button>
+      <button type="button" class="menu-bar-icon" title="Open files" @click="emit('open')">
+        <i class="fa-solid fa-folder-open menu-bar-icon-inner"></i>
+      </button>
+      <button type="button" class="menu-bar-icon" title="Close tab" @click="emit('close-tab')">
+        <i class="fa-solid fa-xmark menu-bar-icon-inner"></i>
+      </button>
     </div>
     <Teleport to="body">
       <div
@@ -134,8 +140,8 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 22px;
-  padding: 0 6px 0 4px;
+  height: 26px;
+  padding: 2px 6px 2px 4px;
   background: var(--npp-menubar-bg, #f0f0f0);
   border-bottom: 1px solid var(--npp-toolbar-border);
   font-size: 13px;
@@ -167,16 +173,19 @@ onBeforeUnmount(() => {
 }
 
 .menu-bar-icon {
-  width: 22px;
-  height: 18px;
+  width: 26px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
   line-height: 1;
   cursor: pointer;
   color: var(--npp-text);
   border: 1px solid transparent;
+}
+
+.menu-bar-icon-inner {
+  font-size: 16px;
 }
 
 .menu-bar-icon:hover {

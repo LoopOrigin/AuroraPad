@@ -161,6 +161,16 @@ input, select {
   background-size: 400% 400%; /* 4x4 grid of icons */
 }
 
+/* Font Awesome toolbar icons */
+.toolbar-fa-icon {
+  font-size: 15px;
+}
+
+/* Make toolbar/menu icons clearly visible in dark theme */
+[data-theme='dark'] .toolbar-icon {
+  filter: invert(1) brightness(1.2);
+}
+
 /* Row 1 */
 .icon-new-file     { background-position: 0% 0%; }
 .icon-open-file    { background-position: 33.333% 0%; }

@@ -1,10 +1,10 @@
 <template>
   <div class="toolbar">
     <button type="button" class="toolbar-btn" title="New (Ctrl+N)" @click="emit('new')">
-      <span class="toolbar-icon icon-new-file"></span>
+      <i class="fa-solid fa-file toolbar-fa-icon"></i>
     </button>
     <button type="button" class="toolbar-btn" title="Open (Ctrl+O)" @click="emit('open')">
-      <span class="toolbar-icon icon-open-file"></span>
+      <i class="fa-solid fa-folder-open toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -13,7 +13,7 @@
       :disabled="!canSave"
       @click="emit('save')"
     >
-      <span class="toolbar-icon icon-save"></span>
+      <i class="fa-solid fa-floppy-disk toolbar-fa-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -23,7 +23,7 @@
       :disabled="!canSaveAll"
       @click="emit('save-all')"
     >
-      <span class="toolbar-icon icon-save-all"></span>
+      <i class="fa-solid fa-layer-group toolbar-fa-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -33,7 +33,7 @@
       :disabled="!hasEditor"
       @click="emit('cut')"
     >
-      <span class="toolbar-icon icon-cut"></span>
+      <i class="fa-solid fa-scissors toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -42,7 +42,7 @@
       :disabled="!hasEditor"
       @click="emit('copy')"
     >
-      <span class="toolbar-icon icon-copy"></span>
+      <i class="fa-solid fa-copy toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -51,7 +51,7 @@
       :disabled="!hasEditor"
       @click="emit('paste')"
     >
-      <span class="toolbar-icon icon-paste"></span>
+      <i class="fa-solid fa-clipboard toolbar-fa-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -61,7 +61,7 @@
       :disabled="!hasEditor"
       @click="emit('find')"
     >
-      <span class="toolbar-icon icon-find"></span>
+      <i class="fa-solid fa-magnifying-glass toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -70,7 +70,7 @@
       :disabled="!hasEditor"
       @click="emit('replace')"
     >
-      <span class="toolbar-icon icon-replace"></span>
+      <i class="fa-solid fa-magnifying-glass-arrow-right toolbar-fa-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -80,7 +80,7 @@
       :disabled="!hasEditor"
       @click="emit('undo')"
     >
-      <span class="toolbar-icon icon-undo"></span>
+      <i class="fa-solid fa-rotate-left toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -89,7 +89,7 @@
       :disabled="!hasEditor"
       @click="emit('redo')"
     >
-      <span class="toolbar-icon icon-redo"></span>
+      <i class="fa-solid fa-rotate-right toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -98,7 +98,7 @@
       :disabled="!hasEditor"
       @click="emit('toggle-word-wrap')"
     >
-      <span class="toolbar-icon icon-word-wrap"></span>
+      <i class="fa-solid fa-align-left toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -107,7 +107,7 @@
       :disabled="!hasEditor"
       @click="emit('go-to-line')"
     >
-      <span class="toolbar-icon icon-go-to-line"></span>
+      <i class="fa-solid fa-arrow-down-1-9 toolbar-fa-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -117,7 +117,7 @@
       :disabled="!hasEditor"
       @click="emit('zoom-in')"
     >
-      <span class="toolbar-icon icon-zoom-in"></span>
+      <i class="fa-solid fa-magnifying-glass-plus toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -126,7 +126,7 @@
       :disabled="!hasEditor"
       @click="emit('zoom-out')"
     >
-      <span class="toolbar-icon icon-zoom-out"></span>
+      <i class="fa-solid fa-magnifying-glass-minus toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
@@ -134,7 +134,7 @@
       title="Preferences"
       @click="emit('preferences')"
     >
-      <span class="toolbar-icon icon-settings"></span>
+      <i class="fa-solid fa-gear toolbar-fa-icon"></i>
     </button>
   </div>
 </template>
