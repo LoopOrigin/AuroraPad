@@ -1,7 +1,7 @@
 {
-  "name": "notepad-clone",
+  "name": "aurorapad",
   "version": "1.0.0",
-  "description": "Notepad++ clone with Monaco Editor",
+  "description": "AuroraPad — a modern Notepad++-style editor powered by Monaco",
   "main": "electron/main/index.js",
   "scripts": {
     "dev": "vite",
@@ -31,16 +31,31 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.notepad-clone.app",
-    "productName": "Notepad Clone",
+    "appId": "com.aurorapad.app",
+    "productName": "AuroraPad",
     "directories": { "output": "release" },
     "files": ["dist/**/*", "electron/**/*"],
     "forceCodeSigning": false,
-    "mac": { "category": "public.app-category.developer-tools" },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    },
     "win": {
       "target": ["nsis"],
       "signAndEditExecutable": false
     },
-    "linux": { "target": ["AppImage"] }
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    }
   }
 }

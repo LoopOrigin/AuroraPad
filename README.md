@@ -1,4 +1,4 @@
-# Notepad Clone
+# AuroraPad
 
 A **Notepad++-style** editor built with **Electron 29**, **Vue 3**, **Vite**, and **Monaco Editor** (VS Code’s engine). The UI mirrors Notepad++: toolbar, document tabs, multi-segment status bar (language, length, line/col, EOL, encoding), and a **Plugins** menu with built-in and user plugins.
 

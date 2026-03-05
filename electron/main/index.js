@@ -126,9 +126,21 @@ function buildMenu(pluginMenuItems = []) {
 ipcMain.handle('fs:readFile', async (_, filePath, encoding = 'utf8') => {
   try {
     const buffer = await fs.readFile(filePath)
-    const { fileTypeFromBuffer } = await import('file-type')
-    const type = await fileTypeFromBuffer(buffer)
-    if (type && !['text/plain', 'application/json', 'application/javascript', 'text/html', 'text/css', 'text/xml', 'application/xml'].includes(type.mime)) {
+    let isBinary = false
+    try {
+      // Skip expensive MIME detection for very large files to keep open fast
+      const stat = await fs.stat(filePath)
+      if (stat.size <= 5 * 1024 * 1024) {
+        const { fileTypeFromBuffer } = await import('file-type')
+        const type = await fileTypeFromBuffer(buffer)
+        if (type && !['text/plain', 'application/json', 'application/javascript', 'text/html', 'text/css', 'text/xml', 'application/xml'].includes(type.mime)) {
+          isBinary = true
+        }
+      }
+    } catch {
+      // Best-effort detection; fall back to treating as text
+    }
+    if (isBinary) {
       return { error: 'Binary file', binary: true }
     }
     const content = encoding === 'utf8' ? buffer.toString('utf8') : iconv.decode(buffer, encoding)
@@ -181,7 +193,13 @@ ipcMain.handle('fs:readDir', async (_, dirPath) => {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true })
     return entries
-      .filter(d => !d.name.startsWith('.'))
+      .filter(d => {
+        if (d.name.startsWith('.')) return false
+        const lower = d.name.toLowerCase()
+        // Skip heavy or irrelevant folders to keep tree fast
+        if (lower === 'node_modules' || lower === '.git' || lower === '.svn' || lower === 'dist' || lower === 'release') return false
+        return true
+      })
       .map(d => ({ name: d.name, isDirectory: d.isDirectory(), path: path.join(dirPath, d.name) }))
       .sort((a, b) => (a.isDirectory === b.isDirectory ? a.name.localeCompare(b.name) : a.isDirectory ? -1 : 1))
   } catch (e) {
@@ -191,7 +209,11 @@ ipcMain.handle('fs:readDir', async (_, dirPath) => {
 
 ipcMain.handle('fs:watchFolder', async (_, folderPath) => {
   if (watchers.has(folderPath)) return
-  const watcher = chokidar.watch(folderPath, { ignoreInitial: true })
+  const watcher = chokidar.watch(folderPath, {
+    ignoreInitial: true,
+    ignored: ['**/node_modules/**', '**/.git/**', '**/.svn/**', '**/dist/**', '**/release/**'],
+    depth: 5,
+  })
   watcher.on('all', (event, p) => {
     mainWindow?.webContents.send('fs:folderChanged', { event, path: p, root: folderPath })
   })

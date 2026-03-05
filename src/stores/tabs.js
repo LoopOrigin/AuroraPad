@@ -18,9 +18,37 @@ function languageFromPath(path) {
     vue: 'vue', html: 'html', htm: 'html', css: 'css', scss: 'scss', less: 'less',
     json: 'json', md: 'markdown', py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
     java: 'java', kt: 'kotlin', c: 'c', cpp: 'cpp', h: 'c', hpp: 'cpp',
-    sql: 'sql', sh: 'shell', bash: 'shell', yaml: 'yaml', yml: 'yaml', xml: 'xml',
+    cs: 'csharp', csx: 'csharp',
+    php: 'php', rbw: 'ruby',
+    sql: 'sql', sh: 'shell', bash: 'shell', ps1: 'powershell',
+    yaml: 'yaml', yml: 'yaml', xml: 'xml',
   }
   return map[ext] || 'plaintext'
+}
+
+function inferLanguage(path, content) {
+  // Prefer extension-based mapping first
+  const byExt = languageFromPath(path)
+  if (byExt !== 'plaintext') return byExt
+
+  const text = (content || '').slice(0, 2000)
+  const firstLine = text.split(/\r\n|\r|\n/)[0] || ''
+
+  // Shebangs
+  if (/^#!.*\bpython(?:3)?\b/.test(firstLine)) return 'python'
+  if (/^#!.*\b(node|nodejs)\b/.test(firstLine)) return 'javascript'
+  if (/^#!.*\b(bash|sh|zsh)\b/.test(firstLine)) return 'shell'
+
+  // HTML
+  if (/<html[\s>]/i.test(text) || /<!doctype html>/i.test(text)) return 'html'
+
+  // JSON-ish (no ext but looks like JSON)
+  if (/^\s*[{[]/.test(text) && /["']\w+["']\s*:/.test(text)) return 'json'
+
+  // Markdown-ish
+  if (/^#\s+\w+/m.test(text) || /^\s*[-*]\s+\w+/m.test(text)) return 'markdown'
+
+  return byExt
 }
 
 export const useTabsStore = defineStore('tabs', () => {
@@ -109,5 +137,6 @@ export const useTabsStore = defineStore('tabs', () => {
     getTab,
     encodings,
     languageFromPath,
+    inferLanguage,
   }
 })

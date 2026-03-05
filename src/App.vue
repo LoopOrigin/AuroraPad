@@ -203,6 +203,18 @@ const menuBarMenus = computed(() => [
       { label: 'Markdown', action: 'menu:language:markdown' },
       { label: 'Python', action: 'menu:language:python' },
       { label: 'XML', action: 'menu:language:xml' },
+      { type: 'separator' },
+      { label: 'C', action: 'menu:language:c' },
+      { label: 'C++', action: 'menu:language:cpp' },
+      { label: 'C#', action: 'menu:language:csharp' },
+      { label: 'Java', action: 'menu:language:java' },
+      { label: 'PHP', action: 'menu:language:php' },
+      { label: 'Ruby', action: 'menu:language:ruby' },
+      { label: 'Go', action: 'menu:language:go' },
+      { label: 'Rust', action: 'menu:language:rust' },
+      { label: 'SQL', action: 'menu:language:sql' },
+      { label: 'Shell Script', action: 'menu:language:shell' },
+      { label: 'YAML', action: 'menu:language:yaml' },
     ],
   },
   {
@@ -547,6 +559,7 @@ async function openFileByPath(filePath) {
     path: filePath,
     content: result.content,
     encoding: result.encoding || 'utf8',
+    language: tabsStore.inferLanguage?.(filePath, result.content),
     isDirty: false,
   })
 }

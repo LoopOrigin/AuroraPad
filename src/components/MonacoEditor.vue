@@ -32,10 +32,16 @@ onMounted(() => {
     lineNumbers: props.lineNumbers === true ? 'on' : (props.lineNumbers === false ? 'off' : props.lineNumbers),
     fontSize: props.fontSize,
     readOnly: props.readOnly,
-    minimap: { enabled: false },
+    minimap: { enabled: true },
     scrollBeyondLastLine: false,
     automaticLayout: true,
     padding: { top: 8 },
+    suggestOnTriggerCharacters: true,
+    quickSuggestions: true,
+    wordBasedSuggestions: 'all',
+    tabCompletion: 'on',
+    parameterHints: { enabled: true },
+    hover: { enabled: true },
   })
 
   subscription = editor.onDidChangeModelContent(() => {
