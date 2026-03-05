@@ -152,6 +152,39 @@ input, select {
   margin: 0 4px;
 }
 
+.toolbar-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  background-image: url('../assets/aurorapad-toolbar-icons.png');
+  background-repeat: no-repeat;
+  background-size: 400% 400%; /* 4x4 grid of icons */
+}
+
+/* Row 1 */
+.icon-new-file     { background-position: 0% 0%; }
+.icon-open-file    { background-position: 33.333% 0%; }
+.icon-save         { background-position: 66.666% 0%; }
+.icon-save-all     { background-position: 100% 0%; }
+
+/* Row 2 */
+.icon-cut          { background-position: 0% 33.333%; }
+.icon-copy         { background-position: 33.333% 33.333%; }
+.icon-paste        { background-position: 66.666% 33.333%; }
+.icon-find         { background-position: 100% 33.333%; }
+
+/* Row 3 */
+.icon-replace      { background-position: 0% 66.666%; }
+.icon-undo         { background-position: 33.333% 66.666%; }
+.icon-redo         { background-position: 66.666% 66.666%; }
+.icon-word-wrap    { background-position: 100% 66.666%; }
+
+/* Row 4 */
+.icon-go-to-line   { background-position: 0% 100%; }
+.icon-zoom-in      { background-position: 33.333% 100%; }
+.icon-zoom-out     { background-position: 66.666% 100%; }
+.icon-settings     { background-position: 100% 100%; }
+
 /* Tab bar - document tabs, active tab connects to content */
 .tabs-row {
   display: flex;

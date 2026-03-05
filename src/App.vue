@@ -132,7 +132,8 @@ const menuBarMenus = computed(() => [
       { label: 'Open Folder...', shortcut: 'Ctrl+Shift+O', action: 'menu:open-folder' },
       { type: 'separator' },
       { label: 'Save', shortcut: 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab },
-      { label: 'Save As...', shortcut: 'Ctrl+Shift+S', action: 'menu:save-as', enabled: !!tabsStore.activeTab },
+      { label: 'Save All', shortcut: 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab },
+      { label: 'Save As...', shortcut: 'F12', action: 'menu:save-as', enabled: !!tabsStore.activeTab },
       { type: 'separator' },
       { label: 'Close Tab', shortcut: 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
       { type: 'separator' },
@@ -150,6 +151,17 @@ const menuBarMenus = computed(() => [
       { label: 'Copy', shortcut: 'Ctrl+C', action: 'menu:copy' },
       { label: 'Paste', shortcut: 'Ctrl+V', action: 'menu:paste' },
       { type: 'separator' },
+      { label: 'Duplicate Line', shortcut: 'Ctrl+D', action: 'menu:duplicate-line' },
+      { label: 'Delete Line', shortcut: 'Ctrl+L', action: 'menu:delete-line' },
+      { label: 'Move Line Up', shortcut: 'Ctrl+Shift+Up', action: 'menu:move-line-up' },
+      { label: 'Move Line Down', shortcut: 'Ctrl+Shift+Down', action: 'menu:move-line-down' },
+      { label: 'Join Lines', shortcut: 'Ctrl+J', action: 'menu:join-lines' },
+      { type: 'separator' },
+      { label: 'Toggle Comment', shortcut: 'Ctrl+Q', action: 'menu:toggle-comment' },
+      { type: 'separator' },
+      { label: 'Lowercase', shortcut: 'Ctrl+U', action: 'menu:lowercase' },
+      { label: 'UPPERCASE', shortcut: 'Ctrl+Shift+U', action: 'menu:uppercase' },
+      { type: 'separator' },
       { label: 'Find', shortcut: 'Ctrl+F', action: 'menu:find' },
       { label: 'Replace', shortcut: 'Ctrl+H', action: 'menu:replace' },
       { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line' },
@@ -161,6 +173,8 @@ const menuBarMenus = computed(() => [
     items: [
       { label: 'Find', shortcut: 'Ctrl+F', action: 'menu:find' },
       { label: 'Replace', shortcut: 'Ctrl+H', action: 'menu:replace' },
+      { label: 'Find Next', shortcut: 'F3', action: 'menu:find-next' },
+      { label: 'Find Previous', shortcut: 'Shift+F3', action: 'menu:find-prev' },
       { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line' },
     ],
   },
@@ -270,6 +284,21 @@ onMounted(() => {
 
 function setupKeyboardShortcuts() {
   const keydown = (e) => {
+    // Line move shortcuts (Ctrl+Shift+Up/Down)
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault()
+      const action = e.key === 'ArrowUp' ? 'menu:move-line-up' : 'menu:move-line-down'
+      handleMenu(action)
+      return
+    }
+
+    // Find next / previous (F3 / Shift+F3)
+    if (e.key === 'F3') {
+      e.preventDefault()
+      handleMenu(e.shiftKey ? 'menu:find-prev' : 'menu:find-next')
+      return
+    }
+
     if (e.ctrlKey || e.metaKey) {
       switch (e.key?.toLowerCase()) {
         case 'n':
@@ -283,7 +312,8 @@ function setupKeyboardShortcuts() {
           break
         case 's':
           e.preventDefault()
-          menuSave()
+          if (e.shiftKey) menuSaveAll()
+          else menuSave()
           break
         case 'w':
           e.preventDefault()
@@ -308,6 +338,26 @@ function setupKeyboardShortcuts() {
         case 'v':
           e.preventDefault()
           handleMenu('menu:paste')
+          break
+        case 'd':
+          e.preventDefault()
+          handleMenu('menu:duplicate-line')
+          break
+        case 'l':
+          e.preventDefault()
+          handleMenu('menu:delete-line')
+          break
+        case 'j':
+          e.preventDefault()
+          handleMenu('menu:join-lines')
+          break
+        case 'u':
+          e.preventDefault()
+          handleMenu(e.shiftKey ? 'menu:uppercase' : 'menu:lowercase')
+          break
+        case 'q':
+          e.preventDefault()
+          handleMenu('menu:toggle-comment')
           break
         case 'f':
           e.preventDefault()
@@ -447,6 +497,9 @@ function handleMenu(channel, ...args) {
     case 'menu:save':
       menuSave()
       break
+    case 'menu:save-all':
+      menuSaveAll()
+      break
     case 'menu:save-as':
       menuSaveAs()
       break
@@ -480,6 +533,36 @@ function handleMenu(channel, ...args) {
       break
     case 'menu:go-to-line':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.gotoLine')
+      break
+    case 'menu:duplicate-line':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.copyLinesDownAction')
+      break
+    case 'menu:delete-line':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.deleteLines')
+      break
+    case 'menu:move-line-up':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.moveLinesUpAction')
+      break
+    case 'menu:move-line-down':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.moveLinesDownAction')
+      break
+    case 'menu:join-lines':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.joinLines')
+      break
+    case 'menu:lowercase':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.transformToLowercase')
+      break
+    case 'menu:uppercase':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.transformToUppercase')
+      break
+    case 'menu:toggle-comment':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.commentLine')
+      break
+    case 'menu:find-next':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.nextMatchFindAction')
+      break
+    case 'menu:find-prev':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.previousMatchFindAction')
       break
     case 'menu:word-wrap':
       settingsStore.setWordWrap(args[0])
@@ -580,6 +663,23 @@ async function menuSave() {
     return
   }
   tabsStore.setDirty(tab.id, false)
+}
+
+async function menuSaveAll() {
+  const dirtyTabs = tabsStore.tabs.filter(t => t.isDirty)
+  for (const tab of dirtyTabs) {
+    let path = tab.path
+    if (!path) {
+      path = await window.electronAPI?.saveFileDialog(null, tab.name)
+      if (!path) continue
+      tabsStore.updateTab(tab.id, { path, name: path.split(/[/\\]/).pop() })
+    }
+    const content = applyEol(tab.content, tab.eol || 'crlf')
+    const result = await window.electronAPI.writeFile(path, content, tab.encoding)
+    if (!result.error) {
+      tabsStore.setDirty(tab.id, false)
+    }
+  }
 }
 
 function applyEol(text, eol) {

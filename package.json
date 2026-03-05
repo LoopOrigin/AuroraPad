@@ -38,6 +38,7 @@
     "forceCodeSigning": false,
     "mac": {
       "category": "public.app-category.developer-tools",
+      "icon": "assets/aurorapad-app-icon.png",
       "target": [
         {
           "target": "dmg",
@@ -47,6 +48,7 @@
     },
     "win": {
       "target": ["nsis"],
+      "icon": "assets/aurorapad-app-icon.png",
       "signAndEditExecutable": false
     },
     "linux": {
@@ -55,7 +57,8 @@
           "target": "AppImage",
           "arch": ["x64", "arm64"]
         }
-      ]
+      ],
+      "icon": "assets/aurorapad-app-icon.png"
     }
   }
 }
