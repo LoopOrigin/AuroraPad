@@ -427,7 +427,7 @@ function setupFolderWatcher() {
 function setupMenuListeners() {
   if (!window.electronAPI?.onMenu) return
   const channels = [
-    'menu:new', 'menu:open-file', 'menu:open-folder', 'menu:save', 'menu:save-as',
+    'menu:new', 'menu:open-file', 'menu:open-folder', 'menu:save', 'menu:save-all', 'menu:save-as',
     'menu:close-tab', 'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
     'menu:find', 'menu:replace', 'menu:go-to-line', 'menu:word-wrap', 'menu:line-numbers',
     'menu:zoom-in', 'menu:zoom-out', 'menu:zoom-reset', 'menu:toggle-sidebar', 'menu:theme',
