@@ -31,14 +31,23 @@
       <Toolbar
         :can-save="!!(tabsStore.activeTab?.isDirty)"
         :has-editor="!!tabsStore.activeTab"
+        :can-save-all="tabsStore.hasDirty"
         @new="menuNew"
         @open="menuOpenFile"
         @save="menuSave"
+        @save-all="handleMenu('menu:save-all')"
         @cut="handleMenu('menu:cut')"
         @copy="handleMenu('menu:copy')"
         @paste="handleMenu('menu:paste')"
         @find="handleMenu('menu:find')"
         @replace="handleMenu('menu:replace')"
+        @undo="handleMenu('menu:undo')"
+        @redo="handleMenu('menu:redo')"
+        @toggle-word-wrap="settingsStore.setWordWrap(!settingsStore.wordWrap)"
+        @go-to-line="handleMenu('menu:go-to-line')"
+        @zoom-in="handleMenu('menu:zoom-in')"
+        @zoom-out="handleMenu('menu:zoom-out')"
+        @preferences="openPreferences"
       />
       <TabBar />
       <div class="editor-container">
@@ -87,6 +96,35 @@
         </div>
       </div>
     </div>
+    <div v-if="showPreferences" class="plugin-manager-overlay" @click.self="showPreferences = false">
+      <div class="plugin-manager">
+        <h2>Preferences</h2>
+        <div class="plugin-manager-list">
+          <div class="plugin-manager-item">
+            <span>Theme</span>
+            <select v-model="settingsStore.theme">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="plugin-manager-item">
+            <span>Word Wrap</span>
+            <input type="checkbox" :checked="settingsStore.wordWrap" @change="settingsStore.setWordWrap($event.target.checked)" />
+          </div>
+          <div class="plugin-manager-item">
+            <span>Line Numbers</span>
+            <input type="checkbox" :checked="settingsStore.lineNumbers" @change="settingsStore.setLineNumbers($event.target.checked)" />
+          </div>
+          <div class="plugin-manager-item">
+            <span>Editor Font Size</span>
+            <input type="number" min="8" max="32" :value="settingsStore.fontSize" @input="settingsStore.setFontSize(Number($event.target.value) || 14)" />
+          </div>
+        </div>
+        <div style="padding: 8px 16px; display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" @click="showPreferences = false">Close</button>
+        </div>
+      </div>
+    </div>
     <CommandPalette
       v-if="showCommandPalette"
       @close="closeCommandPalette"
@@ -119,6 +157,7 @@ const showCommandPalette = ref(false)
 const showPluginManager = ref(false)
 
 const monacoTheme = computed(() => (settingsStore.theme === 'dark' ? 'vs-dark' : 'vs'))
+const showPreferences = ref(false)
 
 // Notepad++ menu order: File, Edit, Search, View, Encoding, Language, Settings, Plugins, Window, Help
 const menuBarMenus = computed(() => [
@@ -126,13 +165,13 @@ const menuBarMenus = computed(() => [
     id: 'file',
     label: 'File',
     items: [
-      { label: 'New', shortcut: 'Ctrl+N', action: 'menu:new' },
+      { label: 'New', shortcut: 'Ctrl+N', action: 'menu:new', icon: 'toolbar-icon icon-new-file' },
       { type: 'separator' },
-      { label: 'Open...', shortcut: 'Ctrl+O', action: 'menu:open-file' },
+      { label: 'Open...', shortcut: 'Ctrl+O', action: 'menu:open-file', icon: 'toolbar-icon icon-open-file' },
       { label: 'Open Folder...', shortcut: 'Ctrl+Shift+O', action: 'menu:open-folder' },
       { type: 'separator' },
-      { label: 'Save', shortcut: 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab },
-      { label: 'Save All', shortcut: 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab },
+      { label: 'Save', shortcut: 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab, icon: 'toolbar-icon icon-save' },
+      { label: 'Save All', shortcut: 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab, icon: 'toolbar-icon icon-save-all' },
       { label: 'Save As...', shortcut: 'F12', action: 'menu:save-as', enabled: !!tabsStore.activeTab },
       { type: 'separator' },
       { label: 'Close Tab', shortcut: 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
@@ -144,12 +183,12 @@ const menuBarMenus = computed(() => [
     id: 'edit',
     label: 'Edit',
     items: [
-      { label: 'Undo', shortcut: 'Ctrl+Z', action: 'menu:undo' },
-      { label: 'Redo', shortcut: 'Ctrl+Y', action: 'menu:redo' },
+      { label: 'Undo', shortcut: 'Ctrl+Z', action: 'menu:undo', icon: 'toolbar-icon icon-undo' },
+      { label: 'Redo', shortcut: 'Ctrl+Y', action: 'menu:redo', icon: 'toolbar-icon icon-redo' },
       { type: 'separator' },
-      { label: 'Cut', shortcut: 'Ctrl+X', action: 'menu:cut' },
-      { label: 'Copy', shortcut: 'Ctrl+C', action: 'menu:copy' },
-      { label: 'Paste', shortcut: 'Ctrl+V', action: 'menu:paste' },
+      { label: 'Cut', shortcut: 'Ctrl+X', action: 'menu:cut', icon: 'toolbar-icon icon-cut' },
+      { label: 'Copy', shortcut: 'Ctrl+C', action: 'menu:copy', icon: 'toolbar-icon icon-copy' },
+      { label: 'Paste', shortcut: 'Ctrl+V', action: 'menu:paste', icon: 'toolbar-icon icon-paste' },
       { type: 'separator' },
       { label: 'Duplicate Line', shortcut: 'Ctrl+D', action: 'menu:duplicate-line' },
       { label: 'Delete Line', shortcut: 'Ctrl+L', action: 'menu:delete-line' },
@@ -162,9 +201,9 @@ const menuBarMenus = computed(() => [
       { label: 'Lowercase', shortcut: 'Ctrl+U', action: 'menu:lowercase' },
       { label: 'UPPERCASE', shortcut: 'Ctrl+Shift+U', action: 'menu:uppercase' },
       { type: 'separator' },
-      { label: 'Find', shortcut: 'Ctrl+F', action: 'menu:find' },
-      { label: 'Replace', shortcut: 'Ctrl+H', action: 'menu:replace' },
-      { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line' },
+      { label: 'Find', shortcut: 'Ctrl+F', action: 'menu:find', icon: 'toolbar-icon icon-find' },
+      { label: 'Replace', shortcut: 'Ctrl+H', action: 'menu:replace', icon: 'toolbar-icon icon-replace' },
+      { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line', icon: 'toolbar-icon icon-go-to-line' },
     ],
   },
   {
@@ -176,6 +215,8 @@ const menuBarMenus = computed(() => [
       { label: 'Find Next', shortcut: 'F3', action: 'menu:find-next' },
       { label: 'Find Previous', shortcut: 'Shift+F3', action: 'menu:find-prev' },
       { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line' },
+      { type: 'separator' },
+      { label: 'Command Palette', shortcut: 'Ctrl+P', action: 'menu:command-palette' },
     ],
   },
   {
@@ -235,7 +276,27 @@ const menuBarMenus = computed(() => [
     id: 'settings',
     label: 'Settings',
     items: [
-      { label: 'Preferences (coming soon)', enabled: false },
+      { label: 'Preferences...', action: 'menu:preferences' },
+    ],
+  },
+  {
+    id: 'macro',
+    label: 'Macro',
+    items: [
+      { label: 'Start Recording', enabled: false },
+      { label: 'Stop Recording', enabled: false },
+      { label: 'Playback', enabled: false },
+      { type: 'separator' },
+      { label: 'Save Current Recorded Macro', enabled: false },
+      { label: 'Run a Macro Multiple Times', enabled: false },
+    ],
+  },
+  {
+    id: 'run',
+    label: 'Run',
+    items: [
+      { label: 'Run...', enabled: false },
+      { label: 'Run Last Command', enabled: false },
     ],
   },
   {
@@ -267,8 +328,6 @@ const menuBarMenus = computed(() => [
     id: 'help',
     label: 'Help',
     items: [
-      { label: 'Command Palette', shortcut: 'Ctrl+P', action: 'menu:command-palette' },
-      { type: 'separator' },
       { label: 'About', action: 'menu:about' },
     ],
   },
@@ -284,6 +343,18 @@ onMounted(() => {
 
 function setupKeyboardShortcuts() {
   const keydown = (e) => {
+    const target = e.target
+    if (
+      target &&
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable ||
+        target.closest?.('.monaco-editor'))
+    ) {
+      // Let focused text inputs/editors handle typing and shortcuts
+      return
+    }
+
     // Save As via F12 (matches menu hint)
     if (e.key === 'F12') {
       e.preventDefault()
@@ -471,6 +542,10 @@ function onMenuBarAction(action, item) {
     settingsStore.setTheme(next)
     return
   }
+  if (action === 'menu:preferences') {
+    showPreferences.value = true
+    return
+  }
   if (action === 'menu:exit') {
     if (window.electronAPI?.quit) window.electronAPI.quit()
     return
@@ -598,6 +673,9 @@ function handleMenu(channel, ...args) {
     case 'menu:plugin-manager':
       showPluginManager.value = true
       break
+    case 'menu:preferences':
+      showPreferences.value = true
+      break
     default:
       break
   }
@@ -661,7 +739,11 @@ async function menuSave() {
   if (!path) {
     path = await window.electronAPI?.saveFileDialog(null, tab.name)
     if (!path) return
-    tabsStore.updateTab(tab.id, { path, name: path.split(/[/\\]/).pop() })
+    tabsStore.updateTab(tab.id, {
+      path,
+      name: path.split(/[/\\]/).pop(),
+      language: tabsStore.inferLanguage?.(path, tab.content),
+    })
   }
   const content = applyEol(tab.content, tab.eol || 'crlf')
   const result = await window.electronAPI.writeFile(path, content, tab.encoding)
@@ -679,7 +761,11 @@ async function menuSaveAll() {
     if (!path) {
       path = await window.electronAPI?.saveFileDialog(null, tab.name)
       if (!path) continue
-      tabsStore.updateTab(tab.id, { path, name: path.split(/[/\\]/).pop() })
+      tabsStore.updateTab(tab.id, {
+        path,
+        name: path.split(/[/\\]/).pop(),
+        language: tabsStore.inferLanguage?.(path, tab.content),
+      })
     }
     const content = applyEol(tab.content, tab.eol || 'crlf')
     const result = await window.electronAPI.writeFile(path, content, tab.encoding)
@@ -707,7 +793,12 @@ async function menuSaveAs() {
     alert('Save failed: ' + result.error)
     return
   }
-  tabsStore.updateTab(tab.id, { path, name: path.split(/[/\\]/).pop(), isDirty: false })
+  tabsStore.updateTab(tab.id, {
+    path,
+    name: path.split(/[/\\]/).pop(),
+    language: tabsStore.inferLanguage?.(path, tab.content),
+    isDirty: false,
+  })
 }
 
 function clearRecent() {
@@ -720,5 +811,9 @@ function closeCommandPalette() {
 
 async function openPluginsFolder() {
   await window.electronAPI?.openPluginsFolder?.()
+}
+
+function openPreferences() {
+  showPreferences.value = true
 }
 </script>

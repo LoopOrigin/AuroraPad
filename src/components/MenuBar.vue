@@ -42,8 +42,20 @@
             :disabled="item.enabled === false"
             @click="runItem(item)"
           >
-            <span>{{ item.label }}</span>
-            <span v-if="item.shortcut" class="menu-dropdown-shortcut">{{ item.shortcut }}</span>
+            <span class="menu-dropdown-left">
+              <span
+                v-if="item.icon"
+                class="menu-dropdown-icon"
+                :class="item.icon"
+              />
+              <span class="menu-dropdown-label">{{ item.label }}</span>
+            </span>
+            <span
+              v-if="item.shortcut"
+              class="menu-dropdown-shortcut"
+            >
+              {{ item.shortcut }}
+            </span>
           </button>
         </template>
       </div>
@@ -193,13 +205,29 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 4px 24px 4px 12px;
+  padding: 4px 24px 4px 8px;
   text-align: left;
   cursor: pointer;
   color: var(--npp-text);
   background: transparent;
   border: none;
   font: inherit;
+}
+
+.menu-dropdown-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-dropdown-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.menu-dropdown-label {
+  flex: 1;
 }
 
 .menu-dropdown-item:hover:not(.disabled) {

@@ -5,7 +5,10 @@ import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 export default defineConfig({
   plugins: [
     vue(),
-    monacoEditorPlugin({ languageWorkers: ['editorWorkerService', 'json', 'typescript'] }),
+    // Enable the full set of standard Monaco workers for maximum language support
+    monacoEditorPlugin({
+      languageWorkers: ['editorWorkerService', 'typescript', 'json', 'html', 'css'],
+    }),
   ],
   base: './',
   build: {

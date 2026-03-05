@@ -15,7 +15,8 @@ function languageFromPath(path) {
   const ext = path.split('.').pop()?.toLowerCase()
   const map = {
     js: 'javascript', ts: 'typescript', jsx: 'javascript', tsx: 'typescript',
-    vue: 'vue', html: 'html', htm: 'html', css: 'css', scss: 'scss', less: 'less',
+    // Treat .vue files as HTML so Monaco uses its built-in HTML language support
+    vue: 'html', html: 'html', htm: 'html', css: 'css', scss: 'scss', less: 'less',
     json: 'json', md: 'markdown', py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
     java: 'java', kt: 'kotlin', c: 'c', cpp: 'cpp', h: 'c', hpp: 'cpp',
     cs: 'csharp', csx: 'csharp',
@@ -67,7 +68,8 @@ export const useTabsStore = defineStore('tabs', () => {
       path,
       name,
       content: options.content ?? '',
-      language: options.language ?? languageFromPath(path),
+      // Prefer caller-provided language, then our smarter inference helper
+      language: options.language ?? inferLanguage(path, options.content),
       isDirty: options.isDirty ?? (options.content !== undefined),
       encoding: options.encoding ?? 'utf8',
       eol: options.eol ?? 'crlf', // 'crlf' | 'lf' | 'cr'

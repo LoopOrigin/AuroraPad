@@ -8,6 +8,12 @@ const iconv = require('iconv-lite')
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 
+// Ensure the app consistently identifies as AuroraPad across platforms
+app.setName('AuroraPad')
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.aurorapad.app')
+}
+
 let mainWindow = null
 let watchers = new Map()
 
@@ -27,7 +33,8 @@ function createWindow() {
     height: 800,
     minWidth: 600,
     minHeight: 400,
-    icon: path.join(__dirname, '../../assets/aurorapad-window-icon.png'),
+    // Use the branded AuroraPad app icon for the window/taskbar/dock
+    icon: path.join(__dirname, '../../assets', process.platform === 'win32' ? 'aurorapad-app-icon.ico' : 'aurorapad-app-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -272,7 +279,8 @@ app.whenReady().then(() => {
 function buildMinimalMenu() {
   const template = [
     {
-      label: app.name || 'Notepad Clone',
+      // Make sure the native app menu shows the AuroraPad name
+      label: app.name || 'AuroraPad',
       submenu: [
         { role: 'about' },
         { type: 'separator' },
