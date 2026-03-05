@@ -284,6 +284,13 @@ onMounted(() => {
 
 function setupKeyboardShortcuts() {
   const keydown = (e) => {
+    // Save As via F12 (matches menu hint)
+    if (e.key === 'F12') {
+      e.preventDefault()
+      menuSaveAs()
+      return
+    }
+
     // Line move shortcuts (Ctrl+Shift+Up/Down)
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault()

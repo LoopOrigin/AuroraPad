@@ -48,7 +48,7 @@
     },
     "win": {
       "target": ["nsis"],
-      "icon": "assets/aurorapad-app-icon.png",
+      "icon": "assets/aurorapad-app-icon.ico",
       "signAndEditExecutable": false
     },
     "linux": {

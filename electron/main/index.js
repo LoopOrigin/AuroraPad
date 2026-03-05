@@ -27,7 +27,7 @@ function createWindow() {
     height: 800,
     minWidth: 600,
     minHeight: 400,
-    icon: path.join(__dirname, '../../assets/aurorapad-icon.png'),
+    icon: path.join(__dirname, '../../assets/aurorapad-window-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -71,7 +71,8 @@ function buildMenu(pluginMenuItems = []) {
         { label: 'Open Folder...', accelerator: 'CmdOrCtrl+Shift+O', click: () => mainWindow?.webContents.send('menu:open-folder') },
         { type: 'separator' },
         { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow?.webContents.send('menu:save') },
-        { label: 'Save As...', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-as') },
+        { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-all') },
+        { label: 'Save As...', accelerator: 'F12', click: () => mainWindow?.webContents.send('menu:save-as') },
         { type: 'separator' },
         { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
         { type: 'separator' },
