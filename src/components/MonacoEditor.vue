@@ -191,6 +191,7 @@ const props = defineProps({
   lineNumbers: { type: [Boolean, String], default: true },
   fontSize: { type: Number, default: 14 },
   readOnly: { type: Boolean, default: false },
+  bookmarks: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['update:modelValue', 'cursor-change', 'focus', 'blur'])
@@ -198,6 +199,7 @@ const emit = defineEmits(['update:modelValue', 'cursor-change', 'focus', 'blur']
 const containerRef = ref(null)
 let editor = null
 let subscription = null
+let bookmarkDecorationIds = []
 
 onMounted(() => {
   configureMonaco()
@@ -210,7 +212,7 @@ onMounted(() => {
     lineNumbers: props.lineNumbers === true ? 'on' : (props.lineNumbers === false ? 'off' : props.lineNumbers),
     fontSize: props.fontSize,
     readOnly: props.readOnly,
-    // Disable minimap by default to reduce GPU/CPU usage on large files
+    glyphMargin: true,
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
     automaticLayout: true,
@@ -233,6 +235,8 @@ onMounted(() => {
 
   editor.onDidFocusEditorText(() => emit('focus'))
   editor.onDidBlurEditorText(() => emit('blur'))
+
+  if ((props.bookmarks || []).length) applyBookmarkDecorations()
 })
 
 onBeforeUnmount(() => {
@@ -274,6 +278,22 @@ watch(() => props.readOnly, (val) => {
   if (editor) editor.updateOptions({ readOnly: val })
 })
 
+function applyBookmarkDecorations() {
+  if (!editor) return
+  const model = editor.getModel()
+  if (!model) return
+  const lines = props.bookmarks || []
+  bookmarkDecorationIds = editor.deltaDecorations(
+    bookmarkDecorationIds,
+    lines.map(line => ({
+      range: { startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1 },
+      options: { glyphMarginClassName: 'bookmark-gutter', glyphMarginHoverMessage: { value: 'Bookmark' } },
+    }))
+  )
+}
+
+watch(() => props.bookmarks, () => applyBookmarkDecorations(), { deep: true })
+
 defineExpose({
   getEditor: () => editor,
   getValue: () => editor?.getValue() ?? '',
@@ -281,6 +301,7 @@ defineExpose({
   focus: () => editor?.focus(),
   getPosition: () => editor?.getPosition(),
   setPosition: (pos) => editor?.setPosition(pos),
+  getCurrentLine: () => editor?.getPosition()?.lineNumber ?? 1,
   trigger: (source, handlerId, payload) => editor?.trigger(source, handlerId, payload),
   getModel: () => editor?.getModel(),
   setModel: (model) => editor?.setModel(model),

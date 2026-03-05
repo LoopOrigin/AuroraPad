@@ -166,6 +166,15 @@ input, select {
   font-size: 15px;
 }
 
+/* Bookmark glyph in Monaco gutter */
+.bookmark-gutter {
+  background: var(--npp-accent);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 2px;
+}
+
 /* Make toolbar/menu icons clearly visible in dark theme */
 [data-theme='dark'] .toolbar-icon {
   filter: invert(1) brightness(1.2);

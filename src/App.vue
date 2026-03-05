@@ -64,6 +64,7 @@
               :word-wrap="settingsStore.wordWrap"
               :line-numbers="settingsStore.lineNumbers"
               :font-size="settingsStore.fontSize"
+              :bookmarks="tabsStore.activeTab.bookmarks || []"
               @update:model-value="onEditorContentChange"
               @cursor-change="onCursorChange"
             />
@@ -136,10 +137,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useTabsStore } from './stores/tabs'
 import { useSettingsStore } from './stores/settings'
 import { usePluginsStore } from './stores/plugins'
+import { useFileTreeStore } from './stores/fileTree'
 import { createPluginApi } from './plugins/pluginApi'
 import TabBar from './components/TabBar.vue'
 import MonacoEditor from './components/MonacoEditor.vue'
@@ -152,6 +154,7 @@ import MenuBar from './components/MenuBar.vue'
 const tabsStore = useTabsStore()
 const settingsStore = useSettingsStore()
 const pluginsStore = usePluginsStore()
+const fileTreeStore = useFileTreeStore()
 const monacoEditorRef = ref(null)
 const showCommandPalette = ref(false)
 const showPluginManager = ref(false)
@@ -204,6 +207,11 @@ const menuBarMenus = computed(() => [
       { label: 'Find', shortcut: 'Ctrl+F', action: 'menu:find', icon: 'fa-solid fa-magnifying-glass' },
       { label: 'Replace', shortcut: 'Ctrl+H', action: 'menu:replace', icon: 'fa-solid fa-magnifying-glass-arrow-right' },
       { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line', icon: 'fa-solid fa-arrow-down-1-9' },
+      { type: 'separator' },
+      { label: 'Toggle Bookmark', shortcut: 'Ctrl+F2', action: 'menu:toggle-bookmark' },
+      { label: 'Next Bookmark', shortcut: 'F2', action: 'menu:next-bookmark' },
+      { label: 'Previous Bookmark', shortcut: 'Shift+F2', action: 'menu:prev-bookmark' },
+      { label: 'Clear All Bookmarks', action: 'menu:clear-bookmarks' },
     ],
   },
   {
@@ -339,6 +347,8 @@ onMounted(() => {
   setupFolderWatcher()
   setupPlugins()
   setupKeyboardShortcuts()
+  restoreSession()
+  setupSessionPersistence()
 })
 
 function setupKeyboardShortcuts() {
@@ -374,6 +384,18 @@ function setupKeyboardShortcuts() {
     if (e.key === 'F3') {
       e.preventDefault()
       handleMenu(e.shiftKey ? 'menu:find-prev' : 'menu:find-next')
+      return
+    }
+
+    // Bookmark shortcuts (F2, Shift+F2, Ctrl+F2) - handle even when focus in editor
+    if (e.key === 'F2') {
+      e.preventDefault()
+      handleMenu(e.ctrlKey ? 'menu:toggle-bookmark' : (e.shiftKey ? 'menu:prev-bookmark' : 'menu:next-bookmark'))
+      return
+    }
+    if (e.ctrlKey && e.key === 'F2') {
+      e.preventDefault()
+      handleMenu('menu:toggle-bookmark')
       return
     }
 
@@ -487,12 +509,101 @@ async function setupPlugins() {
 function setupFolderWatcher() {
   if (!window.electronAPI?.onFolderChanged) return
   window.electronAPI.onFolderChanged(async ({ root }) => {
-    const { useFileTreeStore } = await import('./stores/fileTree')
-    const fileTreeStore = useFileTreeStore()
     if (fileTreeStore.openFolderPath === root) {
       fileTreeStore.loadTree(root)
     }
   })
+}
+
+const SESSION_MAX_TABS = 30
+let sessionSaveTimeout = null
+
+async function restoreSession() {
+  if (!window.electronAPI?.getSession) return
+  const session = await window.electronAPI.getSession()
+  if (!session?.tabs?.length) return
+
+  if (session.openFolderPath) {
+    fileTreeStore.setOpenFolder(session.openFolderPath)
+    await window.electronAPI.watchFolder(session.openFolderPath).catch(() => {})
+  }
+
+  const tabs = session.tabs.slice(0, SESSION_MAX_TABS)
+  let activeId = null
+
+  for (let i = 0; i < tabs.length; i++) {
+    const t = tabs[i]
+    const opts = {
+      encoding: t.encoding || 'utf8',
+      eol: t.eol || 'crlf',
+      language: t.language || 'plaintext',
+      cursorPosition: t.cursorPosition || { line: 1, column: 1 },
+      bookmarks: t.bookmarks || [],
+      isDirty: false,
+    }
+    if (t.path) {
+      const result = await window.electronAPI.readFile(t.path, opts.encoding)
+      if (result.error) continue
+      opts.path = t.path
+      opts.content = result.content
+      opts.encoding = result.encoding || opts.encoding
+    } else {
+      opts.content = t.content ?? ''
+      opts.name = t.name || 'Untitled'
+      opts.isDirty = !!t.content
+    }
+    const id = tabsStore.addTab(opts)
+    if (i === (session.activeIndex ?? 0)) activeId = id
+  }
+
+  if (activeId) tabsStore.setActive(activeId)
+
+  const activeTab = tabsStore.activeTab
+  if (activeTab?.cursorPosition) {
+    setTimeout(() => {
+      const ed = monacoEditorRef.value?.getEditor()
+      if (ed && activeTab.cursorPosition) {
+        ed.setPosition({
+          lineNumber: activeTab.cursorPosition.line,
+          column: activeTab.cursorPosition.column,
+        })
+      }
+    }, 150)
+  }
+}
+
+function saveSession() {
+  if (!window.electronAPI?.setSession) return
+  const tabs = tabsStore.tabs.slice(0, SESSION_MAX_TABS).map(t => ({
+    path: t.path,
+    name: t.name,
+    content: t.path ? undefined : t.content,
+    cursorPosition: t.cursorPosition || { line: 1, column: 1 },
+    bookmarks: t.bookmarks || [],
+    encoding: t.encoding || 'utf8',
+    eol: t.eol || 'crlf',
+    language: t.language || 'plaintext',
+  }))
+  const activeIndex = Math.max(0, tabsStore.tabs.findIndex(t => t.id === tabsStore.activeTabId))
+  window.electronAPI.setSession({
+    tabs,
+    activeIndex,
+    openFolderPath: fileTreeStore.openFolderPath || null,
+  })
+}
+
+function setupSessionPersistence() {
+  if (!window.electronAPI?.setSession) return
+
+  function scheduleSave() {
+    if (sessionSaveTimeout) clearTimeout(sessionSaveTimeout)
+    sessionSaveTimeout = setTimeout(saveSession, 500)
+  }
+
+  watch(() => [tabsStore.tabs.length, tabsStore.activeTabId], scheduleSave)
+  watch(() => fileTreeStore.openFolderPath, scheduleSave)
+  watch(() => tabsStore.tabs.map(t => ({ id: t.id, path: t.path, cursorPosition: t.cursorPosition })), scheduleSave, { deep: true })
+  window.addEventListener('beforeunload', () => saveSession())
 }
 
 function setupMenuListeners() {
@@ -616,6 +727,41 @@ function handleMenu(channel, ...args) {
     case 'menu:go-to-line':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.gotoLine')
       break
+    case 'menu:toggle-bookmark': {
+      const id = tabsStore.activeTabId
+      if (id && monacoEditorRef.value) {
+        const line = monacoEditorRef.value.getCurrentLine()
+        if (line != null) tabsStore.toggleBookmark(id, line)
+      }
+      break
+    }
+    case 'menu:next-bookmark': {
+      const id = tabsStore.activeTabId
+      if (!id) break
+      const bm = tabsStore.getBookmarks(id)
+      const line = monacoEditorRef.value?.getCurrentLine() ?? 1
+      const next = bm.find(l => l > line) ?? bm[0]
+      if (next != null) {
+        monacoEditorRef.value?.setPosition({ lineNumber: next, column: 1 })
+        monacoEditorRef.value?.getEditor()?.revealLine(next)
+      }
+      break
+    }
+    case 'menu:prev-bookmark': {
+      const id = tabsStore.activeTabId
+      if (!id) break
+      const bm = tabsStore.getBookmarks(id)
+      const line = monacoEditorRef.value?.getCurrentLine() ?? 1
+      const prev = [...bm].reverse().find(l => l < line) ?? bm[bm.length - 1]
+      if (prev != null) {
+        monacoEditorRef.value?.setPosition({ lineNumber: prev, column: 1 })
+        monacoEditorRef.value?.getEditor()?.revealLine(prev)
+      }
+      break
+    }
+    case 'menu:clear-bookmarks':
+      if (tabsStore.activeTabId) tabsStore.clearBookmarks(tabsStore.activeTabId)
+      break
     case 'menu:duplicate-line':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.copyLinesDownAction')
       break
@@ -709,7 +855,6 @@ async function menuOpenFolder() {
   if (!window.electronAPI) return
   const path = await window.electronAPI.openFolderDialog()
   if (path) {
-    const fileTreeStore = (await import('./stores/fileTree')).useFileTreeStore()
     fileTreeStore.setOpenFolder(path)
     await window.electronAPI.watchFolder(path)
   }

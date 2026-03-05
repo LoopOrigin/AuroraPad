@@ -74,6 +74,7 @@ export const useTabsStore = defineStore('tabs', () => {
       encoding: options.encoding ?? 'utf8',
       eol: options.eol ?? 'crlf', // 'crlf' | 'lf' | 'cr'
       cursorPosition: options.cursorPosition ?? { line: 1, column: 1 },
+      bookmarks: options.bookmarks ?? [],
       modelRef: null,
     }
     const existing = tabs.value.find(t => t.path && t.path === path)
@@ -125,6 +126,30 @@ export const useTabsStore = defineStore('tabs', () => {
     return tabs.value.find(t => t.id === id)
   }
 
+  function getBookmarks(id) {
+    const tab = tabs.value.find(t => t.id === id)
+    return tab ? (tab.bookmarks || []) : []
+  }
+
+  function setBookmarks(id, lines) {
+    const tab = tabs.value.find(t => t.id === id)
+    if (tab) tab.bookmarks = [...lines]
+  }
+
+  function toggleBookmark(id, line) {
+    const tab = tabs.value.find(t => t.id === id)
+    if (!tab) return
+    const set = new Set(tab.bookmarks || [])
+    if (set.has(line)) set.delete(line)
+    else set.add(line)
+    tab.bookmarks = [...set].sort((a, b) => a - b)
+  }
+
+  function clearBookmarks(id) {
+    const tab = tabs.value.find(t => t.id === id)
+    if (tab) tab.bookmarks = []
+  }
+
   return {
     tabs,
     activeTabId,
@@ -137,6 +162,10 @@ export const useTabsStore = defineStore('tabs', () => {
     setContent,
     setDirty,
     getTab,
+    getBookmarks,
+    setBookmarks,
+    toggleBookmark,
+    clearBookmarks,
     encodings,
     languageFromPath,
     inferLanguage,

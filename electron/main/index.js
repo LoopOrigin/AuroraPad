@@ -198,6 +198,17 @@ ipcMain.handle('dialog:openFolder', async () => {
 ipcMain.handle('store:getRecentFiles', () => getRecentFiles())
 ipcMain.handle('store:clearRecentFiles', () => store.set('recentFiles', []))
 
+function getSession() {
+  return store.get('session', null)
+}
+
+function setSession(data) {
+  store.set('session', data)
+}
+
+ipcMain.handle('store:getSession', () => getSession())
+ipcMain.handle('store:setSession', (_, data) => setSession(data))
+
 ipcMain.handle('fs:readDir', async (_, dirPath) => {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true })

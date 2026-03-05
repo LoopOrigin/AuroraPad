@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Store
   getRecentFiles: () => ipcRenderer.invoke('store:getRecentFiles'),
   clearRecentFiles: () => ipcRenderer.invoke('store:clearRecentFiles'),
+  getSession: () => ipcRenderer.invoke('store:getSession'),
+  setSession: (data) => ipcRenderer.invoke('store:setSession', data),
 
   // Menu events (renderer listens)
   onMenu: (channel, fn) => {
