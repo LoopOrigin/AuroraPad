@@ -325,9 +325,13 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
     let args = []
     if (process.platform === 'win32') {
       if (shellType === 'powershell') {
-        file = process.env.COMSPEC || 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+        // Prefer modern PowerShell if available, otherwise fall back to Windows PowerShell
+        file = process.env.POWERSHELL_EXE || 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+        args = ['-NoLogo']
       } else if (shellType === 'bash') {
+        // Common Git Bash location; adjust if user has a custom install
         file = 'C:\\Program Files\\Git\\bin\\bash.exe'
+        args = ['--login', '-i']
       } else if (shellType === 'wsl') {
         file = 'wsl.exe'
       } else {

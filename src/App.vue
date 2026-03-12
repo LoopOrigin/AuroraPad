@@ -468,7 +468,10 @@ const menuBarMenus = computed(() => [
     label: 'Terminal',
     items: [
       { label: 'Toggle Terminal Panel', action: 'menu:toggle-terminal' },
-      { label: 'New Terminal', action: 'menu:terminal-new' },
+      { label: 'New Default Terminal', action: 'menu:terminal-new-default' },
+      { label: 'New PowerShell Terminal', action: 'menu:terminal-new-powershell' },
+      { label: 'New Git Bash Terminal', action: 'menu:terminal-new-gitbash' },
+      { label: 'New WSL Terminal', action: 'menu:terminal-new-wsl' },
       { label: 'Next Terminal', action: 'menu:terminal-next' },
       { label: 'Previous Terminal', action: 'menu:terminal-prev' },
     ],
@@ -814,7 +817,9 @@ function setupMenuListeners() {
     'menu:save-copy-as', 'menu:rename', 'menu:reload-from-disk',
     'menu:open-containing-folder:explorer', 'menu:open-containing-folder:cmd', 'menu:open-containing-folder:faw',
     'menu:open-in-default-viewer', 'menu:open-all-recent', 'menu:restore-recent', 'menu:clear-recent',
-    'menu:toggle-terminal', 'menu:terminal-new', 'menu:terminal-next', 'menu:terminal-prev',
+    'menu:toggle-terminal',
+    'menu:terminal-new-default', 'menu:terminal-new-powershell', 'menu:terminal-new-gitbash', 'menu:terminal-new-wsl',
+    'menu:terminal-next', 'menu:terminal-prev',
   ]
   channels.forEach(channel => {
     window.electronAPI.onMenu(channel, (...args) => handleMenu(channel, ...args))
@@ -871,9 +876,24 @@ function onMenuBarAction(action, item) {
     showTerminal.value = !showTerminal.value
     return
   }
-  if (action === 'menu:terminal-new') {
+  if (action === 'menu:terminal-new-default') {
     if (!showTerminal.value) showTerminal.value = true
-    terminalDockRef.value?.newSession?.()
+    terminalDockRef.value?.newSession?.('default')
+    return
+  }
+  if (action === 'menu:terminal-new-powershell') {
+    if (!showTerminal.value) showTerminal.value = true
+    terminalDockRef.value?.newSession?.('powershell')
+    return
+  }
+  if (action === 'menu:terminal-new-gitbash') {
+    if (!showTerminal.value) showTerminal.value = true
+    terminalDockRef.value?.newSession?.('bash')
+    return
+  }
+  if (action === 'menu:terminal-new-wsl') {
+    if (!showTerminal.value) showTerminal.value = true
+    terminalDockRef.value?.newSession?.('wsl')
     return
   }
   if (action === 'menu:terminal-next') {
