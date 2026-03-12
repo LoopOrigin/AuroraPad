@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
 const path = require('path')
 const fs = require('fs').promises
+const fsSync = require('fs')
 const Store = require('electron-store')
 const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
@@ -32,13 +33,22 @@ function addRecentFile(filePath) {
 }
 
 function createWindow() {
+  const assetsDir = path.join(__dirname, '../../assets')
+  const iconName = process.platform === 'win32' ? 'aurorapad-app-icon.ico' : 'aurorapad-app-icon.png'
+  const candidateIcon = path.join(assetsDir, iconName)
+  const fallbackPng = path.join(__dirname, '../../src/assets/aurorapad-app-icon.png')
+  const appIcon =
+    (fsSync.existsSync(candidateIcon) && candidateIcon) ||
+    (fsSync.existsSync(fallbackPng) && fallbackPng) ||
+    undefined
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 600,
     minHeight: 400,
     // Use the branded AuroraPad app icon for the window/taskbar/dock
-    icon: path.join(__dirname, '../../assets', process.platform === 'win32' ? 'aurorapad-app-icon.ico' : 'aurorapad-app-icon.png'),
+    icon: appIcon,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
