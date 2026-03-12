@@ -191,6 +191,10 @@ const props = defineProps({
   lineNumbers: { type: [Boolean, String], default: true },
   fontSize: { type: Number, default: 14 },
   readOnly: { type: Boolean, default: false },
+  bookmarks: { type: Array, default: () => [] },
+  renderWhitespace: { type: String, default: 'none' }, // 'none' | 'all' | 'boundary' | 'selection'
+  highlightCurrentLine: { type: Boolean, default: true },
+  showMinimap: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue', 'cursor-change', 'focus', 'blur'])
@@ -198,6 +202,7 @@ const emit = defineEmits(['update:modelValue', 'cursor-change', 'focus', 'blur']
 const containerRef = ref(null)
 let editor = null
 let subscription = null
+let bookmarkDecorationIds = []
 
 onMounted(() => {
   configureMonaco()
@@ -210,8 +215,8 @@ onMounted(() => {
     lineNumbers: props.lineNumbers === true ? 'on' : (props.lineNumbers === false ? 'off' : props.lineNumbers),
     fontSize: props.fontSize,
     readOnly: props.readOnly,
-    // Disable minimap by default to reduce GPU/CPU usage on large files
-    minimap: { enabled: false },
+    glyphMargin: true,
+    minimap: { enabled: props.showMinimap },
     scrollBeyondLastLine: false,
     automaticLayout: true,
     padding: { top: 8 },
@@ -221,6 +226,8 @@ onMounted(() => {
     tabCompletion: 'on',
     parameterHints: { enabled: true },
     hover: { enabled: true },
+    renderWhitespace: props.renderWhitespace,
+    renderLineHighlight: props.highlightCurrentLine ? 'line' : 'none',
   })
 
   subscription = editor.onDidChangeModelContent(() => {
@@ -233,6 +240,8 @@ onMounted(() => {
 
   editor.onDidFocusEditorText(() => emit('focus'))
   editor.onDidBlurEditorText(() => emit('blur'))
+
+  if ((props.bookmarks || []).length) applyBookmarkDecorations()
 })
 
 onBeforeUnmount(() => {
@@ -262,6 +271,14 @@ watch(() => props.wordWrap, (val) => {
   if (editor) editor.updateOptions({ wordWrap: val ? 'on' : 'off' })
 })
 
+watch(() => props.renderWhitespace, (val) => {
+  if (editor) editor.updateOptions({ renderWhitespace: val })
+})
+
+watch(() => props.highlightCurrentLine, (val) => {
+  if (editor) editor.updateOptions({ renderLineHighlight: val ? 'line' : 'none' })
+})
+
 watch(() => props.lineNumbers, (val) => {
   if (editor) editor.updateOptions({ lineNumbers: val === true ? 'on' : (val === false ? 'off' : val) })
 })
@@ -270,9 +287,29 @@ watch(() => props.fontSize, (val) => {
   if (editor) editor.updateOptions({ fontSize: val })
 })
 
+watch(() => props.showMinimap, (val) => {
+  if (editor) editor.updateOptions({ minimap: { enabled: val } })
+})
+
 watch(() => props.readOnly, (val) => {
   if (editor) editor.updateOptions({ readOnly: val })
 })
+
+function applyBookmarkDecorations() {
+  if (!editor) return
+  const model = editor.getModel()
+  if (!model) return
+  const lines = props.bookmarks || []
+  bookmarkDecorationIds = editor.deltaDecorations(
+    bookmarkDecorationIds,
+    lines.map(line => ({
+      range: { startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1 },
+      options: { glyphMarginClassName: 'bookmark-gutter', glyphMarginHoverMessage: { value: 'Bookmark' } },
+    }))
+  )
+}
+
+watch(() => props.bookmarks, () => applyBookmarkDecorations(), { deep: true })
 
 defineExpose({
   getEditor: () => editor,
@@ -281,6 +318,7 @@ defineExpose({
   focus: () => editor?.focus(),
   getPosition: () => editor?.getPosition(),
   setPosition: (pos) => editor?.setPosition(pos),
+  getCurrentLine: () => editor?.getPosition()?.lineNumber ?? 1,
   trigger: (source, handlerId, payload) => editor?.trigger(source, handlerId, payload),
   getModel: () => editor?.getModel(),
   setModel: (model) => editor?.setModel(model),

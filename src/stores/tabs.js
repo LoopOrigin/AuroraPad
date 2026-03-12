@@ -14,15 +14,54 @@ function languageFromPath(path) {
   if (!path) return 'plaintext'
   const ext = path.split('.').pop()?.toLowerCase()
   const map = {
-    js: 'javascript', ts: 'typescript', jsx: 'javascript', tsx: 'typescript',
-    // Treat .vue files as HTML so Monaco uses its built-in HTML language support
-    vue: 'html', html: 'html', htm: 'html', css: 'css', scss: 'scss', less: 'less',
-    json: 'json', md: 'markdown', py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
-    java: 'java', kt: 'kotlin', c: 'c', cpp: 'cpp', h: 'c', hpp: 'cpp',
+    // JavaScript / TypeScript & variants
+    js: 'javascript', mjs: 'javascript', cjs: 'javascript',
+    ts: 'typescript', jsx: 'javascript', tsx: 'typescript',
+
+    // Web frameworks & templates
+    // Treat as HTML so Monaco still provides good editing support
+    vue: 'html', svelte: 'html', astro: 'html',
+
+    // Web assets
+    html: 'html', htm: 'html',
+    css: 'css', scss: 'scss', less: 'less',
+
+    // Data / config formats
+    json: 'json', jsonc: 'json',
+    md: 'markdown', markdown: 'markdown',
+    yml: 'yaml', yaml: 'yaml',
+    xml: 'xml',
+    ini: 'ini',
+    toml: 'toml',
+
+    // Popular languages
+    py: 'python',
+    rb: 'ruby', rbw: 'ruby', rake: 'ruby',
+    go: 'go',
+    rs: 'rust',
+    java: 'java', kt: 'kotlin',
+    c: 'c', h: 'c',
+    cpp: 'cpp', cxx: 'cpp', cc: 'cpp', hpp: 'cpp', hxx: 'cpp',
     cs: 'csharp', csx: 'csharp',
-    php: 'php', rbw: 'ruby',
-    sql: 'sql', sh: 'shell', bash: 'shell', ps1: 'powershell',
-    yaml: 'yaml', yml: 'yaml', xml: 'xml',
+    php: 'php',
+    ex: 'elixir', exs: 'elixir',
+    hs: 'haskell',
+    scala: 'scala',
+    swift: 'swift',
+    dart: 'dart',
+    lua: 'lua',
+    clj: 'clojure',
+
+    // Scripts / shells
+    sql: 'sql',
+    sh: 'shell', bash: 'shell', zsh: 'shell', ksh: 'shell',
+    ps1: 'powershell', psm1: 'powershell',
+
+    // Markup / views
+    razor: 'razor', cshtml: 'razor',
+
+    // Infrastructure / DevOps
+    dockerfile: 'dockerfile',
   }
   return map[ext] || 'plaintext'
 }
@@ -74,6 +113,7 @@ export const useTabsStore = defineStore('tabs', () => {
       encoding: options.encoding ?? 'utf8',
       eol: options.eol ?? 'crlf', // 'crlf' | 'lf' | 'cr'
       cursorPosition: options.cursorPosition ?? { line: 1, column: 1 },
+      bookmarks: options.bookmarks ?? [],
       modelRef: null,
     }
     const existing = tabs.value.find(t => t.path && t.path === path)
@@ -125,6 +165,49 @@ export const useTabsStore = defineStore('tabs', () => {
     return tabs.value.find(t => t.id === id)
   }
 
+  function getBookmarks(id) {
+    const tab = tabs.value.find(t => t.id === id)
+    return tab ? (tab.bookmarks || []) : []
+  }
+
+  function setBookmarks(id, lines) {
+    const tab = tabs.value.find(t => t.id === id)
+    if (tab) tab.bookmarks = [...lines]
+  }
+
+  function toggleBookmark(id, line) {
+    const tab = tabs.value.find(t => t.id === id)
+    if (!tab) return
+    const set = new Set(tab.bookmarks || [])
+    if (set.has(line)) set.delete(line)
+    else set.add(line)
+    tab.bookmarks = [...set].sort((a, b) => a - b)
+  }
+
+  function clearBookmarks(id) {
+    const tab = tabs.value.find(t => t.id === id)
+    if (tab) tab.bookmarks = []
+  }
+
+  function closeAll() {
+    tabs.value = []
+    activeTabId.value = null
+  }
+
+  function closeOthers(id) {
+    if (!id) return
+    const keep = tabs.value.find(t => t.id === id)
+    if (!keep) return
+    tabs.value = [keep]
+    activeTabId.value = keep.id
+  }
+
+  function closeAllUnchanged() {
+    const dirtyTabs = tabs.value.filter(t => t.isDirty)
+    tabs.value = dirtyTabs
+    activeTabId.value = dirtyTabs.length ? dirtyTabs[0].id : null
+  }
+
   return {
     tabs,
     activeTabId,
@@ -137,6 +220,13 @@ export const useTabsStore = defineStore('tabs', () => {
     setContent,
     setDirty,
     getTab,
+    getBookmarks,
+    setBookmarks,
+    toggleBookmark,
+    clearBookmarks,
+    closeAll,
+    closeOthers,
+    closeAllUnchanged,
     encodings,
     languageFromPath,
     inferLanguage,

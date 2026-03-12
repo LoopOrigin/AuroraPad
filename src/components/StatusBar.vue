@@ -21,14 +21,28 @@
         <option v-for="enc in encodings" :key="enc" :value="enc">{{ enc }}</option>
       </select>
     </span>
+    <span
+      class="status-bar-segment status-theme"
+      title="Click to cycle theme"
+      @click="cycleTheme"
+    >
+      Theme: {{ themeLabel }}
+    </span>
+    <span class="status-bar-segment status-font">
+      <button type="button" class="status-btn" title="Decrease font size" @click="decreaseFont">−</button>
+      <span>Font {{ fontSize }}</span>
+      <button type="button" class="status-btn" title="Increase font size" @click="increaseFont">+</button>
+    </span>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useTabsStore } from '../stores/tabs'
+import { useSettingsStore } from '../stores/settings'
 
 const tabsStore = useTabsStore()
+const settingsStore = useSettingsStore()
 const emit = defineEmits(['go-to-line'])
 
 const encodings = ['utf8', 'utf16le', 'utf16be', 'latin1', 'windows-1252']
@@ -62,11 +76,37 @@ const currentEol = computed({
 const cursorLine = computed(() => tabsStore.activeTab?.cursorPosition?.line ?? 1)
 const cursorCol = computed(() => tabsStore.activeTab?.cursorPosition?.column ?? 1)
 
+const themeLabel = computed(() => {
+  const t = settingsStore.theme
+  if (t === 'dark') return 'Dark'
+  if (t === 'monokai') return 'Monokai'
+  if (t === 'solarized-dark') return 'Solarized'
+  return 'Light'
+})
+
+const fontSize = computed(() => settingsStore.fontSize)
+
 function onEncodingChange() {}
 function onEolChange() {}
 
 function goToLine() {
   emit('go-to-line')
+}
+
+function cycleTheme() {
+  const order = ['light', 'dark', 'monokai', 'solarized-dark']
+  const current = settingsStore.theme
+  const idx = order.indexOf(current)
+  const next = order[(idx + 1 + order.length) % order.length]
+  settingsStore.setTheme(next)
+}
+
+function increaseFont() {
+  settingsStore.setFontSize(settingsStore.fontSize + 1)
+}
+
+function decreaseFont() {
+  settingsStore.setFontSize(settingsStore.fontSize - 1)
 }
 </script>
 

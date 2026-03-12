@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Store
   getRecentFiles: () => ipcRenderer.invoke('store:getRecentFiles'),
   clearRecentFiles: () => ipcRenderer.invoke('store:clearRecentFiles'),
+  getSession: () => ipcRenderer.invoke('store:getSession'),
+  setSession: (data) => ipcRenderer.invoke('store:setSession', data),
+  renameFile: (oldPath, newPath) => ipcRenderer.invoke('fs:renameFile', oldPath, newPath),
+  openInDefaultViewer: (filePath) => ipcRenderer.invoke('shell:openInDefaultViewer', filePath),
 
   // Menu events (renderer listens)
   onMenu: (channel, fn) => {
@@ -39,4 +43,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readUserPlugin: (filename) => ipcRenderer.invoke('plugin:readUserPlugin', filename),
   openPluginsFolder: () => ipcRenderer.invoke('plugin:openPluginsFolder'),
   quit: () => ipcRenderer.send('app:quit'),
+
+  // Search
+  findInFiles: (options) => ipcRenderer.invoke('search:findInFiles', options),
+  replaceInFiles: (options) => ipcRenderer.invoke('search:replaceInFiles', options),
+
+  // Tools / Run
+  getHash: (algorithm, text) => ipcRenderer.invoke('tools:getHash', algorithm, text),
+  runCommand: (command, cwd) => ipcRenderer.invoke('run:command', command, cwd),
+
+  // PTY Terminal
+  createTerminal: (options) => ipcRenderer.invoke('terminal:create', options),
+  writeTerminal: (payload) => ipcRenderer.invoke('terminal:write', payload),
+  resizeTerminal: (payload) => ipcRenderer.invoke('terminal:resize', payload),
+  disposeTerminal: (payload) => ipcRenderer.invoke('terminal:dispose', payload),
+  onTerminalData: (fn) => {
+    ipcRenderer.on('terminal:data', (_, payload) => fn(payload))
+  },
+  onTerminalExit: (fn) => {
+    ipcRenderer.on('terminal:exit', (_, payload) => fn(payload))
+  },
 })

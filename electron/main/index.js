@@ -1,9 +1,12 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
 const path = require('path')
 const fs = require('fs').promises
+const fsSync = require('fs')
 const Store = require('electron-store')
 const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
+const jschardet = require('jschardet')
+const pty = require('node-pty')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
@@ -16,6 +19,8 @@ if (process.platform === 'win32') {
 
 let mainWindow = null
 let watchers = new Map()
+let terminals = new Map()
+let nextTerminalId = 1
 
 function getRecentFiles() {
   return store.get('recentFiles', [])
@@ -28,13 +33,22 @@ function addRecentFile(filePath) {
 }
 
 function createWindow() {
+  const assetsDir = path.join(__dirname, '../../assets')
+  const iconName = process.platform === 'win32' ? 'aurorapad-app-icon.ico' : 'aurorapad-app-icon.png'
+  const candidateIcon = path.join(assetsDir, iconName)
+  const fallbackPng = path.join(__dirname, '../../src/assets/aurorapad-app-icon.png')
+  const appIcon =
+    (fsSync.existsSync(candidateIcon) && candidateIcon) ||
+    (fsSync.existsSync(fallbackPng) && fallbackPng) ||
+    undefined
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 600,
     minHeight: 400,
     // Use the branded AuroraPad app icon for the window/taskbar/dock
-    icon: path.join(__dirname, '../../assets', process.platform === 'win32' ? 'aurorapad-app-icon.ico' : 'aurorapad-app-icon.png'),
+    icon: appIcon,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -80,8 +94,33 @@ function buildMenu(pluginMenuItems = []) {
         { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow?.webContents.send('menu:save') },
         { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-all') },
         { label: 'Save As...', accelerator: 'F12', click: () => mainWindow?.webContents.send('menu:save-as') },
+        { label: 'Save a Copy As...', click: () => mainWindow?.webContents.send('menu:save-copy-as') },
+        { label: 'Rename...', click: () => mainWindow?.webContents.send('menu:rename') },
         { type: 'separator' },
         { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
+        { label: 'Close All', click: () => mainWindow?.webContents.send('menu:close-all') },
+        { label: 'Close All But Active', click: () => mainWindow?.webContents.send('menu:close-others') },
+        { type: 'separator' },
+        {
+          label: 'Recent Files',
+          submenu: [
+            ...(getRecentFiles().map(p => ({
+              label: p,
+              click: () => mainWindow?.webContents.send('menu:open-recent', p),
+            })) || []),
+            { type: 'separator' },
+            { label: 'Open All Recent Files', click: () => mainWindow?.webContents.send('menu:open-all-recent') },
+            { label: 'Restore Recently Closed File', click: () => mainWindow?.webContents.send('menu:restore-recent') },
+            { label: 'Empty Recent Files List', click: () => mainWindow?.webContents.send('menu:clear-recent') },
+          ],
+        },
+        { type: 'separator' },
+        { label: 'Open Containing Folder in Explorer', click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer') },
+        { label: 'Open Containing Folder in Command Prompt', click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd') },
+        { label: 'Open Containing Folder as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
+        { label: 'Open in Default Viewer', click: () => mainWindow?.webContents.send('menu:open-in-default-viewer') },
+        { type: 'separator' },
+        { label: 'Reload from Disk', click: () => mainWindow?.webContents.send('menu:reload-from-disk') },
         { type: 'separator' },
         { label: 'Exit', accelerator: 'Alt+F4', role: 'quit' },
       ],
@@ -120,11 +159,17 @@ function buildMenu(pluginMenuItems = []) {
       submenu: pluginsSubmenu,
     },
     {
+      label: 'Settings',
+      submenu: [
+        { label: 'Preferences...', accelerator: 'CmdOrCtrl+,', click: () => mainWindow?.webContents.send('menu:preferences') },
+      ],
+    },
+    {
       label: 'Help',
       submenu: [
         { label: 'Command Palette', accelerator: 'CmdOrCtrl+P', click: () => mainWindow?.webContents.send('menu:command-palette') },
         { type: 'separator' },
-        { label: 'About', role: 'about' },
+        { label: 'About AuroraPad', click: () => mainWindow?.webContents.send('menu:about') },
       ],
     },
   ]
@@ -152,9 +197,32 @@ ipcMain.handle('fs:readFile', async (_, filePath, encoding = 'utf8') => {
     if (isBinary) {
       return { error: 'Binary file', binary: true }
     }
-    const content = encoding === 'utf8' ? buffer.toString('utf8') : iconv.decode(buffer, encoding)
+
+    let detectedEncoding = encoding || 'utf8'
+    try {
+      const detection = jschardet.detect(buffer)
+      if (detection && detection.encoding && detection.confidence >= 0.6) {
+        detectedEncoding = detection.encoding.toLowerCase()
+      }
+    } catch {
+      // Best-effort detection; fall back to requested/default encoding
+    }
+
+    let content
+    if (detectedEncoding === 'utf-8' || detectedEncoding === 'utf8') {
+      content = buffer.toString('utf8')
+      detectedEncoding = 'utf8'
+    } else {
+      try {
+        content = iconv.decode(buffer, detectedEncoding)
+      } catch {
+        content = buffer.toString('utf8')
+        detectedEncoding = 'utf8'
+      }
+    }
+
     addRecentFile(filePath)
-    return { content, encoding }
+    return { content, encoding: detectedEncoding }
   } catch (e) {
     return { error: e.message }
   }
@@ -198,6 +266,144 @@ ipcMain.handle('dialog:openFolder', async () => {
 ipcMain.handle('store:getRecentFiles', () => getRecentFiles())
 ipcMain.handle('store:clearRecentFiles', () => store.set('recentFiles', []))
 
+ipcMain.handle('fs:renameFile', async (_, oldPath, newPath) => {
+  try {
+    await fs.rename(oldPath, newPath)
+    addRecentFile(newPath)
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('shell:openInDefaultViewer', async (_, filePath) => {
+  if (!filePath) return { error: 'No file path provided' }
+  try {
+    const res = await shell.openPath(filePath)
+    if (res) return { error: res }
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+function getSession() {
+  return store.get('session', null)
+}
+
+function setSession(data) {
+  store.set('session', data)
+}
+
+ipcMain.handle('store:getSession', () => getSession())
+ipcMain.handle('store:setSession', (_, data) => setSession(data))
+
+ipcMain.handle('tools:getHash', async (_, algorithm, text) => {
+  try {
+    const crypto = require('crypto')
+    const hash = crypto.createHash(algorithm || 'md5')
+    hash.update(text || '', 'utf8')
+    return { ok: true, value: hash.digest('hex') }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('run:command', async (_, command, cwd) => {
+  try {
+    const { exec } = require('child_process')
+    return await new Promise((resolve) => {
+      const child = exec(command, { cwd: cwd || process.cwd(), windowsHide: true }, (error, stdout, stderr) => {
+        if (error) {
+          resolve({ error: error.message, stdout, stderr })
+        } else {
+          resolve({ ok: true, stdout, stderr })
+        }
+      })
+    })
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('terminal:create', async (_, options = {}) => {
+  try {
+    const shellType = options.shell || 'default'
+    const cwd = options.cwd || process.cwd()
+
+    let file
+    let args = []
+    if (process.platform === 'win32') {
+      if (shellType === 'powershell') {
+        // Prefer modern PowerShell if available, otherwise fall back to Windows PowerShell
+        file = process.env.POWERSHELL_EXE || 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+        args = ['-NoLogo']
+      } else if (shellType === 'bash') {
+        // Common Git Bash location; adjust if user has a custom install
+        file = 'C:\\Program Files\\Git\\bin\\bash.exe'
+        args = ['--login', '-i']
+      } else if (shellType === 'wsl') {
+        file = 'wsl.exe'
+      } else {
+        file = process.env.COMSPEC || 'C:\\Windows\\System32\\cmd.exe'
+      }
+    } else {
+      file = process.env.SHELL || '/bin/bash'
+    }
+
+    const cols = options.cols || 80
+    const rows = options.rows || 24
+
+    const term = pty.spawn(file, args, {
+      name: 'xterm-color',
+      cols,
+      rows,
+      cwd,
+      env: process.env,
+    })
+
+    const id = `term-${nextTerminalId++}`
+    terminals.set(id, term)
+
+    term.onData(data => {
+      mainWindow?.webContents.send('terminal:data', { id, data })
+    })
+
+    term.onExit(() => {
+      terminals.delete(id)
+      mainWindow?.webContents.send('terminal:exit', { id })
+    })
+
+    return { ok: true, id }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('terminal:write', async (_, { id, data }) => {
+  const term = terminals.get(id)
+  if (!term) return { error: 'Terminal not found' }
+  term.write(data)
+  return { ok: true }
+})
+
+ipcMain.handle('terminal:resize', async (_, { id, cols, rows }) => {
+  const term = terminals.get(id)
+  if (!term) return { error: 'Terminal not found' }
+  term.resize(cols, rows)
+  return { ok: true }
+})
+
+ipcMain.handle('terminal:dispose', async (_, { id }) => {
+  const term = terminals.get(id)
+  if (!term) return { ok: true }
+  try {
+    term.kill()
+  } catch {}
+  terminals.delete(id)
+  return { ok: true }
+})
+
 ipcMain.handle('fs:readDir', async (_, dirPath) => {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true })
@@ -237,6 +443,188 @@ ipcMain.handle('fs:unwatchFolder', async (_, folderPath) => {
   }
 })
 
+ipcMain.handle('search:findInFiles', async (_, options) => {
+  const root = options?.root
+  const needle = options?.pattern ?? ''
+  const mask = options?.mask ?? '*.*'
+  const useRegex = !!options?.useRegex
+  const matchCase = !!options?.matchCase
+
+  if (!root || !needle) return []
+
+  const maxFiles = 5000
+  const maxBytesPerFile = 512 * 1024
+
+  function buildMaskRegex(maskStr) {
+    const parts = (maskStr || '*.*').split(';').map(s => s.trim()).filter(Boolean)
+    const escaped = parts.map(p => p
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.'))
+    const source = escaped.length ? `^(${escaped.join('|')})$` : '.*'
+    return new RegExp(source, 'i')
+  }
+
+  const maskRe = buildMaskRegex(mask)
+  const patternRe = useRegex
+    ? new RegExp(needle, matchCase ? 'g' : 'gi')
+    : new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), matchCase ? 'g' : 'gi')
+
+  const results = []
+  let filesScanned = 0
+
+  async function walk(dir) {
+    if (filesScanned >= maxFiles) return
+    let entries
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue
+      const lower = entry.name.toLowerCase()
+      if (entry.isDirectory()) {
+        if (['node_modules', '.git', '.svn', 'dist', 'release'].includes(lower)) continue
+        await walk(path.join(dir, entry.name))
+      } else {
+        if (!maskRe.test(entry.name)) continue
+        if (filesScanned >= maxFiles) break
+        filesScanned++
+        const fullPath = path.join(dir, entry.name)
+        let content
+        try {
+          const stat = await fs.stat(fullPath)
+          if (stat.size > maxBytesPerFile) continue
+          content = await fs.readFile(fullPath, 'utf8')
+        } catch {
+          continue
+        }
+        const lines = content.split(/\r\n|\r|\n/)
+        for (let i = 0; i < lines.length; i++) {
+          const lineText = lines[i]
+          patternRe.lastIndex = 0
+          const m = patternRe.exec(lineText)
+          if (m) {
+            results.push({
+              path: fullPath,
+              line: i + 1,
+              column: m.index + 1,
+              preview: lineText.trim(),
+            })
+          }
+        }
+      }
+    }
+  }
+
+  await walk(root)
+  return results
+})
+
+ipcMain.handle('search:replaceInFiles', async (_, options) => {
+  const root = options?.root
+  const needle = options?.pattern ?? ''
+  const replacement = options?.replaceWith ?? ''
+  const mask = options?.mask ?? '*.*'
+  const useRegex = !!options?.useRegex
+  const matchCase = !!options?.matchCase
+
+  if (!root || !needle) return { files: [], totalReplacements: 0 }
+
+  const maxFiles = 5000
+  const maxBytesPerFile = 512 * 1024
+
+  function buildMaskRegex(maskStr) {
+    const parts = (maskStr || '*.*').split(';').map(s => s.trim()).filter(Boolean)
+    const escaped = parts.map(p => p
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.'))
+    const source = escaped.length ? `^(${escaped.join('|')})$` : '.*'
+    return new RegExp(source, 'i')
+  }
+
+  const maskRe = buildMaskRegex(mask)
+
+  const results = []
+  let filesScanned = 0
+  let totalReplacements = 0
+
+  async function walk(dir) {
+    if (filesScanned >= maxFiles) return
+    let entries
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue
+      const lower = entry.name.toLowerCase()
+      if (entry.isDirectory()) {
+        if (['node_modules', '.git', '.svn', 'dist', 'release'].includes(lower)) continue
+        await walk(path.join(dir, entry.name))
+      } else {
+        if (!maskRe.test(entry.name)) continue
+        if (filesScanned >= maxFiles) break
+        filesScanned++
+        const fullPath = path.join(dir, entry.name)
+        let content
+        try {
+          const stat = await fs.stat(fullPath)
+          if (stat.size > maxBytesPerFile) continue
+          content = await fs.readFile(fullPath, 'utf8')
+        } catch {
+          continue
+        }
+
+        let fileReplacements = 0
+        let newContent
+
+        if (useRegex) {
+          const flags = matchCase ? 'g' : 'gi'
+          let re
+          try {
+            re = new RegExp(needle, flags)
+          } catch {
+            continue
+          }
+          newContent = content.replace(re, () => {
+            fileReplacements++
+            return replacement
+          })
+        } else {
+          if (!needle) continue
+          const escapedNeedle = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          const flags = matchCase ? 'g' : 'gi'
+          const re = new RegExp(escapedNeedle, flags)
+          newContent = content.replace(re, () => {
+            fileReplacements++
+            return replacement
+          })
+        }
+
+        if (fileReplacements > 0 && newContent !== content) {
+          try {
+            await fs.writeFile(fullPath, newContent, 'utf8')
+            totalReplacements += fileReplacements
+            results.push({
+              path: fullPath,
+              replacements: fileReplacements,
+            })
+          } catch {
+            // ignore write failures for now
+          }
+        }
+      }
+    }
+  }
+
+  await walk(root)
+  return { files: results, totalReplacements }
+})
+
 const pluginsDir = () => path.join(app.getPath('userData'), 'plugins')
 
 ipcMain.handle('plugin:getPluginsPath', async () => pluginsDir())
@@ -268,6 +656,16 @@ ipcMain.handle('plugin:openPluginsFolder', async () => {
 app.whenReady().then(() => {
   buildMinimalMenu()
   createWindow()
+
+  // Ensure the dock icon on macOS uses the AuroraPad branding
+  if (process.platform === 'darwin') {
+    const iconPath = path.join(__dirname, '../../assets', 'aurorapad-app-icon.png')
+    try {
+      app.dock.setIcon(iconPath)
+    } catch {
+      // If the icon file is missing or invalid, fall back silently
+    }
+  }
 
   ipcMain.on('app:quit', () => app.quit())
 
