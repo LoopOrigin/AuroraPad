@@ -41,4 +41,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readUserPlugin: (filename) => ipcRenderer.invoke('plugin:readUserPlugin', filename),
   openPluginsFolder: () => ipcRenderer.invoke('plugin:openPluginsFolder'),
   quit: () => ipcRenderer.send('app:quit'),
+
+  // Search
+  findInFiles: (options) => ipcRenderer.invoke('search:findInFiles', options),
+  replaceInFiles: (options) => ipcRenderer.invoke('search:replaceInFiles', options),
 })

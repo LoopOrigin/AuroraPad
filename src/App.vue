@@ -191,6 +191,12 @@
       @open-file-dialog="menuOpenFile"
       @new="menuNew"
     />
+    <FindInFiles
+      :visible="showFindInFiles"
+      :default-root="fileTreeStore.openFolderPath || ''"
+      @close="showFindInFiles = false"
+      @open-result="openFindInFilesResult"
+    />
   </div>
 </template>
 
@@ -208,6 +214,7 @@ import CommandPalette from './components/CommandPalette.vue'
 import StatusBar from './components/StatusBar.vue'
 import Toolbar from './components/Toolbar.vue'
 import MenuBar from './components/MenuBar.vue'
+import FindInFiles from './components/FindInFiles.vue'
 
 const tabsStore = useTabsStore()
 const settingsStore = useSettingsStore()
@@ -216,6 +223,7 @@ const fileTreeStore = useFileTreeStore()
 const monacoEditorRef = ref(null)
 const showCommandPalette = ref(false)
 const showPluginManager = ref(false)
+const showFindInFiles = ref(false)
 
 const monacoTheme = computed(() => {
   switch (settingsStore.theme) {
@@ -247,6 +255,8 @@ const menuBarMenus = computed(() => [
       { label: 'Save As...', shortcut: 'F12', action: 'menu:save-as', enabled: !!tabsStore.activeTab },
       { type: 'separator' },
       { label: 'Close Tab', shortcut: 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
+      { label: 'Close All', action: 'menu:close-all', enabled: tabsStore.tabs.length > 0 },
+      { label: 'Close All But Active', action: 'menu:close-others', enabled: tabsStore.tabs.length > 1 },
       { type: 'separator' },
       { label: 'Exit', shortcut: 'Alt+F4', action: 'menu:exit' },
     ],
@@ -281,6 +291,11 @@ const menuBarMenus = computed(() => [
       { label: 'Next Bookmark', shortcut: 'F2', action: 'menu:next-bookmark' },
       { label: 'Previous Bookmark', shortcut: 'Shift+F2', action: 'menu:prev-bookmark' },
       { label: 'Clear All Bookmarks', action: 'menu:clear-bookmarks' },
+      { type: 'separator' },
+      { label: 'EOL Conversion', enabled: false },
+      { label: 'Windows (CRLF)', action: 'menu:eol-crlf' },
+      { label: 'Unix (LF)', action: 'menu:eol-lf' },
+      { label: 'Old Mac (CR)', action: 'menu:eol-cr' },
     ],
   },
   {
@@ -292,6 +307,8 @@ const menuBarMenus = computed(() => [
       { label: 'Find Next', shortcut: 'F3', action: 'menu:find-next' },
       { label: 'Find Previous', shortcut: 'Shift+F3', action: 'menu:find-prev' },
       { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line' },
+      { type: 'separator' },
+      { label: 'Find in Files…', shortcut: 'Ctrl+Shift+F', action: 'menu:find-in-files' },
       { type: 'separator' },
       { label: 'Command Palette', shortcut: 'Ctrl+P', action: 'menu:command-palette' },
     ],
@@ -530,7 +547,8 @@ function setupKeyboardShortcuts() {
           break
         case 'f':
           e.preventDefault()
-          handleMenu('menu:find')
+          if (e.shiftKey) handleMenu('menu:find-in-files')
+          else handleMenu('menu:find')
           break
         case 'h':
           e.preventDefault()
@@ -682,7 +700,7 @@ function setupMenuListeners() {
     'menu:close-tab', 'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
     'menu:find', 'menu:replace', 'menu:go-to-line', 'menu:word-wrap', 'menu:line-numbers',
     'menu:zoom-in', 'menu:zoom-out', 'menu:zoom-reset', 'menu:toggle-sidebar', 'menu:theme',
-    'menu:command-palette', 'menu:plugin-manager', 'menu:preferences', 'menu:about',
+    'menu:command-palette', 'menu:plugin-manager', 'menu:preferences', 'menu:about', 'menu:find-in-files',
   ]
   channels.forEach(channel => {
     window.electronAPI.onMenu(channel, (...args) => handleMenu(channel, ...args))
@@ -745,6 +763,19 @@ function menuCloseTab() {
   }
 }
 
+function menuCloseAll() {
+  if (!tabsStore.tabs.length) return
+  if (tabsStore.hasDirty && !confirm('There are unsaved changes. Close all tabs anyway?')) return
+  tabsStore.closeAll()
+}
+
+function menuCloseOthers() {
+  const id = tabsStore.activeTabId
+  if (!id) return
+  if (tabsStore.hasDirty && !confirm('There are unsaved changes in other tabs. Close them anyway?')) return
+  tabsStore.closeOthers(id)
+}
+
 function handleMenu(channel, ...args) {
   switch (channel) {
     case 'menu:new':
@@ -772,6 +803,12 @@ function handleMenu(channel, ...args) {
         tabsStore.closeTab(id)
       }
       break
+    case 'menu:close-all':
+      menuCloseAll()
+      break
+    case 'menu:close-others':
+      menuCloseOthers()
+      break
     case 'menu:undo':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'undo')
       break
@@ -792,6 +829,9 @@ function handleMenu(channel, ...args) {
       break
     case 'menu:replace':
       setTimeout(() => monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.startFindReplaceAction'), 100)
+      break
+    case 'menu:find-in-files':
+      showFindInFiles.value = true
       break
     case 'menu:go-to-line':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.gotoLine')
@@ -854,6 +894,15 @@ function handleMenu(channel, ...args) {
       break
     case 'menu:toggle-comment':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.commentLine')
+      break
+    case 'menu:eol-crlf':
+      convertEol('crlf')
+      break
+    case 'menu:eol-lf':
+      convertEol('lf')
+      break
+    case 'menu:eol-cr':
+      convertEol('cr')
       break
     case 'menu:find-next':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.nextMatchFindAction')
@@ -994,6 +1043,25 @@ function applyEol(text, eol) {
   if (eol === 'crlf') return normalized.replace(/\n/g, '\r\n')
   if (eol === 'cr') return normalized.replace(/\n/g, '\r')
   return normalized
+}
+
+function convertEol(eol) {
+  const tab = tabsStore.activeTab
+  if (!tab) return
+  const converted = applyEol(tab.content, eol)
+  tabsStore.updateTab(tab.id, { content: converted, eol })
+  tabsStore.setDirty(tab.id, true)
+}
+
+async function openFindInFilesResult(result) {
+  if (!result?.path) return
+  await openFileByPath(result.path)
+  const ed = monacoEditorRef.value?.getEditor()
+  if (ed && result.line) {
+    ed.setPosition({ lineNumber: result.line, column: result.column || 1 })
+    ed.revealLineInCenter(result.line)
+  }
+  showFindInFiles.value = false
 }
 
 async function menuSaveAs() {

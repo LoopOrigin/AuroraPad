@@ -254,6 +254,188 @@ ipcMain.handle('fs:unwatchFolder', async (_, folderPath) => {
   }
 })
 
+ipcMain.handle('search:findInFiles', async (_, options) => {
+  const root = options?.root
+  const needle = options?.pattern ?? ''
+  const mask = options?.mask ?? '*.*'
+  const useRegex = !!options?.useRegex
+  const matchCase = !!options?.matchCase
+
+  if (!root || !needle) return []
+
+  const maxFiles = 5000
+  const maxBytesPerFile = 512 * 1024
+
+  function buildMaskRegex(maskStr) {
+    const parts = (maskStr || '*.*').split(';').map(s => s.trim()).filter(Boolean)
+    const escaped = parts.map(p => p
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.'))
+    const source = escaped.length ? `^(${escaped.join('|')})$` : '.*'
+    return new RegExp(source, 'i')
+  }
+
+  const maskRe = buildMaskRegex(mask)
+  const patternRe = useRegex
+    ? new RegExp(needle, matchCase ? 'g' : 'gi')
+    : new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), matchCase ? 'g' : 'gi')
+
+  const results = []
+  let filesScanned = 0
+
+  async function walk(dir) {
+    if (filesScanned >= maxFiles) return
+    let entries
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue
+      const lower = entry.name.toLowerCase()
+      if (entry.isDirectory()) {
+        if (['node_modules', '.git', '.svn', 'dist', 'release'].includes(lower)) continue
+        await walk(path.join(dir, entry.name))
+      } else {
+        if (!maskRe.test(entry.name)) continue
+        if (filesScanned >= maxFiles) break
+        filesScanned++
+        const fullPath = path.join(dir, entry.name)
+        let content
+        try {
+          const stat = await fs.stat(fullPath)
+          if (stat.size > maxBytesPerFile) continue
+          content = await fs.readFile(fullPath, 'utf8')
+        } catch {
+          continue
+        }
+        const lines = content.split(/\r\n|\r|\n/)
+        for (let i = 0; i < lines.length; i++) {
+          const lineText = lines[i]
+          patternRe.lastIndex = 0
+          const m = patternRe.exec(lineText)
+          if (m) {
+            results.push({
+              path: fullPath,
+              line: i + 1,
+              column: m.index + 1,
+              preview: lineText.trim(),
+            })
+          }
+        }
+      }
+    }
+  }
+
+  await walk(root)
+  return results
+})
+
+ipcMain.handle('search:replaceInFiles', async (_, options) => {
+  const root = options?.root
+  const needle = options?.pattern ?? ''
+  const replacement = options?.replaceWith ?? ''
+  const mask = options?.mask ?? '*.*'
+  const useRegex = !!options?.useRegex
+  const matchCase = !!options?.matchCase
+
+  if (!root || !needle) return { files: [], totalReplacements: 0 }
+
+  const maxFiles = 5000
+  const maxBytesPerFile = 512 * 1024
+
+  function buildMaskRegex(maskStr) {
+    const parts = (maskStr || '*.*').split(';').map(s => s.trim()).filter(Boolean)
+    const escaped = parts.map(p => p
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.'))
+    const source = escaped.length ? `^(${escaped.join('|')})$` : '.*'
+    return new RegExp(source, 'i')
+  }
+
+  const maskRe = buildMaskRegex(mask)
+
+  const results = []
+  let filesScanned = 0
+  let totalReplacements = 0
+
+  async function walk(dir) {
+    if (filesScanned >= maxFiles) return
+    let entries
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue
+      const lower = entry.name.toLowerCase()
+      if (entry.isDirectory()) {
+        if (['node_modules', '.git', '.svn', 'dist', 'release'].includes(lower)) continue
+        await walk(path.join(dir, entry.name))
+      } else {
+        if (!maskRe.test(entry.name)) continue
+        if (filesScanned >= maxFiles) break
+        filesScanned++
+        const fullPath = path.join(dir, entry.name)
+        let content
+        try {
+          const stat = await fs.stat(fullPath)
+          if (stat.size > maxBytesPerFile) continue
+          content = await fs.readFile(fullPath, 'utf8')
+        } catch {
+          continue
+        }
+
+        let fileReplacements = 0
+        let newContent
+
+        if (useRegex) {
+          const flags = matchCase ? 'g' : 'gi'
+          let re
+          try {
+            re = new RegExp(needle, flags)
+          } catch {
+            continue
+          }
+          newContent = content.replace(re, () => {
+            fileReplacements++
+            return replacement
+          })
+        } else {
+          if (!needle) continue
+          const escapedNeedle = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          const flags = matchCase ? 'g' : 'gi'
+          const re = new RegExp(escapedNeedle, flags)
+          newContent = content.replace(re, () => {
+            fileReplacements++
+            return replacement
+          })
+        }
+
+        if (fileReplacements > 0 && newContent !== content) {
+          try {
+            await fs.writeFile(fullPath, newContent, 'utf8')
+            totalReplacements += fileReplacements
+            results.push({
+              path: fullPath,
+              replacements: fileReplacements,
+            })
+          } catch {
+            // ignore write failures for now
+          }
+        }
+      }
+    }
+  }
+
+  await walk(root)
+  return { files: results, totalReplacements }
+})
+
 const pluginsDir = () => path.join(app.getPath('userData'), 'plugins')
 
 ipcMain.handle('plugin:getPluginsPath', async () => pluginsDir())
@@ -285,6 +467,16 @@ ipcMain.handle('plugin:openPluginsFolder', async () => {
 app.whenReady().then(() => {
   buildMinimalMenu()
   createWindow()
+
+  // Ensure the dock icon on macOS uses the AuroraPad branding
+  if (process.platform === 'darwin') {
+    const iconPath = path.join(__dirname, '../../assets', 'aurorapad-app-icon.png')
+    try {
+      app.dock.setIcon(iconPath)
+    } catch {
+      // If the icon file is missing or invalid, fall back silently
+    }
+  }
 
   ipcMain.on('app:quit', () => app.quit())
 

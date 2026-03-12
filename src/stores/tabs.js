@@ -150,6 +150,19 @@ export const useTabsStore = defineStore('tabs', () => {
     if (tab) tab.bookmarks = []
   }
 
+  function closeAll() {
+    tabs.value = []
+    activeTabId.value = null
+  }
+
+  function closeOthers(id) {
+    if (!id) return
+    const keep = tabs.value.find(t => t.id === id)
+    if (!keep) return
+    tabs.value = [keep]
+    activeTabId.value = keep.id
+  }
+
   return {
     tabs,
     activeTabId,
@@ -166,6 +179,8 @@ export const useTabsStore = defineStore('tabs', () => {
     setBookmarks,
     toggleBookmark,
     clearBookmarks,
+    closeAll,
+    closeOthers,
     encodings,
     languageFromPath,
     inferLanguage,

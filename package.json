@@ -39,7 +39,8 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "assets/**/*"
     ],
     "forceCodeSigning": false,
     "icon": "assets/aurorapad-app-icon",
