@@ -22,6 +22,7 @@
         >
           <span class="icon">{{ item.icon }}</span>
           <span>{{ item.label }}</span>
+          <span v-if="item.sublabel" class="sublabel">{{ item.sublabel }}</span>
         </div>
       </div>
     </div>
@@ -34,7 +35,7 @@ import { useSettingsStore } from '../stores/settings'
 import { useFileTreeStore } from '../stores/fileTree'
 
 const props = defineProps({})
-const emit = defineEmits(['close', 'open-file', 'open-file-dialog', 'new'])
+const emit = defineEmits(['close', 'open-file', 'open-file-dialog', 'new', 'run-command'])
 
 const settingsStore = useSettingsStore()
 const fileTreeStore = useFileTreeStore()
@@ -46,6 +47,7 @@ const commands = [
   { id: 'new', label: 'New File', icon: '📄', action: 'new' },
   { id: 'open-file', label: 'Open File...', icon: '📂', action: 'open-file' },
   { id: 'open-folder', label: 'Open Folder...', icon: '📁', action: 'open-folder' },
+  { id: 'run', label: 'Run Command...', icon: '▶️', action: 'run-command' },
 ]
 
 const recentItems = computed(() =>
@@ -112,6 +114,9 @@ function runItem(item) {
           }
         })
       }
+      break
+    case 'run-command':
+      emit('run-command')
       break
     default:
       break

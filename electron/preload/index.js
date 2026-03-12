@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   clearRecentFiles: () => ipcRenderer.invoke('store:clearRecentFiles'),
   getSession: () => ipcRenderer.invoke('store:getSession'),
   setSession: (data) => ipcRenderer.invoke('store:setSession', data),
+  renameFile: (oldPath, newPath) => ipcRenderer.invoke('fs:renameFile', oldPath, newPath),
+  openInDefaultViewer: (filePath) => ipcRenderer.invoke('shell:openInDefaultViewer', filePath),
 
   // Menu events (renderer listens)
   onMenu: (channel, fn) => {
@@ -45,4 +47,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Search
   findInFiles: (options) => ipcRenderer.invoke('search:findInFiles', options),
   replaceInFiles: (options) => ipcRenderer.invoke('search:replaceInFiles', options),
+
+  // Tools / Run
+  getHash: (algorithm, text) => ipcRenderer.invoke('tools:getHash', algorithm, text),
+  runCommand: (command, cwd) => ipcRenderer.invoke('run:command', command, cwd),
 })

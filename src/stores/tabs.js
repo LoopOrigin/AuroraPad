@@ -163,6 +163,12 @@ export const useTabsStore = defineStore('tabs', () => {
     activeTabId.value = keep.id
   }
 
+  function closeAllUnchanged() {
+    const dirtyTabs = tabs.value.filter(t => t.isDirty)
+    tabs.value = dirtyTabs
+    activeTabId.value = dirtyTabs.length ? dirtyTabs[0].id : null
+  }
+
   return {
     tabs,
     activeTabId,
@@ -181,6 +187,7 @@ export const useTabsStore = defineStore('tabs', () => {
     clearBookmarks,
     closeAll,
     closeOthers,
+    closeAllUnchanged,
     encodings,
     languageFromPath,
     inferLanguage,

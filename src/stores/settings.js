@@ -11,6 +11,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const recentFiles = ref([])
   const showWhitespace = ref(false)
   const highlightCurrentLine = ref(true)
+  const showMinimap = ref(false)
 
   function setTheme(value) {
     theme.value = value
@@ -39,6 +40,10 @@ export const useSettingsStore = defineStore('settings', () => {
 
   function setHighlightCurrentLine(value) {
     highlightCurrentLine.value = !!value
+  }
+
+  function setShowMinimap(value) {
+    showMinimap.value = !!value
   }
 
   function loadRecentFilesFromMain() {
@@ -77,6 +82,7 @@ export const useSettingsStore = defineStore('settings', () => {
     recentFiles,
     showWhitespace,
     highlightCurrentLine,
+    showMinimap,
     setTheme,
     setWordWrap,
     setLineNumbers,
@@ -84,6 +90,7 @@ export const useSettingsStore = defineStore('settings', () => {
     setFontSize,
     setShowWhitespace,
     setHighlightCurrentLine,
+    setShowMinimap,
     loadRecentFilesFromMain,
     clearRecentFiles,
   }

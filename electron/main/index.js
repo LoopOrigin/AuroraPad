@@ -4,6 +4,7 @@ const fs = require('fs').promises
 const Store = require('electron-store')
 const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
+const jschardet = require('jschardet')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
@@ -80,8 +81,33 @@ function buildMenu(pluginMenuItems = []) {
         { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow?.webContents.send('menu:save') },
         { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-all') },
         { label: 'Save As...', accelerator: 'F12', click: () => mainWindow?.webContents.send('menu:save-as') },
+        { label: 'Save a Copy As...', click: () => mainWindow?.webContents.send('menu:save-copy-as') },
+        { label: 'Rename...', click: () => mainWindow?.webContents.send('menu:rename') },
         { type: 'separator' },
         { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
+        { label: 'Close All', click: () => mainWindow?.webContents.send('menu:close-all') },
+        { label: 'Close All But Active', click: () => mainWindow?.webContents.send('menu:close-others') },
+        { type: 'separator' },
+        {
+          label: 'Recent Files',
+          submenu: [
+            ...(getRecentFiles().map(p => ({
+              label: p,
+              click: () => mainWindow?.webContents.send('menu:open-recent', p),
+            })) || []),
+            { type: 'separator' },
+            { label: 'Open All Recent Files', click: () => mainWindow?.webContents.send('menu:open-all-recent') },
+            { label: 'Restore Recently Closed File', click: () => mainWindow?.webContents.send('menu:restore-recent') },
+            { label: 'Empty Recent Files List', click: () => mainWindow?.webContents.send('menu:clear-recent') },
+          ],
+        },
+        { type: 'separator' },
+        { label: 'Open Containing Folder in Explorer', click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer') },
+        { label: 'Open Containing Folder in Command Prompt', click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd') },
+        { label: 'Open Containing Folder as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
+        { label: 'Open in Default Viewer', click: () => mainWindow?.webContents.send('menu:open-in-default-viewer') },
+        { type: 'separator' },
+        { label: 'Reload from Disk', click: () => mainWindow?.webContents.send('menu:reload-from-disk') },
         { type: 'separator' },
         { label: 'Exit', accelerator: 'Alt+F4', role: 'quit' },
       ],
@@ -158,9 +184,32 @@ ipcMain.handle('fs:readFile', async (_, filePath, encoding = 'utf8') => {
     if (isBinary) {
       return { error: 'Binary file', binary: true }
     }
-    const content = encoding === 'utf8' ? buffer.toString('utf8') : iconv.decode(buffer, encoding)
+
+    let detectedEncoding = encoding || 'utf8'
+    try {
+      const detection = jschardet.detect(buffer)
+      if (detection && detection.encoding && detection.confidence >= 0.6) {
+        detectedEncoding = detection.encoding.toLowerCase()
+      }
+    } catch {
+      // Best-effort detection; fall back to requested/default encoding
+    }
+
+    let content
+    if (detectedEncoding === 'utf-8' || detectedEncoding === 'utf8') {
+      content = buffer.toString('utf8')
+      detectedEncoding = 'utf8'
+    } else {
+      try {
+        content = iconv.decode(buffer, detectedEncoding)
+      } catch {
+        content = buffer.toString('utf8')
+        detectedEncoding = 'utf8'
+      }
+    }
+
     addRecentFile(filePath)
-    return { content, encoding }
+    return { content, encoding: detectedEncoding }
   } catch (e) {
     return { error: e.message }
   }
@@ -204,6 +253,27 @@ ipcMain.handle('dialog:openFolder', async () => {
 ipcMain.handle('store:getRecentFiles', () => getRecentFiles())
 ipcMain.handle('store:clearRecentFiles', () => store.set('recentFiles', []))
 
+ipcMain.handle('fs:renameFile', async (_, oldPath, newPath) => {
+  try {
+    await fs.rename(oldPath, newPath)
+    addRecentFile(newPath)
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('shell:openInDefaultViewer', async (_, filePath) => {
+  if (!filePath) return { error: 'No file path provided' }
+  try {
+    const res = await shell.openPath(filePath)
+    if (res) return { error: res }
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
 function getSession() {
   return store.get('session', null)
 }
@@ -214,6 +284,34 @@ function setSession(data) {
 
 ipcMain.handle('store:getSession', () => getSession())
 ipcMain.handle('store:setSession', (_, data) => setSession(data))
+
+ipcMain.handle('tools:getHash', async (_, algorithm, text) => {
+  try {
+    const crypto = require('crypto')
+    const hash = crypto.createHash(algorithm || 'md5')
+    hash.update(text || '', 'utf8')
+    return { ok: true, value: hash.digest('hex') }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('run:command', async (_, command, cwd) => {
+  try {
+    const { exec } = require('child_process')
+    return await new Promise((resolve) => {
+      const child = exec(command, { cwd: cwd || process.cwd(), windowsHide: true }, (error, stdout, stderr) => {
+        if (error) {
+          resolve({ error: error.message, stdout, stderr })
+        } else {
+          resolve({ ok: true, stdout, stderr })
+        }
+      })
+    })
+  } catch (e) {
+    return { error: e.message }
+  }
+})
 
 ipcMain.handle('fs:readDir', async (_, dirPath) => {
   try {

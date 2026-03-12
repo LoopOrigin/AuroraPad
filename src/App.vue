@@ -50,26 +50,50 @@
         @preferences="openPreferences"
       />
       <TabBar />
-      <div class="editor-container">
+      <div class="editor-container" :class="{ 'editor-container-split': splitViewEnabled }">
         <template v-if="tabsStore.activeTab">
-          <div
-            :data-tab-id="tabsStore.activeTab.id"
-            class="monaco-editor-wrapper"
-          >
-            <MonacoEditor
-              ref="monacoEditorRef"
-              v-model="tabsStore.activeTab.content"
-              :language="tabsStore.activeTab.language"
-              :theme="monacoTheme"
-              :word-wrap="settingsStore.wordWrap"
-              :line-numbers="settingsStore.lineNumbers"
-              :font-size="settingsStore.fontSize"
-              :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
-              :highlight-current-line="settingsStore.highlightCurrentLine"
-              :bookmarks="tabsStore.activeTab.bookmarks || []"
-              @update:model-value="onEditorContentChange"
-              @cursor-change="onCursorChange"
-            />
+          <div class="editor-pane primary-pane">
+            <div
+              :data-tab-id="primaryTab?.id"
+              class="monaco-editor-wrapper"
+            >
+              <MonacoEditor
+                ref="monacoEditorRef"
+                :model-value="primaryTab?.content || ''"
+                :language="primaryTab?.language || 'plaintext'"
+                :theme="monacoTheme"
+                :word-wrap="settingsStore.wordWrap"
+                :line-numbers="settingsStore.lineNumbers"
+                :font-size="settingsStore.fontSize"
+                :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
+                :highlight-current-line="settingsStore.highlightCurrentLine"
+                :bookmarks="primaryTab?.bookmarks || []"
+                :show-minimap="settingsStore.showMinimap"
+                @update:model-value="val => onEditorContentChange('primary', val)"
+                @cursor-change="pos => onCursorChange('primary', pos)"
+              />
+            </div>
+          </div>
+          <div v-if="splitViewEnabled" class="editor-pane secondary-pane">
+            <div
+              :data-tab-id="(secondaryTab || primaryTab)?.id + '-secondary'"
+              class="monaco-editor-wrapper"
+            >
+              <MonacoEditor
+                ref="monacoEditorSecondaryRef"
+                :model-value="(secondaryTab || primaryTab)?.content || ''"
+                :language="(secondaryTab || primaryTab)?.language || 'plaintext'"
+                :theme="monacoTheme"
+                :word-wrap="settingsStore.wordWrap"
+                :line-numbers="settingsStore.lineNumbers"
+                :font-size="settingsStore.fontSize"
+                :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
+                :highlight-current-line="settingsStore.highlightCurrentLine"
+                :bookmarks="(secondaryTab || primaryTab)?.bookmarks || []"
+                :show-minimap="settingsStore.showMinimap"
+                @update:model-value="val => onEditorContentChange('secondary', val)"
+              />
+            </div>
           </div>
         </template>
         <div v-else class="empty-state">
@@ -80,6 +104,7 @@
         </div>
       </div>
       <StatusBar @go-to-line="handleMenu('menu:go-to-line')" />
+      <TerminalPanel v-if="showTerminal" @close="showTerminal = false" />
     </div>
     </div>
     <div v-if="showPluginManager" class="plugin-manager-overlay" @click.self="showPluginManager = false">
@@ -190,6 +215,7 @@
       @open-file="openFileByPath"
       @open-file-dialog="menuOpenFile"
       @new="menuNew"
+      @run-command="runCommandPrompt"
     />
     <FindInFiles
       :visible="showFindInFiles"
@@ -215,15 +241,27 @@ import StatusBar from './components/StatusBar.vue'
 import Toolbar from './components/Toolbar.vue'
 import MenuBar from './components/MenuBar.vue'
 import FindInFiles from './components/FindInFiles.vue'
+import TerminalPanel from './components/TerminalPanel.vue'
 
 const tabsStore = useTabsStore()
 const settingsStore = useSettingsStore()
 const pluginsStore = usePluginsStore()
 const fileTreeStore = useFileTreeStore()
 const monacoEditorRef = ref(null)
+const monacoEditorSecondaryRef = ref(null)
 const showCommandPalette = ref(false)
 const showPluginManager = ref(false)
 const showFindInFiles = ref(false)
+const showTerminal = ref(false)
+const splitViewEnabled = ref(false)
+const secondaryTabId = ref(null)
+const lastRunCommand = ref('')
+
+const primaryTab = computed(() => tabsStore.activeTab)
+const secondaryTab = computed(() => {
+  if (!secondaryTabId.value) return null
+  return tabsStore.tabs.find(t => t.id === secondaryTabId.value) || null
+})
 
 const monacoTheme = computed(() => {
   switch (settingsStore.theme) {
@@ -253,11 +291,22 @@ const menuBarMenus = computed(() => [
       { label: 'Save', shortcut: 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-floppy-disk' },
       { label: 'Save All', shortcut: 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-layer-group' },
       { label: 'Save As...', shortcut: 'F12', action: 'menu:save-as', enabled: !!tabsStore.activeTab },
+      { label: 'Save a Copy As...', action: 'menu:save-copy-as', enabled: !!tabsStore.activeTab },
+      { label: 'Rename...', action: 'menu:rename', enabled: !!tabsStore.activeTab },
       { type: 'separator' },
       { label: 'Close Tab', shortcut: 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
       { label: 'Close All', action: 'menu:close-all', enabled: tabsStore.tabs.length > 0 },
       { label: 'Close All But Active', action: 'menu:close-others', enabled: tabsStore.tabs.length > 1 },
+      { label: 'Close All Unchanged', action: 'menu:close-all-unchanged', enabled: tabsStore.tabs.some(t => !t.isDirty) },
       { type: 'separator' },
+      { label: 'Reload from Disk', action: 'menu:reload-from-disk', enabled: !!tabsStore.activeTab?.path },
+      { type: 'separator' },
+      { label: 'Open Containing Folder in Explorer', action: 'menu:open-containing-folder:explorer', enabled: !!tabsStore.activeTab?.path },
+      { label: 'Open Containing Folder in Command Prompt', action: 'menu:open-containing-folder:cmd', enabled: !!tabsStore.activeTab?.path },
+      { label: 'Open Containing Folder as Workspace', action: 'menu:open-containing-folder:faw', enabled: !!tabsStore.activeTab?.path },
+      { label: 'Open in Default Viewer', action: 'menu:open-in-default-viewer', enabled: !!tabsStore.activeTab?.path },
+      { type: 'separator' },
+      { label: 'Open Recent...', action: 'menu:open-recent-dialog', enabled: settingsStore.recentFiles.length > 0 },
       { label: 'Exit', shortcut: 'Alt+F4', action: 'menu:exit' },
     ],
   },
@@ -296,6 +345,14 @@ const menuBarMenus = computed(() => [
       { label: 'Windows (CRLF)', action: 'menu:eol-crlf' },
       { label: 'Unix (LF)', action: 'menu:eol-lf' },
       { label: 'Old Mac (CR)', action: 'menu:eol-cr' },
+      { type: 'separator' },
+      { label: 'Sort Lines Ascending', action: 'menu:sort-lines-asc' },
+      { label: 'Sort Lines Descending', action: 'menu:sort-lines-desc' },
+      { label: 'Trim Trailing Whitespace', action: 'menu:trim-trailing-whitespace' },
+      { type: 'separator' },
+      { label: 'Add Cursor Above', action: 'menu:cursor-add-above' },
+      { label: 'Add Cursor Below', action: 'menu:cursor-add-below' },
+      { label: 'Select Next Match', action: 'menu:select-next-match' },
     ],
   },
   {
@@ -326,6 +383,14 @@ const menuBarMenus = computed(() => [
       { type: 'separator' },
       { label: 'Toggle Sidebar', shortcut: 'Ctrl+B', action: 'menu:toggle-sidebar' },
       { label: 'Dark Theme', action: 'menu:theme-toggle' },
+      { type: 'separator' },
+      { label: 'Toggle Minimap', action: 'menu:toggle-minimap' },
+      { label: 'Toggle Split View', action: 'menu:toggle-split-view' },
+      { type: 'separator' },
+      { label: 'Fold All', action: 'menu:fold-all' },
+      { label: 'Unfold All', action: 'menu:unfold-all' },
+      { type: 'separator' },
+      { label: 'Toggle Integrated Terminal', action: 'menu:toggle-terminal' },
     ],
   },
   {
@@ -389,8 +454,17 @@ const menuBarMenus = computed(() => [
     id: 'run',
     label: 'Run',
     items: [
-      { label: 'Run...', enabled: false },
-      { label: 'Run Last Command', enabled: false },
+      { label: 'Run...', action: 'menu:run-command' },
+      { label: 'Run Last Command', action: 'menu:run-last-command', enabled: false },
+    ],
+  },
+  {
+    id: 'tools',
+    label: 'Tools',
+    items: [
+      { label: 'MD5 of Document', action: 'menu:hash-md5' },
+      { label: 'SHA-1 of Document', action: 'menu:hash-sha1' },
+      { label: 'SHA-256 of Document', action: 'menu:hash-sha256' },
     ],
   },
   {
@@ -416,6 +490,9 @@ const menuBarMenus = computed(() => [
     label: 'Window',
     items: [
       { label: 'Close Tab', shortcut: 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
+      { type: 'separator' },
+      { label: 'Move to Other View', action: 'menu:move-to-other-view', enabled: !!tabsStore.activeTab && splitViewEnabled.value },
+      { label: 'Clone to Other View', action: 'menu:clone-to-other-view', enabled: !!tabsStore.activeTab && splitViewEnabled.value },
     ],
   },
   {
@@ -562,6 +639,11 @@ function setupKeyboardShortcuts() {
           e.preventDefault()
           showCommandPalette.value = true
           break
+        case 'tab':
+          // Ctrl+Tab: cycle to next tab
+          e.preventDefault()
+          cycleTab(1)
+          break
         case 'b':
           e.preventDefault()
           settingsStore.setSidebarVisible(!settingsStore.sidebarVisible)
@@ -573,6 +655,15 @@ function setupKeyboardShortcuts() {
   }
   window.addEventListener('keydown', keydown)
   onBeforeUnmount(() => window.removeEventListener('keydown', keydown))
+}
+
+function cycleTab(direction) {
+  const list = tabsStore.tabs
+  if (!list.length) return
+  const currentIndex = list.findIndex(t => t.id === tabsStore.activeTabId)
+  const nextIndex = (currentIndex + direction + list.length) % list.length
+  const next = list[nextIndex]
+  if (next) tabsStore.setActive(next.id)
 }
 
 async function setupPlugins() {
@@ -697,10 +788,14 @@ function setupMenuListeners() {
   if (!window.electronAPI?.onMenu) return
   const channels = [
     'menu:new', 'menu:open-file', 'menu:open-folder', 'menu:save', 'menu:save-all', 'menu:save-as',
-    'menu:close-tab', 'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
+    'menu:close-tab', 'menu:close-all', 'menu:close-others',
+    'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
     'menu:find', 'menu:replace', 'menu:go-to-line', 'menu:word-wrap', 'menu:line-numbers',
     'menu:zoom-in', 'menu:zoom-out', 'menu:zoom-reset', 'menu:toggle-sidebar', 'menu:theme',
     'menu:command-palette', 'menu:plugin-manager', 'menu:preferences', 'menu:about', 'menu:find-in-files',
+    'menu:save-copy-as', 'menu:rename', 'menu:reload-from-disk',
+    'menu:open-containing-folder:explorer', 'menu:open-containing-folder:cmd', 'menu:open-containing-folder:faw',
+    'menu:open-in-default-viewer', 'menu:open-all-recent', 'menu:restore-recent', 'menu:clear-recent',
   ]
   channels.forEach(channel => {
     window.electronAPI.onMenu(channel, (...args) => handleMenu(channel, ...args))
@@ -733,6 +828,52 @@ function onMenuBarAction(action, item) {
   }
   if (action === 'menu:line-numbers-toggle') {
     settingsStore.setLineNumbers(!settingsStore.lineNumbers)
+    return
+  }
+  if (action === 'menu:toggle-minimap') {
+    settingsStore.setShowMinimap(!settingsStore.showMinimap)
+    return
+  }
+  if (action === 'menu:toggle-split-view') {
+    splitViewEnabled.value = !splitViewEnabled.value
+    return
+  }
+  if (action === 'menu:fold-all') {
+    monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.foldAll')
+    monacoEditorSecondaryRef.value?.getEditor()?.trigger('keyboard', 'editor.foldAll')
+    return
+  }
+  if (action === 'menu:unfold-all') {
+    monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.unfoldAll')
+    monacoEditorSecondaryRef.value?.getEditor()?.trigger('keyboard', 'editor.unfoldAll')
+    return
+  }
+  if (action === 'menu:toggle-terminal') {
+    showTerminal.value = !showTerminal.value
+    return
+  }
+  if (action === 'menu:move-to-other-view') {
+    if (tabsStore.activeTabId && splitViewEnabled.value) {
+      secondaryTabId.value = tabsStore.activeTabId
+    }
+    return
+  }
+  if (action === 'menu:clone-to-other-view') {
+    if (tabsStore.activeTabId && splitViewEnabled.value) {
+      secondaryTabId.value = tabsStore.activeTabId
+    }
+    return
+  }
+  if (action === 'menu:hash-md5' || action === 'menu:hash-sha1' || action === 'menu:hash-sha256') {
+    runHashTool(action)
+    return
+  }
+  if (action === 'menu:run-command') {
+    runCommandPrompt()
+    return
+  }
+  if (action === 'menu:run-last-command') {
+    runLastCommand()
     return
   }
   if (action === 'menu:theme-toggle') {
@@ -776,6 +917,13 @@ function menuCloseOthers() {
   tabsStore.closeOthers(id)
 }
 
+function menuCloseAllUnchanged() {
+  if (!tabsStore.tabs.length) return
+  if (!tabsStore.tabs.some(t => !t.isDirty)) return
+  if (!confirm('Close all tabs that have no unsaved changes?')) return
+  tabsStore.closeAllUnchanged()
+}
+
 function handleMenu(channel, ...args) {
   switch (channel) {
     case 'menu:new':
@@ -796,6 +944,9 @@ function handleMenu(channel, ...args) {
     case 'menu:save-as':
       menuSaveAs()
       break
+    case 'menu:save-copy-as':
+      menuSaveCopyAs()
+      break
     case 'menu:close-tab':
       if (tabsStore.activeTab) {
         const id = tabsStore.activeTabId
@@ -808,6 +959,12 @@ function handleMenu(channel, ...args) {
       break
     case 'menu:close-others':
       menuCloseOthers()
+      break
+    case 'menu:close-all-unchanged':
+      menuCloseAllUnchanged()
+      break
+    case 'menu:close-all-unchanged':
+      menuCloseAllUnchanged()
       break
     case 'menu:undo':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'undo')
@@ -910,6 +1067,24 @@ function handleMenu(channel, ...args) {
     case 'menu:find-prev':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.previousMatchFindAction')
       break
+    case 'menu:sort-lines-asc':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.sortLinesAscending')
+      break
+    case 'menu:sort-lines-desc':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.sortLinesDescending')
+      break
+    case 'menu:trim-trailing-whitespace':
+      monacoEditorRef.value?.getEditor()?.getAction('editor.action.trimTrailingWhitespace')?.run()
+      break
+    case 'menu:cursor-add-above':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.insertCursorAbove')
+      break
+    case 'menu:cursor-add-below':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.insertCursorBelow')
+      break
+    case 'menu:select-next-match':
+      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.addSelectionToNextFindMatch')
+      break
     case 'menu:word-wrap':
       settingsStore.setWordWrap(args[0])
       break
@@ -940,20 +1115,50 @@ function handleMenu(channel, ...args) {
     case 'menu:preferences':
       showPreferences.value = true
       break
+    case 'menu:reload-from-disk':
+      reloadFromDisk()
+      break
+    case 'menu:open-containing-folder:explorer':
+      openContainingFolder('explorer')
+      break
+    case 'menu:open-containing-folder:cmd':
+      openContainingFolder('cmd')
+      break
+    case 'menu:open-containing-folder:faw':
+      openContainingFolder('faw')
+      break
+    case 'menu:open-in-default-viewer':
+      openInDefaultViewer()
+      break
+    case 'menu:open-all-recent':
+      openAllRecent()
+      break
+    case 'menu:restore-recent':
+      restoreRecent()
+      break
+    case 'menu:clear-recent':
+      clearRecent()
+      break
     default:
       break
   }
 }
 
-function onEditorContentChange(value) {
-  if (tabsStore.activeTab) {
-    tabsStore.setContent(tabsStore.activeTabId, value)
+function onEditorContentChange(which, value) {
+  if (!value) value = ''
+  if (which === 'secondary' && secondaryTab.value) {
+    tabsStore.setContent(secondaryTab.value.id, value)
+    return
+  }
+  if (primaryTab.value) {
+    tabsStore.setContent(primaryTab.value.id, value)
   }
 }
 
-function onCursorChange(pos) {
-  if (tabsStore.activeTab) {
-    tabsStore.updateTab(tabsStore.activeTabId, { cursorPosition: { line: pos.line, column: pos.column } })
+function onCursorChange(which, pos) {
+  const target = which === 'secondary' ? secondaryTab.value : primaryTab.value
+  if (target && pos) {
+    tabsStore.updateTab(target.id, { cursorPosition: { line: pos.line, column: pos.column } })
   }
 }
 
@@ -1083,6 +1288,78 @@ async function menuSaveAs() {
   })
 }
 
+async function menuSaveCopyAs() {
+  const tab = tabsStore.activeTab
+  if (!tab) return
+  const path = await window.electronAPI?.saveFileDialog(tab.path, tab.name)
+  if (!path) return
+  const content = applyEol(tab.content, tab.eol || 'crlf')
+  const result = await window.electronAPI.writeFile(path, content, tab.encoding)
+  if (result.error) {
+    alert('Save failed: ' + result.error)
+  }
+}
+
+async function reloadFromDisk() {
+  const tab = tabsStore.activeTab
+  if (!tab?.path) return
+  if (tab.isDirty && !confirm('Reload from disk and lose unsaved changes?')) return
+  const result = await window.electronAPI.readFile(tab.path, tab.encoding || 'utf8')
+  if (result.error) {
+    alert('Failed to reload file: ' + result.error)
+    return
+  }
+  tabsStore.updateTab(tab.id, {
+    content: result.content,
+    encoding: result.encoding || tab.encoding,
+    isDirty: false,
+    bookmarks: [],
+  })
+}
+
+async function openContainingFolder(kind) {
+  const tab = tabsStore.activeTab
+  if (!tab?.path) return
+  const full = tab.path
+  const dir = full.replace(/[\\/][^\\/]+$/, '')
+  if (kind === 'faw') {
+    fileTreeStore.setOpenFolder(dir)
+    await window.electronAPI.watchFolder(dir)
+    return
+  }
+  if (kind === 'explorer') {
+    // showItemInFolder will highlight the file; this is close to Explorer behavior
+    await window.electronAPI.openInDefaultViewer(dir)
+    return
+  }
+  if (kind === 'cmd') {
+    // For now, open the folder itself in default shell
+    await window.electronAPI.openInDefaultViewer(dir)
+  }
+}
+
+async function openInDefaultViewer() {
+  const tab = tabsStore.activeTab
+  if (!tab?.path) return
+  const result = await window.electronAPI.openInDefaultViewer(tab.path)
+  if (result?.error) {
+    alert('Failed to open in default viewer: ' + result.error)
+  }
+}
+
+async function openAllRecent() {
+  const recent = settingsStore.recentFiles || []
+  for (const p of recent) {
+    await openFileByPath(p)
+  }
+}
+
+async function restoreRecent() {
+  const recent = settingsStore.recentFiles || []
+  if (!recent.length) return
+  await openFileByPath(recent[0])
+}
+
 function clearRecent() {
   settingsStore.clearRecentFiles()
 }
@@ -1097,5 +1374,44 @@ async function openPluginsFolder() {
 
 function openPreferences() {
   showPreferences.value = true
+}
+
+async function runHashTool(action) {
+  const tab = tabsStore.activeTab
+  if (!tab) return
+  const text = tab.content || ''
+  const algo = action === 'menu:hash-sha1' ? 'sha1' : action === 'menu:hash-sha256' ? 'sha256' : 'md5'
+  const result = await window.electronAPI.getHash(algo, text)
+  if (result?.error) {
+    alert('Hash failed: ' + result.error)
+    return
+  }
+  const label = algo.toUpperCase()
+  alert(`${label} of current document:\n\n${result.value}`)
+}
+
+async function runCommandPrompt() {
+  const cmd = prompt('Run command (will execute on your machine):', lastRunCommand.value || '')
+  if (!cmd) return
+  lastRunCommand.value = cmd
+  const result = await window.electronAPI.runCommand(cmd)
+  if (result?.error) {
+    alert(`Command failed:\n${result.error}\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)
+    return
+  }
+  alert(`Command completed.\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)
+}
+
+async function runLastCommand() {
+  if (!lastRunCommand.value) {
+    alert('No previous command to run.')
+    return
+  }
+  const result = await window.electronAPI.runCommand(lastRunCommand.value)
+  if (result?.error) {
+    alert(`Command failed:\n${result.error}\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)
+    return
+  }
+  alert(`Command completed.\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)
 }
 </script>

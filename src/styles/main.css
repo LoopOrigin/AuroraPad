@@ -301,6 +301,10 @@ input, select {
   color: var(--npp-tab-text);
 }
 
+.tab .tab-icon {
+  flex-shrink: 0;
+}
+
 .tab span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -345,11 +349,28 @@ input, select {
 .editor-container {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .monaco-editor-wrapper {
   width: 100%;
   height: 100%;
+}
+
+.editor-container-split {
+  flex-direction: row;
+}
+
+.editor-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.editor-pane.primary-pane {
+  border-right: 1px solid var(--npp-tab-border);
 }
 
 /* Status bar - N++ multi-segment */
@@ -390,6 +411,21 @@ input, select {
   color: var(--npp-text);
 }
 
+.status-font {
+  gap: 6px;
+}
+
+.status-btn {
+  padding: 0 6px;
+  border-radius: 2px;
+  background: rgba(0,0,0,0.1);
+  color: inherit;
+}
+
+.status-btn:hover {
+  background: rgba(0,0,0,0.2);
+}
+
 /* File tree */
 .file-tree-item {
   display: flex;
@@ -407,6 +443,11 @@ input, select {
 
 .file-tree-item.folder {
   font-weight: 500;
+}
+
+.file-tree-item.active {
+  background: var(--npp-menubar-hover);
+  font-weight: 600;
 }
 
 .file-tree-children {
@@ -481,6 +522,14 @@ input, select {
   filter: brightness(1.1);
 }
 
+@media (min-resolution: 1.5dppx), (min-device-pixel-ratio: 1.5) {
+  .toolbar-btn,
+  .menu-bar,
+  .status-bar {
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
 /* Command palette */
 .command-palette-overlay {
   position: fixed;
@@ -534,6 +583,12 @@ input, select {
 }
 
 .command-palette-item .icon { opacity: 0.85; }
+
+.command-palette-item .sublabel {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--npp-text-dim);
+}
 
 /* Plugin manager modal */
 .plugin-manager-overlay {

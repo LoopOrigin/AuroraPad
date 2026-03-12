@@ -194,6 +194,7 @@ const props = defineProps({
   bookmarks: { type: Array, default: () => [] },
   renderWhitespace: { type: String, default: 'none' }, // 'none' | 'all' | 'boundary' | 'selection'
   highlightCurrentLine: { type: Boolean, default: true },
+  showMinimap: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue', 'cursor-change', 'focus', 'blur'])
@@ -215,7 +216,7 @@ onMounted(() => {
     fontSize: props.fontSize,
     readOnly: props.readOnly,
     glyphMargin: true,
-    minimap: { enabled: false },
+    minimap: { enabled: props.showMinimap },
     scrollBeyondLastLine: false,
     automaticLayout: true,
     padding: { top: 8 },
@@ -284,6 +285,10 @@ watch(() => props.lineNumbers, (val) => {
 
 watch(() => props.fontSize, (val) => {
   if (editor) editor.updateOptions({ fontSize: val })
+})
+
+watch(() => props.showMinimap, (val) => {
+  if (editor) editor.updateOptions({ minimap: { enabled: val } })
 })
 
 watch(() => props.readOnly, (val) => {
