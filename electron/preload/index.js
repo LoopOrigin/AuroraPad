@@ -51,4 +51,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Tools / Run
   getHash: (algorithm, text) => ipcRenderer.invoke('tools:getHash', algorithm, text),
   runCommand: (command, cwd) => ipcRenderer.invoke('run:command', command, cwd),
+
+  // PTY Terminal
+  createTerminal: (options) => ipcRenderer.invoke('terminal:create', options),
+  writeTerminal: (payload) => ipcRenderer.invoke('terminal:write', payload),
+  resizeTerminal: (payload) => ipcRenderer.invoke('terminal:resize', payload),
+  disposeTerminal: (payload) => ipcRenderer.invoke('terminal:dispose', payload),
+  onTerminalData: (fn) => {
+    ipcRenderer.on('terminal:data', (_, payload) => fn(payload))
+  },
+  onTerminalExit: (fn) => {
+    ipcRenderer.on('terminal:exit', (_, payload) => fn(payload))
+  },
 })

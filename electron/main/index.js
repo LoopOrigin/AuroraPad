@@ -5,6 +5,7 @@ const Store = require('electron-store')
 const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
+const pty = require('node-pty')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
@@ -17,6 +18,8 @@ if (process.platform === 'win32') {
 
 let mainWindow = null
 let watchers = new Map()
+let terminals = new Map()
+let nextTerminalId = 1
 
 function getRecentFiles() {
   return store.get('recentFiles', [])
@@ -311,6 +314,80 @@ ipcMain.handle('run:command', async (_, command, cwd) => {
   } catch (e) {
     return { error: e.message }
   }
+})
+
+ipcMain.handle('terminal:create', async (_, options = {}) => {
+  try {
+    const shellType = options.shell || 'default'
+    const cwd = options.cwd || process.cwd()
+
+    let file
+    let args = []
+    if (process.platform === 'win32') {
+      if (shellType === 'powershell') {
+        file = process.env.COMSPEC || 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+      } else if (shellType === 'bash') {
+        file = 'C:\\Program Files\\Git\\bin\\bash.exe'
+      } else if (shellType === 'wsl') {
+        file = 'wsl.exe'
+      } else {
+        file = process.env.COMSPEC || 'C:\\Windows\\System32\\cmd.exe'
+      }
+    } else {
+      file = process.env.SHELL || '/bin/bash'
+    }
+
+    const cols = options.cols || 80
+    const rows = options.rows || 24
+
+    const term = pty.spawn(file, args, {
+      name: 'xterm-color',
+      cols,
+      rows,
+      cwd,
+      env: process.env,
+    })
+
+    const id = `term-${nextTerminalId++}`
+    terminals.set(id, term)
+
+    term.onData(data => {
+      mainWindow?.webContents.send('terminal:data', { id, data })
+    })
+
+    term.onExit(() => {
+      terminals.delete(id)
+      mainWindow?.webContents.send('terminal:exit', { id })
+    })
+
+    return { ok: true, id }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('terminal:write', async (_, { id, data }) => {
+  const term = terminals.get(id)
+  if (!term) return { error: 'Terminal not found' }
+  term.write(data)
+  return { ok: true }
+})
+
+ipcMain.handle('terminal:resize', async (_, { id, cols, rows }) => {
+  const term = terminals.get(id)
+  if (!term) return { error: 'Terminal not found' }
+  term.resize(cols, rows)
+  return { ok: true }
+})
+
+ipcMain.handle('terminal:dispose', async (_, { id }) => {
+  const term = terminals.get(id)
+  if (!term) return { ok: true }
+  try {
+    term.kill()
+  } catch {}
+  terminals.delete(id)
+  return { ok: true }
 })
 
 ipcMain.handle('fs:readDir', async (_, dirPath) => {

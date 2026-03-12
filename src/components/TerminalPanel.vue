@@ -1,66 +1,105 @@
 <template>
   <div class="terminal-panel">
     <div v-if="showHeader" class="terminal-header">
-      <span>Terminal</span>
+      <span>{{ title }}</span>
       <button type="button" @click="$emit('close')">✕</button>
     </div>
-    <div class="terminal-body">
-      <pre class="terminal-output">{{ output }}</pre>
-    </div>
-    <form class="terminal-input-row" @submit.prevent="run">
-      <input
-        ref="inputRef"
-        v-model="command"
-        type="text"
-        placeholder="Type a command and press Enter..."
-        autocomplete="off"
-      />
-      <button type="submit">Run</button>
-    </form>
+    <div ref="containerRef" class="terminal-body"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { Terminal } from 'xterm'
+import { FitAddon } from 'xterm-addon-fit'
 
 const props = defineProps({
-  initialCommand: { type: String, default: '' },
+  shell: { type: String, default: 'default' },
+  cwd: { type: String, default: '' },
   showHeader: { type: Boolean, default: true },
+  title: { type: String, default: 'Terminal' },
 })
 
 const emit = defineEmits(['close'])
 
-const command = ref(props.initialCommand)
-const output = ref('')
-const inputRef = ref(null)
+const containerRef = ref(null)
+let xterm = null
+let fitAddon = null
+let terminalId = null
 
-onMounted(() => {
-  inputRef.value?.focus()
-})
+function handleData({ id, data }) {
+  if (id !== terminalId || !xterm) return
+  xterm.write(data)
+}
 
-async function run() {
-  if (!command.value) return
-  const cmd = command.value
-  output.value += `> ${cmd}\n`
-  if (!window.electronAPI?.runCommand) {
-    output.value += 'ERROR: Integrated runCommand API is not available.\n'
+function handleExit({ id }) {
+  if (id !== terminalId || !xterm) return
+  xterm.write('\r\n\u001b[31m[Process exited]\u001b[0m\r\n')
+}
+
+async function createBackend(cols, rows) {
+  if (!window.electronAPI?.createTerminal) return
+  const result = await window.electronAPI.createTerminal({
+    shell: props.shell,
+    cwd: props.cwd || undefined,
+    cols,
+    rows,
+  })
+  if (result?.error) {
+    xterm.write(`\r\n\u001b[31mERROR: ${result.error}\u001b[0m\r\n`)
     return
   }
-  try {
-    const result = await window.electronAPI.runCommand(cmd)
-    if (result?.error) {
-      output.value += `ERROR: ${result.error}\n`
-    }
-    if (result?.stdout) {
-      output.value += result.stdout + (result.stdout.endsWith('\n') ? '' : '\n')
-    }
-    if (result?.stderr) {
-      output.value += result.stderr + (result.stderr.endsWith('\n') ? '' : '\n')
-    }
-  } catch (e) {
-    output.value += `ERROR: ${e?.message || String(e)}\n`
-  }
+  terminalId = result.id
 }
+
+onMounted(async () => {
+  if (!containerRef.value) return
+  xterm = new Terminal({
+    cols: 80,
+    rows: 24,
+    fontSize: 13,
+    convertEol: true,
+    cursorBlink: true,
+  })
+  fitAddon = new FitAddon()
+  xterm.loadAddon(fitAddon)
+  xterm.open(containerRef.value)
+  fitAddon.fit()
+  xterm.focus()
+
+  await createBackend(xterm.cols, xterm.rows)
+
+  xterm.onData(data => {
+    if (terminalId && window.electronAPI?.writeTerminal) {
+      window.electronAPI.writeTerminal({ id: terminalId, data })
+    }
+  })
+
+  window.electronAPI?.onTerminalData(handleData)
+  window.electronAPI?.onTerminalExit(handleExit)
+
+  window.addEventListener('resize', onResize)
+})
+
+function onResize() {
+  if (!fitAddon || !xterm || !terminalId || !window.electronAPI?.resizeTerminal) return
+  fitAddon.fit()
+  window.electronAPI.resizeTerminal({
+    id: terminalId,
+    cols: xterm.cols,
+    rows: xterm.rows,
+  })
+}
+
+onBeforeUnmount(() => {
+  if (terminalId && window.electronAPI?.disposeTerminal) {
+    window.electronAPI.disposeTerminal({ id: terminalId })
+  }
+  window.removeEventListener('resize', onResize)
+  xterm?.dispose()
+  xterm = null
+  fitAddon = null
+})
 </script>
 
 <style scoped>
@@ -85,33 +124,7 @@ async function run() {
 
 .terminal-body {
   flex: 1;
-  overflow: auto;
-  padding: 4px 8px;
-}
-
-.terminal-output {
-  white-space: pre-wrap;
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 12px;
-  margin: 0;
-}
-
-.terminal-input-row {
-  display: flex;
-  gap: 4px;
-  padding: 4px 8px;
-  border-top: 1px solid var(--npp-tab-border);
-}
-
-.terminal-input-row input {
-  flex: 1;
-  font-family: inherit;
-  font-size: 12px;
-}
-
-.terminal-input-row button {
-  padding: 2px 10px;
-  font-size: 12px;
+  min-height: 0;
 }
 </style>
 
