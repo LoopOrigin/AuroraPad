@@ -192,6 +192,8 @@ const props = defineProps({
   fontSize: { type: Number, default: 14 },
   readOnly: { type: Boolean, default: false },
   bookmarks: { type: Array, default: () => [] },
+  renderWhitespace: { type: String, default: 'none' }, // 'none' | 'all' | 'boundary' | 'selection'
+  highlightCurrentLine: { type: Boolean, default: true },
 })
 
 const emit = defineEmits(['update:modelValue', 'cursor-change', 'focus', 'blur'])
@@ -223,6 +225,8 @@ onMounted(() => {
     tabCompletion: 'on',
     parameterHints: { enabled: true },
     hover: { enabled: true },
+    renderWhitespace: props.renderWhitespace,
+    renderLineHighlight: props.highlightCurrentLine ? 'line' : 'none',
   })
 
   subscription = editor.onDidChangeModelContent(() => {
@@ -264,6 +268,14 @@ watch(() => props.theme, (val) => {
 
 watch(() => props.wordWrap, (val) => {
   if (editor) editor.updateOptions({ wordWrap: val ? 'on' : 'off' })
+})
+
+watch(() => props.renderWhitespace, (val) => {
+  if (editor) editor.updateOptions({ renderWhitespace: val })
+})
+
+watch(() => props.highlightCurrentLine, (val) => {
+  if (editor) editor.updateOptions({ renderLineHighlight: val ? 'line' : 'none' })
 })
 
 watch(() => props.lineNumbers, (val) => {

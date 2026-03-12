@@ -120,11 +120,17 @@ function buildMenu(pluginMenuItems = []) {
       submenu: pluginsSubmenu,
     },
     {
+      label: 'Settings',
+      submenu: [
+        { label: 'Preferences...', accelerator: 'CmdOrCtrl+,', click: () => mainWindow?.webContents.send('menu:preferences') },
+      ],
+    },
+    {
       label: 'Help',
       submenu: [
         { label: 'Command Palette', accelerator: 'CmdOrCtrl+P', click: () => mainWindow?.webContents.send('menu:command-palette') },
         { type: 'separator' },
-        { label: 'About', role: 'about' },
+        { label: 'About AuroraPad', click: () => mainWindow?.webContents.send('menu:about') },
       ],
     },
   ]

@@ -3,12 +3,14 @@ import { ref, watch } from 'vue'
 import { useStorage } from '@vueuse/core'
 
 export const useSettingsStore = defineStore('settings', () => {
-  const theme = useStorage('notepad-theme', 'light') // 'light' | 'dark'
+  const theme = useStorage('notepad-theme', 'light') // 'light' | 'dark' | 'monokai' | 'solarized-dark'
   const wordWrap = ref(false)
   const lineNumbers = ref(true)
-  const sidebarVisible = ref(true)
+  const sidebarVisible = ref(false)
   const fontSize = ref(14)
   const recentFiles = ref([])
+  const showWhitespace = ref(false)
+  const highlightCurrentLine = ref(true)
 
   function setTheme(value) {
     theme.value = value
@@ -31,6 +33,14 @@ export const useSettingsStore = defineStore('settings', () => {
     fontSize.value = Math.max(10, Math.min(24, value))
   }
 
+  function setShowWhitespace(value) {
+    showWhitespace.value = !!value
+  }
+
+  function setHighlightCurrentLine(value) {
+    highlightCurrentLine.value = !!value
+  }
+
   function loadRecentFilesFromMain() {
     if (typeof window !== 'undefined' && window.electronAPI) {
       window.electronAPI.getRecentFiles().then(files => {
@@ -51,6 +61,13 @@ export const useSettingsStore = defineStore('settings', () => {
     document.documentElement.setAttribute('data-theme', theme.value)
   }
 
+  // Keep <html data-theme="..."> in sync even when theme is changed via v-model
+  if (typeof document !== 'undefined') {
+    watch(theme, (value) => {
+      document.documentElement.setAttribute('data-theme', value)
+    })
+  }
+
   return {
     theme,
     wordWrap,
@@ -58,11 +75,15 @@ export const useSettingsStore = defineStore('settings', () => {
     sidebarVisible,
     fontSize,
     recentFiles,
+    showWhitespace,
+    highlightCurrentLine,
     setTheme,
     setWordWrap,
     setLineNumbers,
     setSidebarVisible,
     setFontSize,
+    setShowWhitespace,
+    setHighlightCurrentLine,
     loadRecentFilesFromMain,
     clearRecentFiles,
   }

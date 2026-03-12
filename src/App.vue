@@ -64,6 +64,8 @@
               :word-wrap="settingsStore.wordWrap"
               :line-numbers="settingsStore.lineNumbers"
               :font-size="settingsStore.fontSize"
+              :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
+              :highlight-current-line="settingsStore.highlightCurrentLine"
               :bookmarks="tabsStore.activeTab.bookmarks || []"
               @update:model-value="onEditorContentChange"
               @cursor-change="onCursorChange"
@@ -98,30 +100,86 @@
       </div>
     </div>
     <div v-if="showPreferences" class="plugin-manager-overlay" @click.self="showPreferences = false">
-      <div class="plugin-manager">
+      <div class="plugin-manager preferences-panel">
         <h2>Preferences</h2>
-        <div class="plugin-manager-list">
-          <div class="plugin-manager-item">
-            <span>Theme</span>
-            <select v-model="settingsStore.theme">
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
+        <div class="plugin-manager-list preferences-body">
+          <div class="preferences-section">
+            <div class="preferences-section-title">Appearance</div>
+            <div class="plugin-manager-item">
+              <div class="preferences-item-main">
+                <span class="preferences-label">Theme</span>
+                <span class="preferences-hint">Choose a Notepad++-style color scheme.</span>
+              </div>
+              <select v-model="settingsStore.theme">
+                <option value="light">Aurora Light</option>
+                <option value="dark">Aurora Dark</option>
+                <option value="monokai">Monokai Dark</option>
+                <option value="solarized-dark">Solarized Dark</option>
+              </select>
+            </div>
           </div>
-          <div class="plugin-manager-item">
-            <span>Word Wrap</span>
-            <input type="checkbox" :checked="settingsStore.wordWrap" @change="settingsStore.setWordWrap($event.target.checked)" />
-          </div>
-          <div class="plugin-manager-item">
-            <span>Line Numbers</span>
-            <input type="checkbox" :checked="settingsStore.lineNumbers" @change="settingsStore.setLineNumbers($event.target.checked)" />
-          </div>
-          <div class="plugin-manager-item">
-            <span>Editor Font Size</span>
-            <input type="number" min="8" max="32" :value="settingsStore.fontSize" @input="settingsStore.setFontSize(Number($event.target.value) || 14)" />
+          <div class="preferences-section">
+            <div class="preferences-section-title">Editor</div>
+            <div class="plugin-manager-item">
+              <div class="preferences-item-main">
+                <span class="preferences-label">Word Wrap</span>
+                <span class="preferences-hint">Wrap long lines instead of scrolling horizontally.</span>
+              </div>
+              <input
+                type="checkbox"
+                :checked="settingsStore.wordWrap"
+                @change="settingsStore.setWordWrap($event.target.checked)"
+              />
+            </div>
+            <div class="plugin-manager-item">
+              <div class="preferences-item-main">
+                <span class="preferences-label">Line Numbers</span>
+                <span class="preferences-hint">Show line numbers in the editor gutter.</span>
+              </div>
+              <input
+                type="checkbox"
+                :checked="settingsStore.lineNumbers"
+                @change="settingsStore.setLineNumbers($event.target.checked)"
+              />
+            </div>
+            <div class="plugin-manager-item">
+              <div class="preferences-item-main">
+                <span class="preferences-label">Editor Font Size</span>
+                <span class="preferences-hint">Adjust the main editor font size.</span>
+              </div>
+              <input
+                type="number"
+                min="8"
+                max="32"
+                :value="settingsStore.fontSize"
+                @input="settingsStore.setFontSize(Number($event.target.value) || 14)"
+              />
+            </div>
+            <div class="plugin-manager-item">
+              <div class="preferences-item-main">
+                <span class="preferences-label">Show Whitespace & Tabs</span>
+                <span class="preferences-hint">Draw visible markers for spaces and tab characters.</span>
+              </div>
+              <input
+                type="checkbox"
+                :checked="settingsStore.showWhitespace"
+                @change="settingsStore.setShowWhitespace($event.target.checked)"
+              />
+            </div>
+            <div class="plugin-manager-item">
+              <div class="preferences-item-main">
+                <span class="preferences-label">Highlight Current Line</span>
+                <span class="preferences-hint">Shade the line with the text cursor (caret).</span>
+              </div>
+              <input
+                type="checkbox"
+                :checked="settingsStore.highlightCurrentLine"
+                @change="settingsStore.setHighlightCurrentLine($event.target.checked)"
+              />
+            </div>
           </div>
         </div>
-        <div style="padding: 8px 16px; display: flex; justify-content: flex-end; gap: 8px;">
+        <div class="preferences-footer">
           <button type="button" @click="showPreferences = false">Close</button>
         </div>
       </div>
@@ -159,7 +217,18 @@ const monacoEditorRef = ref(null)
 const showCommandPalette = ref(false)
 const showPluginManager = ref(false)
 
-const monacoTheme = computed(() => (settingsStore.theme === 'dark' ? 'vs-dark' : 'vs'))
+const monacoTheme = computed(() => {
+  switch (settingsStore.theme) {
+    case 'dark':
+      return 'vs-dark'
+    case 'monokai':
+      return 'aurora-monokai'
+    case 'solarized-dark':
+      return 'aurora-solarized-dark'
+    default:
+      return 'vs'
+  }
+})
 const showPreferences = ref(false)
 
 // Notepad++ menu order: File, Edit, Search, View, Encoding, Language, Settings, Plugins, Window, Help
@@ -613,7 +682,7 @@ function setupMenuListeners() {
     'menu:close-tab', 'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
     'menu:find', 'menu:replace', 'menu:go-to-line', 'menu:word-wrap', 'menu:line-numbers',
     'menu:zoom-in', 'menu:zoom-out', 'menu:zoom-reset', 'menu:toggle-sidebar', 'menu:theme',
-    'menu:command-palette', 'menu:plugin-manager',
+    'menu:command-palette', 'menu:plugin-manager', 'menu:preferences', 'menu:about',
   ]
   channels.forEach(channel => {
     window.electronAPI.onMenu(channel, (...args) => handleMenu(channel, ...args))
@@ -662,7 +731,7 @@ function onMenuBarAction(action, item) {
     return
   }
   if (action === 'menu:about') {
-    alert('Notepad Clone\nA Notepad++-style editor\nElectron + Vue 3 + Monaco')
+    alert('AuroraPad\nA modern, Notepad++-style editor for Windows.\n\nBuilt with Electron, Vue 3, and the Monaco editor.\n\nHighlights:\n• Multi-tab editing with bookmarks\n• Plugin system inspired by Notepad++\n• Status bar with encoding and EOL controls\n• Command palette and rich keyboard shortcuts')
     return
   }
   handleMenu(action)
