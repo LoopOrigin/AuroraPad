@@ -14,18 +14,53 @@ function languageFromPath(path) {
   if (!path) return 'plaintext'
   const ext = path.split('.').pop()?.toLowerCase()
   const map = {
-    js: 'javascript', ts: 'typescript', jsx: 'javascript', tsx: 'typescript',
-    // Treat common web frameworks as HTML/CSS/JS so Monaco can still help
+    // JavaScript / TypeScript & variants
+    js: 'javascript', mjs: 'javascript', cjs: 'javascript',
+    ts: 'typescript', jsx: 'javascript', tsx: 'typescript',
+
+    // Web frameworks & templates
+    // Treat as HTML so Monaco still provides good editing support
     vue: 'html', svelte: 'html', astro: 'html',
-    html: 'html', htm: 'html', css: 'css', scss: 'scss', less: 'less',
+
+    // Web assets
+    html: 'html', htm: 'html',
+    css: 'css', scss: 'scss', less: 'less',
+
+    // Data / config formats
     json: 'json', jsonc: 'json',
     md: 'markdown', markdown: 'markdown',
-    py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
-    java: 'java', kt: 'kotlin', c: 'c', cpp: 'cpp', h: 'c', hpp: 'cpp',
+    yml: 'yaml', yaml: 'yaml',
+    xml: 'xml',
+    ini: 'ini',
+    toml: 'toml',
+
+    // Popular languages
+    py: 'python',
+    rb: 'ruby', rbw: 'ruby', rake: 'ruby',
+    go: 'go',
+    rs: 'rust',
+    java: 'java', kt: 'kotlin',
+    c: 'c', h: 'c',
+    cpp: 'cpp', cxx: 'cpp', cc: 'cpp', hpp: 'cpp', hxx: 'cpp',
     cs: 'csharp', csx: 'csharp',
-    php: 'php', rbw: 'ruby',
-    sql: 'sql', sh: 'shell', bash: 'shell', ps1: 'powershell',
-    yaml: 'yaml', yml: 'yaml', xml: 'xml',
+    php: 'php',
+    ex: 'elixir', exs: 'elixir',
+    hs: 'haskell',
+    scala: 'scala',
+    swift: 'swift',
+    dart: 'dart',
+    lua: 'lua',
+    clj: 'clojure',
+
+    // Scripts / shells
+    sql: 'sql',
+    sh: 'shell', bash: 'shell', zsh: 'shell', ksh: 'shell',
+    ps1: 'powershell', psm1: 'powershell',
+
+    // Markup / views
+    razor: 'razor', cshtml: 'razor',
+
+    // Infrastructure / DevOps
     dockerfile: 'dockerfile',
   }
   return map[ext] || 'plaintext'
