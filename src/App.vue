@@ -104,7 +104,11 @@
         </div>
       </div>
       <StatusBar @go-to-line="handleMenu('menu:go-to-line')" />
-      <TerminalPanel v-if="showTerminal" @close="showTerminal = false" />
+      <TerminalDock
+        v-if="showTerminal"
+        ref="terminalDockRef"
+        @close="showTerminal = false"
+      />
     </div>
     </div>
     <div v-if="showPluginManager" class="plugin-manager-overlay" @click.self="showPluginManager = false">
@@ -241,7 +245,7 @@ import StatusBar from './components/StatusBar.vue'
 import Toolbar from './components/Toolbar.vue'
 import MenuBar from './components/MenuBar.vue'
 import FindInFiles from './components/FindInFiles.vue'
-import TerminalPanel from './components/TerminalPanel.vue'
+import TerminalDock from './components/TerminalDock.vue'
 
 const tabsStore = useTabsStore()
 const settingsStore = useSettingsStore()
@@ -253,6 +257,7 @@ const showCommandPalette = ref(false)
 const showPluginManager = ref(false)
 const showFindInFiles = ref(false)
 const showTerminal = ref(false)
+const terminalDockRef = ref(null)
 const splitViewEnabled = ref(false)
 const secondaryTabId = ref(null)
 const lastRunCommand = ref('')
@@ -456,6 +461,16 @@ const menuBarMenus = computed(() => [
     items: [
       { label: 'Run...', action: 'menu:run-command' },
       { label: 'Run Last Command', action: 'menu:run-last-command', enabled: false },
+    ],
+  },
+  {
+    id: 'terminal',
+    label: 'Terminal',
+    items: [
+      { label: 'Toggle Terminal Panel', action: 'menu:toggle-terminal' },
+      { label: 'New Terminal', action: 'menu:terminal-new' },
+      { label: 'Next Terminal', action: 'menu:terminal-next' },
+      { label: 'Previous Terminal', action: 'menu:terminal-prev' },
     ],
   },
   {
@@ -753,11 +768,14 @@ async function restoreSession() {
 function saveSession() {
   if (!window.electronAPI?.setSession) return
   const tabs = tabsStore.tabs.slice(0, SESSION_MAX_TABS).map(t => ({
-    path: t.path,
-    name: t.name,
-    content: t.path ? undefined : t.content,
-    cursorPosition: t.cursorPosition || { line: 1, column: 1 },
-    bookmarks: t.bookmarks || [],
+    path: t.path ?? null,
+    name: t.name ?? null,
+    content: t.path ? undefined : (t.content ?? ''),
+    cursorPosition: {
+      line: t.cursorPosition?.line ?? 1,
+      column: t.cursorPosition?.column ?? 1,
+    },
+    bookmarks: Array.isArray(t.bookmarks) ? [...t.bookmarks] : [],
     encoding: t.encoding || 'utf8',
     eol: t.eol || 'crlf',
     language: t.language || 'plaintext',
@@ -796,6 +814,7 @@ function setupMenuListeners() {
     'menu:save-copy-as', 'menu:rename', 'menu:reload-from-disk',
     'menu:open-containing-folder:explorer', 'menu:open-containing-folder:cmd', 'menu:open-containing-folder:faw',
     'menu:open-in-default-viewer', 'menu:open-all-recent', 'menu:restore-recent', 'menu:clear-recent',
+    'menu:toggle-terminal', 'menu:terminal-new', 'menu:terminal-next', 'menu:terminal-prev',
   ]
   channels.forEach(channel => {
     window.electronAPI.onMenu(channel, (...args) => handleMenu(channel, ...args))
@@ -850,6 +869,19 @@ function onMenuBarAction(action, item) {
   }
   if (action === 'menu:toggle-terminal') {
     showTerminal.value = !showTerminal.value
+    return
+  }
+  if (action === 'menu:terminal-new') {
+    if (!showTerminal.value) showTerminal.value = true
+    terminalDockRef.value?.newSession?.()
+    return
+  }
+  if (action === 'menu:terminal-next') {
+    terminalDockRef.value?.nextSession?.()
+    return
+  }
+  if (action === 'menu:terminal-prev') {
+    terminalDockRef.value?.prevSession?.()
     return
   }
   if (action === 'menu:move-to-other-view') {

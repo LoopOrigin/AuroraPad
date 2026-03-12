@@ -15,14 +15,18 @@ function languageFromPath(path) {
   const ext = path.split('.').pop()?.toLowerCase()
   const map = {
     js: 'javascript', ts: 'typescript', jsx: 'javascript', tsx: 'typescript',
-    // Treat .vue files as HTML so Monaco uses its built-in HTML language support
-    vue: 'html', html: 'html', htm: 'html', css: 'css', scss: 'scss', less: 'less',
-    json: 'json', md: 'markdown', py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
+    // Treat common web frameworks as HTML/CSS/JS so Monaco can still help
+    vue: 'html', svelte: 'html', astro: 'html',
+    html: 'html', htm: 'html', css: 'css', scss: 'scss', less: 'less',
+    json: 'json', jsonc: 'json',
+    md: 'markdown', markdown: 'markdown',
+    py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
     java: 'java', kt: 'kotlin', c: 'c', cpp: 'cpp', h: 'c', hpp: 'cpp',
     cs: 'csharp', csx: 'csharp',
     php: 'php', rbw: 'ruby',
     sql: 'sql', sh: 'shell', bash: 'shell', ps1: 'powershell',
     yaml: 'yaml', yml: 'yaml', xml: 'xml',
+    dockerfile: 'dockerfile',
   }
   return map[ext] || 'plaintext'
 }
