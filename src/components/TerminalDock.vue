@@ -33,9 +33,9 @@
         title="Default shell profile for new terminals"
       >
         <option value="default">Default</option>
-        <option value="powershell">PowerShell</option>
-        <option value="bash">Git Bash</option>
-        <option value="wsl">WSL</option>
+        <option v-if="isWindows" value="powershell">PowerShell</option>
+        <option v-if="isWindows" value="bash">Git Bash</option>
+        <option v-if="isWindows" value="wsl">WSL</option>
       </select>
       <button type="button" class="terminal-tab-hide" @click="$emit('close')">Hide</button>
     </div>
@@ -46,7 +46,9 @@
         v-show="session.id === activeSessionId"
         :show-header="false"
         :shell="session.shell"
+        :cwd="session.cwd || ''"
         :title="session.title"
+        :active="session.id === activeSessionId"
       />
     </div>
   </div>
@@ -63,6 +65,7 @@ const sessions = ref([
 ])
 const activeSessionId = ref('term-1')
 const profileShell = ref('default')
+const isWindows = navigator.userAgent.toLowerCase().includes('win')
 let nextCounter = 2
 
 function setActive(id) {
@@ -71,11 +74,11 @@ function setActive(id) {
   }
 }
 
-function newSession(shell = 'default') {
+function newSession(shell = profileShell.value, cwd = '') {
   const id = `term-${nextCounter++}`
   const index = sessions.value.length + 1
   const title = shellTitle(shell, index)
-  sessions.value.push({ id, title, shell })
+  sessions.value.push({ id, title, shell, cwd })
   activeSessionId.value = id
 }
 

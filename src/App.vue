@@ -1,14 +1,37 @@
 <template>
-  <div class="app-layout">
-    <header class="app-menu-bar">
+  <div class="app-layout" :class="{ 'is-mac': isMacPlatform }">
+    <header class="app-menu-bar" :class="{ 'is-mac-header': isMacPlatform }">
       <MenuBar
+        v-if="!isMacPlatform"
         :menus="menuBarMenus"
         @new="menuNew"
         @open="menuOpenFile"
         @close-tab="menuCloseTab"
         @action="onMenuBarAction"
       />
+      <span v-else class="mac-title">AuroraPad</span>
     </header>
+    <Toolbar
+      :can-save="!!(tabsStore.activeTab?.isDirty)"
+      :has-editor="!!tabsStore.activeTab"
+      :can-save-all="tabsStore.hasDirty"
+      @new="menuNew"
+      @open="menuOpenFile"
+      @save="menuSave"
+      @save-all="handleMenu('menu:save-all')"
+      @cut="handleMenu('menu:cut')"
+      @copy="handleMenu('menu:copy')"
+      @paste="handleMenu('menu:paste')"
+      @find="handleMenu('menu:find')"
+      @replace="handleMenu('menu:replace')"
+      @undo="handleMenu('menu:undo')"
+      @redo="handleMenu('menu:redo')"
+      @toggle-word-wrap="settingsStore.setWordWrap(!settingsStore.wordWrap)"
+      @go-to-line="handleMenu('menu:go-to-line')"
+      @zoom-in="handleMenu('menu:zoom-in')"
+      @zoom-out="handleMenu('menu:zoom-out')"
+      @preferences="openPreferences"
+    />
     <div class="app-body">
     <aside class="sidebar" :class="{ collapsed: !settingsStore.sidebarVisible }">
       <FileTree @open-file="openFileByPath" />
@@ -28,27 +51,6 @@
       </ul>
     </aside>
     <div class="editor-area">
-      <Toolbar
-        :can-save="!!(tabsStore.activeTab?.isDirty)"
-        :has-editor="!!tabsStore.activeTab"
-        :can-save-all="tabsStore.hasDirty"
-        @new="menuNew"
-        @open="menuOpenFile"
-        @save="menuSave"
-        @save-all="handleMenu('menu:save-all')"
-        @cut="handleMenu('menu:cut')"
-        @copy="handleMenu('menu:copy')"
-        @paste="handleMenu('menu:paste')"
-        @find="handleMenu('menu:find')"
-        @replace="handleMenu('menu:replace')"
-        @undo="handleMenu('menu:undo')"
-        @redo="handleMenu('menu:redo')"
-        @toggle-word-wrap="settingsStore.setWordWrap(!settingsStore.wordWrap)"
-        @go-to-line="handleMenu('menu:go-to-line')"
-        @zoom-in="handleMenu('menu:zoom-in')"
-        @zoom-out="handleMenu('menu:zoom-out')"
-        @preferences="openPreferences"
-      />
       <TabBar />
       <div class="editor-container" :class="{ 'editor-container-split': splitViewEnabled }">
         <template v-if="tabsStore.activeTab">
@@ -215,6 +217,7 @@
     </div>
     <CommandPalette
       v-if="showCommandPalette"
+      :recent-only="commandPaletteRecentOnly"
       @close="closeCommandPalette"
       @open-file="openFileByPath"
       @open-file-dialog="menuOpenFile"
@@ -254,6 +257,7 @@ const fileTreeStore = useFileTreeStore()
 const monacoEditorRef = ref(null)
 const monacoEditorSecondaryRef = ref(null)
 const showCommandPalette = ref(false)
+const commandPaletteRecentOnly = ref(false)
 const showPluginManager = ref(false)
 const showFindInFiles = ref(false)
 const showTerminal = ref(false)
@@ -282,66 +286,68 @@ const monacoTheme = computed(() => {
 })
 const showPreferences = ref(false)
 
+const isMacPlatform = navigator.userAgent.toLowerCase().includes('mac')
+
 // Notepad++ menu order: File, Edit, Search, View, Encoding, Language, Settings, Plugins, Window, Help
 const menuBarMenus = computed(() => [
   {
     id: 'file',
     label: 'File',
     items: [
-      { label: 'New', shortcut: 'Ctrl+N', action: 'menu:new', icon: 'fa-solid fa-file' },
+      { label: 'New', shortcut: isMacPlatform ? 'Cmd+N' : 'Ctrl+N', action: 'menu:new', icon: 'fa-solid fa-file' },
       { type: 'separator' },
-      { label: 'Open...', shortcut: 'Ctrl+O', action: 'menu:open-file', icon: 'fa-solid fa-folder-open' },
-      { label: 'Open Folder...', shortcut: 'Ctrl+Shift+O', action: 'menu:open-folder' },
+      { label: 'Open...', shortcut: isMacPlatform ? 'Cmd+O' : 'Ctrl+O', action: 'menu:open-file', icon: 'fa-solid fa-folder-open' },
+      { label: 'Open Folder...', shortcut: isMacPlatform ? 'Cmd+Shift+O' : 'Ctrl+Shift+O', action: 'menu:open-folder' },
       { type: 'separator' },
-      { label: 'Save', shortcut: 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-floppy-disk' },
-      { label: 'Save All', shortcut: 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-layer-group' },
+      { label: 'Save', shortcut: isMacPlatform ? 'Cmd+S' : 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-floppy-disk' },
+      { label: 'Save All', shortcut: isMacPlatform ? 'Cmd+Shift+S' : 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-layer-group' },
       { label: 'Save As...', shortcut: 'F12', action: 'menu:save-as', enabled: !!tabsStore.activeTab },
       { label: 'Save a Copy As...', action: 'menu:save-copy-as', enabled: !!tabsStore.activeTab },
       { label: 'Rename...', action: 'menu:rename', enabled: !!tabsStore.activeTab },
       { type: 'separator' },
-      { label: 'Close Tab', shortcut: 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
+      { label: 'Close Tab', shortcut: isMacPlatform ? 'Cmd+W' : 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
       { label: 'Close All', action: 'menu:close-all', enabled: tabsStore.tabs.length > 0 },
       { label: 'Close All But Active', action: 'menu:close-others', enabled: tabsStore.tabs.length > 1 },
       { label: 'Close All Unchanged', action: 'menu:close-all-unchanged', enabled: tabsStore.tabs.some(t => !t.isDirty) },
       { type: 'separator' },
       { label: 'Reload from Disk', action: 'menu:reload-from-disk', enabled: !!tabsStore.activeTab?.path },
       { type: 'separator' },
-      { label: 'Open Containing Folder in Explorer', action: 'menu:open-containing-folder:explorer', enabled: !!tabsStore.activeTab?.path },
-      { label: 'Open Containing Folder in Command Prompt', action: 'menu:open-containing-folder:cmd', enabled: !!tabsStore.activeTab?.path },
+      { label: isMacPlatform ? 'Open Containing Folder in Finder' : 'Open Containing Folder in Explorer', action: 'menu:open-containing-folder:explorer', enabled: !!tabsStore.activeTab?.path },
+      { label: isMacPlatform ? 'Open Containing Folder in Terminal' : 'Open Containing Folder in Command Prompt', action: 'menu:open-containing-folder:cmd', enabled: !!tabsStore.activeTab?.path },
       { label: 'Open Containing Folder as Workspace', action: 'menu:open-containing-folder:faw', enabled: !!tabsStore.activeTab?.path },
       { label: 'Open in Default Viewer', action: 'menu:open-in-default-viewer', enabled: !!tabsStore.activeTab?.path },
       { type: 'separator' },
       { label: 'Open Recent...', action: 'menu:open-recent-dialog', enabled: settingsStore.recentFiles.length > 0 },
-      { label: 'Exit', shortcut: 'Alt+F4', action: 'menu:exit' },
+      { label: 'Exit', shortcut: isMacPlatform ? 'Cmd+Q' : 'Alt+F4', action: 'menu:exit' },
     ],
   },
   {
     id: 'edit',
     label: 'Edit',
     items: [
-      { label: 'Undo', shortcut: 'Ctrl+Z', action: 'menu:undo', icon: 'fa-solid fa-rotate-left' },
-      { label: 'Redo', shortcut: 'Ctrl+Y', action: 'menu:redo', icon: 'fa-solid fa-rotate-right' },
+      { label: 'Undo', shortcut: isMacPlatform ? 'Cmd+Z' : 'Ctrl+Z', action: 'menu:undo', icon: 'fa-solid fa-rotate-left' },
+      { label: 'Redo', shortcut: isMacPlatform ? 'Cmd+Y' : 'Ctrl+Y', action: 'menu:redo', icon: 'fa-solid fa-rotate-right' },
       { type: 'separator' },
-      { label: 'Cut', shortcut: 'Ctrl+X', action: 'menu:cut', icon: 'fa-solid fa-scissors' },
-      { label: 'Copy', shortcut: 'Ctrl+C', action: 'menu:copy', icon: 'fa-solid fa-copy' },
-      { label: 'Paste', shortcut: 'Ctrl+V', action: 'menu:paste', icon: 'fa-solid fa-clipboard' },
+      { label: 'Cut', shortcut: isMacPlatform ? 'Cmd+X' : 'Ctrl+X', action: 'menu:cut', icon: 'fa-solid fa-scissors' },
+      { label: 'Copy', shortcut: isMacPlatform ? 'Cmd+C' : 'Ctrl+C', action: 'menu:copy', icon: 'fa-solid fa-copy' },
+      { label: 'Paste', shortcut: isMacPlatform ? 'Cmd+V' : 'Ctrl+V', action: 'menu:paste', icon: 'fa-solid fa-clipboard' },
       { type: 'separator' },
-      { label: 'Duplicate Line', shortcut: 'Ctrl+D', action: 'menu:duplicate-line' },
-      { label: 'Delete Line', shortcut: 'Ctrl+L', action: 'menu:delete-line' },
-      { label: 'Move Line Up', shortcut: 'Ctrl+Shift+Up', action: 'menu:move-line-up' },
-      { label: 'Move Line Down', shortcut: 'Ctrl+Shift+Down', action: 'menu:move-line-down' },
-      { label: 'Join Lines', shortcut: 'Ctrl+J', action: 'menu:join-lines' },
+      { label: 'Duplicate Line', shortcut: isMacPlatform ? 'Cmd+D' : 'Ctrl+D', action: 'menu:duplicate-line' },
+      { label: 'Delete Line', shortcut: isMacPlatform ? 'Cmd+L' : 'Ctrl+L', action: 'menu:delete-line' },
+      { label: 'Move Line Up', shortcut: isMacPlatform ? 'Cmd+Shift+Up' : 'Ctrl+Shift+Up', action: 'menu:move-line-up' },
+      { label: 'Move Line Down', shortcut: isMacPlatform ? 'Cmd+Shift+Down' : 'Ctrl+Shift+Down', action: 'menu:move-line-down' },
+      { label: 'Join Lines', shortcut: isMacPlatform ? 'Cmd+J' : 'Ctrl+J', action: 'menu:join-lines' },
       { type: 'separator' },
-      { label: 'Toggle Comment', shortcut: 'Ctrl+Q', action: 'menu:toggle-comment' },
+      { label: 'Toggle Comment', shortcut: isMacPlatform ? 'Cmd+Q' : 'Ctrl+Q', action: 'menu:toggle-comment' },
       { type: 'separator' },
-      { label: 'Lowercase', shortcut: 'Ctrl+U', action: 'menu:lowercase' },
-      { label: 'UPPERCASE', shortcut: 'Ctrl+Shift+U', action: 'menu:uppercase' },
+      { label: 'Lowercase', shortcut: isMacPlatform ? 'Cmd+U' : 'Ctrl+U', action: 'menu:lowercase' },
+      { label: 'UPPERCASE', shortcut: isMacPlatform ? 'Cmd+Shift+U' : 'Ctrl+Shift+U', action: 'menu:uppercase' },
       { type: 'separator' },
-      { label: 'Find', shortcut: 'Ctrl+F', action: 'menu:find', icon: 'fa-solid fa-magnifying-glass' },
-      { label: 'Replace', shortcut: 'Ctrl+H', action: 'menu:replace', icon: 'fa-solid fa-magnifying-glass-arrow-right' },
-      { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line', icon: 'fa-solid fa-arrow-down-1-9' },
+      { label: 'Find', shortcut: isMacPlatform ? 'Cmd+F' : 'Ctrl+F', action: 'menu:find', icon: 'fa-solid fa-magnifying-glass' },
+      { label: 'Replace', shortcut: isMacPlatform ? 'Cmd+H' : 'Ctrl+H', action: 'menu:replace', icon: 'fa-solid fa-magnifying-glass-arrow-right' },
+      { label: 'Go to Line...', shortcut: isMacPlatform ? 'Cmd+G' : 'Ctrl+G', action: 'menu:go-to-line', icon: 'fa-solid fa-arrow-down-1-9' },
       { type: 'separator' },
-      { label: 'Toggle Bookmark', shortcut: 'Ctrl+F2', action: 'menu:toggle-bookmark' },
+      { label: 'Toggle Bookmark', shortcut: isMacPlatform ? 'Cmd+F2' : 'Ctrl+F2', action: 'menu:toggle-bookmark' },
       { label: 'Next Bookmark', shortcut: 'F2', action: 'menu:next-bookmark' },
       { label: 'Previous Bookmark', shortcut: 'Shift+F2', action: 'menu:prev-bookmark' },
       { label: 'Clear All Bookmarks', action: 'menu:clear-bookmarks' },
@@ -364,15 +370,15 @@ const menuBarMenus = computed(() => [
     id: 'search',
     label: 'Search',
     items: [
-      { label: 'Find', shortcut: 'Ctrl+F', action: 'menu:find' },
-      { label: 'Replace', shortcut: 'Ctrl+H', action: 'menu:replace' },
+      { label: 'Find', shortcut: isMacPlatform ? 'Cmd+F' : 'Ctrl+F', action: 'menu:find' },
+      { label: 'Replace', shortcut: isMacPlatform ? 'Cmd+H' : 'Ctrl+H', action: 'menu:replace' },
       { label: 'Find Next', shortcut: 'F3', action: 'menu:find-next' },
       { label: 'Find Previous', shortcut: 'Shift+F3', action: 'menu:find-prev' },
-      { label: 'Go to Line...', shortcut: 'Ctrl+G', action: 'menu:go-to-line' },
+      { label: 'Go to Line...', shortcut: isMacPlatform ? 'Cmd+G' : 'Ctrl+G', action: 'menu:go-to-line' },
       { type: 'separator' },
-      { label: 'Find in Files…', shortcut: 'Ctrl+Shift+F', action: 'menu:find-in-files' },
+      { label: 'Find in Files…', shortcut: isMacPlatform ? 'Cmd+Shift+F' : 'Ctrl+Shift+F', action: 'menu:find-in-files' },
       { type: 'separator' },
-      { label: 'Command Palette', shortcut: 'Ctrl+P', action: 'menu:command-palette' },
+      { label: 'Command Palette', shortcut: isMacPlatform ? 'Cmd+P' : 'Ctrl+P', action: 'menu:command-palette' },
     ],
   },
   {
@@ -382,11 +388,11 @@ const menuBarMenus = computed(() => [
       { label: 'Word Wrap', action: 'menu:word-wrap-toggle' },
       { label: 'Line Numbers', action: 'menu:line-numbers-toggle' },
       { type: 'separator' },
-      { label: 'Zoom In', shortcut: 'Ctrl++', action: 'menu:zoom-in' },
-      { label: 'Zoom Out', shortcut: 'Ctrl+-', action: 'menu:zoom-out' },
-      { label: 'Reset Zoom', shortcut: 'Ctrl+0', action: 'menu:zoom-reset' },
+      { label: 'Zoom In', shortcut: isMacPlatform ? 'Cmd+Plus' : 'Ctrl++', action: 'menu:zoom-in' },
+      { label: 'Zoom Out', shortcut: isMacPlatform ? 'Cmd+-' : 'Ctrl+-', action: 'menu:zoom-out' },
+      { label: 'Reset Zoom', shortcut: isMacPlatform ? 'Cmd+0' : 'Ctrl+0', action: 'menu:zoom-reset' },
       { type: 'separator' },
-      { label: 'Toggle Sidebar', shortcut: 'Ctrl+B', action: 'menu:toggle-sidebar' },
+      { label: 'Toggle Sidebar', shortcut: isMacPlatform ? 'Cmd+B' : 'Ctrl+B', action: 'menu:toggle-sidebar' },
       { label: 'Dark Theme', action: 'menu:theme-toggle' },
       { type: 'separator' },
       { label: 'Toggle Minimap', action: 'menu:toggle-minimap' },
@@ -460,7 +466,7 @@ const menuBarMenus = computed(() => [
     label: 'Run',
     items: [
       { label: 'Run...', action: 'menu:run-command' },
-      { label: 'Run Last Command', action: 'menu:run-last-command', enabled: false },
+      { label: 'Run Last Command', action: 'menu:run-last-command', enabled: !!lastRunCommand.value },
     ],
   },
   {
@@ -533,7 +539,17 @@ onMounted(() => {
 })
 
 function setupKeyboardShortcuts() {
+  const isMac = navigator.userAgent.toLowerCase().includes('mac')
   const keydown = (e) => {
+    // Zoom shortcuts (CmdOrCtrl + Plus/Minus/0) - handle early as they are global
+    if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+' || e.key === '-' || e.key === '0')) {
+      e.preventDefault()
+      if (e.key === '=' || e.key === '+') handleMenu('menu:zoom-in')
+      else if (e.key === '-') handleMenu('menu:zoom-out')
+      else if (e.key === '0') handleMenu('menu:zoom-reset')
+      return
+    }
+
     const target = e.target
     if (
       target &&
@@ -546,6 +562,9 @@ function setupKeyboardShortcuts() {
       return
     }
 
+    // Command/Ctrl modifier
+    const mod = isMac ? e.metaKey : e.ctrlKey
+
     // Save As via F12 (matches menu hint)
     if (e.key === 'F12') {
       e.preventDefault()
@@ -553,7 +572,8 @@ function setupKeyboardShortcuts() {
       return
     }
 
-    // Line move shortcuts (Ctrl+Shift+Up/Down)
+    // Line move shortcuts (Ctrl+Shift+Up/Down or Alt+Shift+Up/Down on some systems, 
+    // but the app uses Ctrl+Shift+Up/Down as standard. On Mac we'll keep it as Cmd+Shift or Ctrl+Shift)
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault()
       const action = e.key === 'ArrowUp' ? 'menu:move-line-up' : 'menu:move-line-down'
@@ -571,16 +591,11 @@ function setupKeyboardShortcuts() {
     // Bookmark shortcuts (F2, Shift+F2, Ctrl+F2) - handle even when focus in editor
     if (e.key === 'F2') {
       e.preventDefault()
-      handleMenu(e.ctrlKey ? 'menu:toggle-bookmark' : (e.shiftKey ? 'menu:prev-bookmark' : 'menu:next-bookmark'))
-      return
-    }
-    if (e.ctrlKey && e.key === 'F2') {
-      e.preventDefault()
-      handleMenu('menu:toggle-bookmark')
+      handleMenu(mod ? 'menu:toggle-bookmark' : (e.shiftKey ? 'menu:prev-bookmark' : 'menu:next-bookmark'))
       return
     }
 
-    if (e.ctrlKey || e.metaKey) {
+    if (mod) {
       switch (e.key?.toLowerCase()) {
         case 'n':
           e.preventDefault()
@@ -807,145 +822,171 @@ function setupSessionPersistence() {
 
 function setupMenuListeners() {
   if (!window.electronAPI?.onMenu) return
-  const channels = [
+  
+  // Dynamically register all actions from the menu structure
+  const allActions = new Set()
+  menuBarMenus.value.forEach(menu => {
+    menu.items.forEach(item => {
+      if (item.action) allActions.add(item.action)
+      if (item.submenu) {
+        item.submenu.forEach(sub => {
+          if (sub.action) allActions.add(sub.action)
+        })
+      }
+    })
+  })
+
+  // Add explicit IPC-only channels and variants
+  const explicit = [
     'menu:new', 'menu:open-file', 'menu:open-folder', 'menu:save', 'menu:save-all', 'menu:save-as',
-    'menu:close-tab', 'menu:close-all', 'menu:close-others',
+    'menu:close-tab', 'menu:close-all', 'menu:close-others', 'menu:close-all-unchanged',
     'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
-    'menu:find', 'menu:replace', 'menu:go-to-line', 'menu:word-wrap', 'menu:line-numbers',
-    'menu:zoom-in', 'menu:zoom-out', 'menu:zoom-reset', 'menu:toggle-sidebar', 'menu:theme',
+    'menu:find', 'menu:replace', 'menu:find-next', 'menu:find-prev', 'menu:go-to-line',
+    'menu:word-wrap', 'menu:line-numbers', 'menu:toggle-sidebar', 'menu:theme',
     'menu:command-palette', 'menu:plugin-manager', 'menu:preferences', 'menu:about', 'menu:find-in-files',
     'menu:save-copy-as', 'menu:rename', 'menu:reload-from-disk',
     'menu:open-containing-folder:explorer', 'menu:open-containing-folder:cmd', 'menu:open-containing-folder:faw',
     'menu:open-in-default-viewer', 'menu:open-all-recent', 'menu:restore-recent', 'menu:clear-recent',
-    'menu:toggle-terminal',
+    'menu:toggle-terminal', 'menu:plugin-run',
     'menu:terminal-new-default', 'menu:terminal-new-powershell', 'menu:terminal-new-gitbash', 'menu:terminal-new-wsl',
     'menu:terminal-next', 'menu:terminal-prev',
+    'menu:hash-md5', 'menu:hash-sha1', 'menu:hash-sha256',
+    'menu:duplicate-line', 'menu:delete-line', 'menu:move-line-up', 'menu:move-line-down', 'menu:join-lines',
+    'menu:toggle-comment', 'menu:lowercase', 'menu:uppercase', 'menu:toggle-minimap', 'menu:toggle-split-view',
+    'menu:fold-all', 'menu:unfold-all', 'menu:move-to-other-view', 'menu:clone-to-other-view',
+    'menu:encoding:utf8', 'menu:encoding:utf16le', 'menu:encoding:utf16be', 'menu:encoding:latin1', 'menu:encoding:windows-1252',
+    'menu:language:plaintext', 'menu:language:javascript', 'menu:language:typescript', 'menu:language:html', 'menu:language:css',
+    'menu:language:json', 'menu:language:markdown', 'menu:language:python', 'menu:language:xml', 'menu:language:c',
+    'menu:language:cpp', 'menu:language:csharp', 'menu:language:java', 'menu:language:php', 'menu:language:ruby',
+    'menu:language:go', 'menu:language:rust', 'menu:language:sql', 'menu:language:shell', 'menu:language:yaml'
   ]
-  channels.forEach(channel => {
+  explicit.forEach(a => allActions.add(a))
+  
+  allActions.forEach(channel => {
     window.electronAPI.onMenu(channel, (...args) => handleMenu(channel, ...args))
   })
 }
 
 function onMenuBarAction(action, item) {
-  if (action === 'menu:plugin-run' && item.pluginId != null && item.actionId != null) {
+  if (action === 'menu:plugin-run' && item?.pluginId != null && item?.actionId != null) {
     const api = createPluginApi(
       () => monacoEditorRef.value,
       () => tabsStore.activeTab,
       (id, text) => tabsStore.setContent(id, text)
     )
     pluginsStore.runAction(item.pluginId, item.actionId, api)
-    return
+    return true
   }
   if (action.startsWith('menu:encoding:')) {
     const enc = action.replace('menu:encoding:', '')
     if (tabsStore.activeTab) tabsStore.updateTab(tabsStore.activeTabId, { encoding: enc })
-    return
+    return true
   }
   if (action.startsWith('menu:language:')) {
     const lang = action.replace('menu:language:', '')
     if (tabsStore.activeTab) tabsStore.updateTab(tabsStore.activeTabId, { language: lang })
-    return
+    return true
   }
   if (action === 'menu:word-wrap-toggle') {
     settingsStore.setWordWrap(!settingsStore.wordWrap)
-    return
+    return true
   }
   if (action === 'menu:line-numbers-toggle') {
     settingsStore.setLineNumbers(!settingsStore.lineNumbers)
-    return
+    return true
   }
   if (action === 'menu:toggle-minimap') {
     settingsStore.setShowMinimap(!settingsStore.showMinimap)
-    return
+    return true
   }
   if (action === 'menu:toggle-split-view') {
     splitViewEnabled.value = !splitViewEnabled.value
-    return
+    return true
   }
   if (action === 'menu:fold-all') {
     monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.foldAll')
     monacoEditorSecondaryRef.value?.getEditor()?.trigger('keyboard', 'editor.foldAll')
-    return
+    return true
   }
   if (action === 'menu:unfold-all') {
     monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.unfoldAll')
     monacoEditorSecondaryRef.value?.getEditor()?.trigger('keyboard', 'editor.unfoldAll')
-    return
+    return true
   }
   if (action === 'menu:toggle-terminal') {
     showTerminal.value = !showTerminal.value
-    return
+    return true
   }
   if (action === 'menu:terminal-new-default') {
     if (!showTerminal.value) showTerminal.value = true
     terminalDockRef.value?.newSession?.('default')
-    return
+    return true
   }
   if (action === 'menu:terminal-new-powershell') {
     if (!showTerminal.value) showTerminal.value = true
     terminalDockRef.value?.newSession?.('powershell')
-    return
+    return true
   }
   if (action === 'menu:terminal-new-gitbash') {
     if (!showTerminal.value) showTerminal.value = true
     terminalDockRef.value?.newSession?.('bash')
-    return
+    return true
   }
   if (action === 'menu:terminal-new-wsl') {
     if (!showTerminal.value) showTerminal.value = true
     terminalDockRef.value?.newSession?.('wsl')
-    return
+    return true
   }
   if (action === 'menu:terminal-next') {
     terminalDockRef.value?.nextSession?.()
-    return
+    return true
   }
   if (action === 'menu:terminal-prev') {
     terminalDockRef.value?.prevSession?.()
-    return
+    return true
   }
   if (action === 'menu:move-to-other-view') {
     if (tabsStore.activeTabId && splitViewEnabled.value) {
       secondaryTabId.value = tabsStore.activeTabId
     }
-    return
+    return true
   }
   if (action === 'menu:clone-to-other-view') {
     if (tabsStore.activeTabId && splitViewEnabled.value) {
       secondaryTabId.value = tabsStore.activeTabId
     }
-    return
+    return true
   }
   if (action === 'menu:hash-md5' || action === 'menu:hash-sha1' || action === 'menu:hash-sha256') {
     runHashTool(action)
-    return
+    return true
   }
   if (action === 'menu:run-command') {
     runCommandPrompt()
-    return
+    return true
   }
   if (action === 'menu:run-last-command') {
     runLastCommand()
-    return
+    return true
   }
   if (action === 'menu:theme-toggle') {
     const next = settingsStore.theme === 'dark' ? 'light' : 'dark'
     settingsStore.setTheme(next)
-    return
+    return true
   }
   if (action === 'menu:preferences') {
     showPreferences.value = true
-    return
+    return true
   }
   if (action === 'menu:exit') {
     if (window.electronAPI?.quit) window.electronAPI.quit()
-    return
+    return true
   }
   if (action === 'menu:about') {
-    alert('AuroraPad\nA modern, Notepad++-style editor for Windows.\n\nBuilt with Electron, Vue 3, and the Monaco editor.\n\nHighlights:\n• Multi-tab editing with bookmarks\n• Plugin system inspired by Notepad++\n• Status bar with encoding and EOL controls\n• Command palette and rich keyboard shortcuts')
-    return
+    alert('AuroraPad\nA modern, Notepad++-style editor for Windows, Mac, and Linux.\n\nBuilt with Electron, Vue 3, and the Monaco editor.\n\nHighlights:\n• Multi-tab editing with bookmarks\n• Integrated terminal (cross-platform)\n• Plugin system inspired by Notepad++\n• Status bar with encoding and EOL controls\n• Command palette and rich keyboard shortcuts')
+    return true
   }
-  handleMenu(action)
+  return false
 }
 
 function menuCloseTab() {
@@ -977,6 +1018,9 @@ function menuCloseAllUnchanged() {
 }
 
 function handleMenu(channel, ...args) {
+  // Try to let onMenuBarAction handle it first for unified logic
+  if (onMenuBarAction(channel, args[0])) return
+
   switch (channel) {
     case 'menu:new':
       menuNew()
@@ -1015,9 +1059,6 @@ function handleMenu(channel, ...args) {
     case 'menu:close-all-unchanged':
       menuCloseAllUnchanged()
       break
-    case 'menu:close-all-unchanged':
-      menuCloseAllUnchanged()
-      break
     case 'menu:undo':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'undo')
       break
@@ -1041,6 +1082,10 @@ function handleMenu(channel, ...args) {
       break
     case 'menu:find-in-files':
       showFindInFiles.value = true
+      break
+    case 'menu:open-recent-dialog':
+      commandPaletteRecentOnly.value = true
+      showCommandPalette.value = true
       break
     case 'menu:go-to-line':
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.gotoLine')
@@ -1159,6 +1204,7 @@ function handleMenu(channel, ...args) {
       settingsStore.setTheme(args[0] || 'light')
       break
     case 'menu:command-palette':
+      commandPaletteRecentOnly.value = false
       showCommandPalette.value = true
       break
     case 'menu:plugin-manager':
@@ -1385,8 +1431,10 @@ async function openContainingFolder(kind) {
     return
   }
   if (kind === 'cmd') {
-    // For now, open the folder itself in default shell
-    await window.electronAPI.openInDefaultViewer(dir)
+    showTerminal.value = true
+    setTimeout(() => {
+      terminalDockRef.value?.newSession('default', dir)
+    }, 100)
   }
 }
 
@@ -1418,6 +1466,7 @@ function clearRecent() {
 
 function closeCommandPalette() {
   showCommandPalette.value = false
+  commandPaletteRecentOnly.value = false
 }
 
 async function openPluginsFolder() {
