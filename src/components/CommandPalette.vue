@@ -116,6 +116,8 @@ function runItem(item) {
             window.electronAPI.watchFolder(path)
           }
         })
+      } else if (typeof window !== 'undefined') {
+        alert('Folder Open is only available in the AuroraPad desktop app. Please run the Electron build.')
       }
       break
     case 'run-command':

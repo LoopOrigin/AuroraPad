@@ -815,7 +815,13 @@ function setupSessionPersistence() {
   }
 
   watch(() => [tabsStore.tabs.length, tabsStore.activeTabId], scheduleSave)
-  watch(() => fileTreeStore.openFolderPath, scheduleSave)
+  watch(() => fileTreeStore.openFolderPath, (val) => {
+    // Automatically show the sidebar when a folder is opened
+    if (val) {
+      settingsStore.setSidebarVisible(true)
+    }
+    scheduleSave()
+  })
   watch(() => tabsStore.tabs.map(t => ({ id: t.id, path: t.path, cursorPosition: t.cursorPosition })), scheduleSave, { deep: true })
   window.addEventListener('beforeunload', () => saveSession())
 }
@@ -1265,10 +1271,38 @@ async function menuNew() {
 }
 
 async function menuOpenFile() {
-  if (!window.electronAPI) return
-  const paths = await window.electronAPI.openFileDialog()
-  if (paths?.length) {
-    for (const p of paths) await openFileByPath(p)
+  // Electron desktop flow
+  if (window.electronAPI) {
+    const paths = await window.electronAPI.openFileDialog()
+    if (paths?.length) {
+      for (const p of paths) await openFileByPath(p)
+    }
+    return
+  }
+
+  // Browser/dev fallback so Open File works when running Vite only
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.multiple = true
+    input.style.display = 'none'
+    input.addEventListener('change', () => {
+      const files = Array.from(input.files || [])
+      files.forEach(file => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          tabsStore.addTab({
+            content: reader.result || '',
+            name: file.name,
+            isDirty: false,
+          })
+        }
+        reader.readAsText(file)
+      })
+      document.body.removeChild(input)
+    })
+    document.body.appendChild(input)
+    input.click()
   }
 }
 
