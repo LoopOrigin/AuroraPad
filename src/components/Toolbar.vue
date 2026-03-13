@@ -1,15 +1,15 @@
 <template>
   <div class="toolbar">
-    <button type="button" class="toolbar-btn" title="New (Ctrl+N)" @click="emit('new')">
+    <button type="button" class="toolbar-btn" :title="`New (${cmdCtrl}+N)`" @click="emit('new')">
       <i class="fa-solid fa-file toolbar-fa-icon"></i>
     </button>
-    <button type="button" class="toolbar-btn" title="Open (Ctrl+O)" @click="emit('open')">
+    <button type="button" class="toolbar-btn" :title="`Open (${cmdCtrl}+O)`" @click="emit('open')">
       <i class="fa-solid fa-folder-open toolbar-fa-icon"></i>
     </button>
     <button
       type="button"
       class="toolbar-btn"
-      title="Save (Ctrl+S)"
+      :title="`Save (${cmdCtrl}+S)`"
       :disabled="!canSave"
       @click="emit('save')"
     >
@@ -19,7 +19,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Save All (Ctrl+Shift+S)"
+      :title="`Save All (${cmdCtrl}+Shift+S)`"
       :disabled="!canSaveAll"
       @click="emit('save-all')"
     >
@@ -29,7 +29,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Cut (Ctrl+X)"
+      :title="`Cut (${cmdCtrl}+X)`"
       :disabled="!hasEditor"
       @click="emit('cut')"
     >
@@ -38,7 +38,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Copy (Ctrl+C)"
+      :title="`Copy (${cmdCtrl}+C)`"
       :disabled="!hasEditor"
       @click="emit('copy')"
     >
@@ -47,7 +47,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Paste (Ctrl+V)"
+      :title="`Paste (${cmdCtrl}+V)`"
       :disabled="!hasEditor"
       @click="emit('paste')"
     >
@@ -57,7 +57,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Find (Ctrl+F)"
+      :title="`Find (${cmdCtrl}+F)`"
       :disabled="!hasEditor"
       @click="emit('find')"
     >
@@ -66,7 +66,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Replace (Ctrl+H)"
+      :title="`Replace (${cmdCtrl}+H)`"
       :disabled="!hasEditor"
       @click="emit('replace')"
     >
@@ -76,7 +76,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Undo (Ctrl+Z)"
+      :title="`Undo (${cmdCtrl}+Z)`"
       :disabled="!hasEditor"
       @click="emit('undo')"
     >
@@ -85,7 +85,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Redo (Ctrl+Y)"
+      :title="`Redo (${cmdCtrl}+Y)`"
       :disabled="!hasEditor"
       @click="emit('redo')"
     >
@@ -103,7 +103,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Go To Line (Ctrl+G)"
+      :title="`Go To Line (${cmdCtrl}+G)`"
       :disabled="!hasEditor"
       @click="emit('go-to-line')"
     >
@@ -113,7 +113,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Zoom In"
+      :title="`Zoom In (${cmdCtrl}++)`"
       :disabled="!hasEditor"
       @click="emit('zoom-in')"
     >
@@ -122,7 +122,7 @@
     <button
       type="button"
       class="toolbar-btn"
-      title="Zoom Out"
+      :title="`Zoom Out (${cmdCtrl}+-)`"
       :disabled="!hasEditor"
       @click="emit('zoom-out')"
     >
@@ -140,11 +140,16 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 defineProps({
   canSave: { type: Boolean, default: false },
   hasEditor: { type: Boolean, default: false },
   canSaveAll: { type: Boolean, default: false },
 })
+
+const isMac = navigator.userAgent.toLowerCase().includes('mac')
+const cmdCtrl = isMac ? 'Cmd' : 'Ctrl'
 
 const emit = defineEmits([
   'new',

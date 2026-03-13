@@ -120,9 +120,34 @@ input, select {
   height: 100%;
 }
 
+.app-layout.is-mac .toolbar {
+  padding-left: 8px; /* Slight offset for better look, but not 72px anymore as we have a header */
+}
+
 .app-menu-bar {
   flex-shrink: 0;
   width: 100%;
+  -webkit-app-region: drag;
+}
+
+.app-menu-bar.is-mac-header {
+  height: 30px;
+  background: var(--npp-menubar-bg);
+  box-shadow: inset 0 -1px 0 var(--npp-toolbar-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: drag;
+}
+
+.mac-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--npp-text-dim);
+  opacity: 0.8;
+  letter-spacing: 0.3px;
+  user-select: none;
+  pointer-events: none;
 }
 
 .app-body {
@@ -130,12 +155,6 @@ input, select {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-}
-
-.app-body {
-  display: flex;
-  flex: 1;
-  min-height: 0;
 }
 
 /* Sidebar - N++ style */
@@ -186,16 +205,16 @@ input, select {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 2px 6px;
-  height: 28px;
+  padding: 0 6px;
+  height: 30px;
   background: var(--npp-toolbar-bg);
   border-bottom: 1px solid var(--npp-toolbar-border);
   flex-shrink: 0;
 }
 
 .toolbar-btn {
-  width: 28px;
-  height: 24px;
+  width: 32px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;

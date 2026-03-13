@@ -29,13 +29,21 @@ const folderName = computed(() => {
 })
 
 async function openFolder() {
-  if (!window.electronAPI) return
-  const path = await window.electronAPI.openFolderDialog()
-  if (path) {
-    fileTreeStore.setOpenFolder(path)
-    if (window.electronAPI.watchFolder) {
-      await window.electronAPI.watchFolder(path)
+  // Electron desktop flow
+  if (window.electronAPI) {
+    const path = await window.electronAPI.openFolderDialog()
+    if (path) {
+      fileTreeStore.setOpenFolder(path)
+      if (window.electronAPI.watchFolder) {
+        await window.electronAPI.watchFolder(path)
+      }
     }
+    return
+  }
+
+  // Browser/dev fallback
+  if (typeof window !== 'undefined') {
+    alert('Folder Open is only available in the AuroraPad desktop app. Please run the Electron build.')
   }
 }
 

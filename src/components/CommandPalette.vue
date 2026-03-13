@@ -5,7 +5,7 @@
         ref="inputRef"
         v-model="query"
         type="text"
-        placeholder="Type a command or filename..."
+        :placeholder="recentOnly ? 'Search recent files...' : 'Type a command or filename...'"
         autofocus
         @keydown.down="selectNext"
         @keydown.up="selectPrev"
@@ -34,7 +34,9 @@ import { ref, computed, watch } from 'vue'
 import { useSettingsStore } from '../stores/settings'
 import { useFileTreeStore } from '../stores/fileTree'
 
-const props = defineProps({})
+const props = defineProps({
+  recentOnly: { type: Boolean, default: false },
+})
 const emit = defineEmits(['close', 'open-file', 'open-file-dialog', 'new', 'run-command'])
 
 const settingsStore = useSettingsStore()
@@ -61,6 +63,7 @@ const recentItems = computed(() =>
 )
 
 const allItems = computed(() => {
+  if (props.recentOnly) return recentItems.value
   const list = [...commands]
   if (recentItems.value.length) {
     list.push({ id: 'sep', label: '— Recent —', separator: true })
@@ -113,6 +116,8 @@ function runItem(item) {
             window.electronAPI.watchFolder(path)
           }
         })
+      } else if (typeof window !== 'undefined') {
+        alert('Folder Open is only available in the AuroraPad desktop app. Please run the Electron build.')
       }
       break
     case 'run-command':

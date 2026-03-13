@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 
@@ -18,6 +18,7 @@ const props = defineProps({
   cwd: { type: String, default: '' },
   showHeader: { type: Boolean, default: true },
   title: { type: String, default: 'Terminal' },
+  active: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['close'])
@@ -79,6 +80,15 @@ onMounted(async () => {
   window.electronAPI?.onTerminalExit(handleExit)
 
   window.addEventListener('resize', onResize)
+})
+
+watch(() => props.active, (val) => {
+  if (val) {
+    nextTick(() => {
+      onResize()
+      xterm?.focus()
+    })
+  }
 })
 
 function onResize() {

@@ -1,4 +1,13 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
+
+// Ensure the app consistently identifies as AuroraPad across platforms
+// Setting this early helps with macOS dock name and app menu
+app.name = 'AuroraPad'
+app.setName('AuroraPad')
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.aurorapad.app')
+}
+
 const path = require('path')
 const fs = require('fs').promises
 const fsSync = require('fs')
@@ -10,12 +19,6 @@ const pty = require('node-pty')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
-
-// Ensure the app consistently identifies as AuroraPad across platforms
-app.setName('AuroraPad')
-if (process.platform === 'win32') {
-  app.setAppUserModelId('com.aurorapad.app')
-}
 
 let mainWindow = null
 let watchers = new Map()
@@ -43,6 +46,7 @@ function createWindow() {
     undefined
 
   mainWindow = new BrowserWindow({
+    title: 'AuroraPad',
     width: 1200,
     height: 800,
     minWidth: 600,
@@ -53,14 +57,17 @@ function createWindow() {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      backgroundThrottling: false,
     },
     show: false,
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
   })
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173')
-    mainWindow.webContents.openDevTools()
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.webContents.openDevTools()
+    })
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'))
   }
@@ -82,7 +89,32 @@ function buildMenu(pluginMenuItems = []) {
     pluginsSubmenu.push({ label: 'No plugins loaded', enabled: false })
   }
 
+  // Ensure the app name is correctly labeled on macOS
+  const appName = 'AuroraPad'
+  app.name = appName // Reinforce app name before template building
+  app.setName(appName)
+
   const template = [
+    ...(process.platform === 'darwin'
+      ? [
+          {
+            label: appName,
+            submenu: [
+              { role: 'about' },
+              { type: 'separator' },
+              { label: 'Preferences...', accelerator: 'Cmd+,', click: () => mainWindow?.webContents.send('menu:preferences') },
+              { type: 'separator' },
+              { role: 'services' },
+              { type: 'separator' },
+              { role: 'hide' },
+              { role: 'hideOthers' },
+              { role: 'unhide' },
+              { type: 'separator' },
+              { role: 'quit' },
+            ],
+          },
+        ]
+      : []),
     {
       label: 'File',
       submenu: [
@@ -115,14 +147,25 @@ function buildMenu(pluginMenuItems = []) {
           ],
         },
         { type: 'separator' },
-        { label: 'Open Containing Folder in Explorer', click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer') },
-        { label: 'Open Containing Folder in Command Prompt', click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd') },
-        { label: 'Open Containing Folder as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
+        {
+          label: 'Open Containing Folder',
+          submenu: [
+            {
+              label: process.platform === 'darwin' ? 'in Finder' : 'in Explorer',
+              click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer'),
+            },
+            {
+              label: process.platform === 'win32' ? 'in Command Prompt' : 'in Terminal',
+              click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd'),
+            },
+            { label: 'as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
+          ],
+        },
         { label: 'Open in Default Viewer', click: () => mainWindow?.webContents.send('menu:open-in-default-viewer') },
         { type: 'separator' },
         { label: 'Reload from Disk', click: () => mainWindow?.webContents.send('menu:reload-from-disk') },
         { type: 'separator' },
-        { label: 'Exit', accelerator: 'Alt+F4', role: 'quit' },
+        { label: 'Exit', accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4', click: () => app.quit() },
       ],
     },
     {
@@ -135,9 +178,28 @@ function buildMenu(pluginMenuItems = []) {
         { label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => mainWindow?.webContents.send('menu:copy') },
         { label: 'Paste', accelerator: 'CmdOrCtrl+V', click: () => mainWindow?.webContents.send('menu:paste') },
         { type: 'separator' },
+        { label: 'Duplicate Line', accelerator: 'CmdOrCtrl+D', click: () => mainWindow?.webContents.send('menu:duplicate-line') },
+        { label: 'Delete Line', accelerator: 'CmdOrCtrl+L', click: () => mainWindow?.webContents.send('menu:delete-line') },
+        { label: 'Move Line Up', accelerator: 'CmdOrCtrl+Shift+Up', click: () => mainWindow?.webContents.send('menu:move-line-up') },
+        { label: 'Move Line Down', accelerator: 'CmdOrCtrl+Shift+Down', click: () => mainWindow?.webContents.send('menu:move-line-down') },
+        { label: 'Join Lines', accelerator: 'CmdOrCtrl+J', click: () => mainWindow?.webContents.send('menu:join-lines') },
+        { type: 'separator' },
+        { label: 'Toggle Comment', accelerator: 'CmdOrCtrl+Q', click: () => mainWindow?.webContents.send('menu:toggle-comment') },
+        { type: 'separator' },
+        { label: 'Lowercase', accelerator: 'CmdOrCtrl+U', click: () => mainWindow?.webContents.send('menu:lowercase') },
+        { label: 'UPPERCASE', accelerator: 'CmdOrCtrl+Shift+U', click: () => mainWindow?.webContents.send('menu:uppercase') },
+      ],
+    },
+    {
+      label: 'Search',
+      submenu: [
         { label: 'Find', accelerator: 'CmdOrCtrl+F', click: () => mainWindow?.webContents.send('menu:find') },
         { label: 'Replace', accelerator: 'CmdOrCtrl+H', click: () => mainWindow?.webContents.send('menu:replace') },
+        { label: 'Find Next', accelerator: 'F3', click: () => mainWindow?.webContents.send('menu:find-next') },
+        { label: 'Find Previous', accelerator: 'Shift+F3', click: () => mainWindow?.webContents.send('menu:find-prev') },
         { label: 'Go to Line...', accelerator: 'CmdOrCtrl+G', click: () => mainWindow?.webContents.send('menu:go-to-line') },
+        { type: 'separator' },
+        { label: 'Find in Files…', accelerator: 'CmdOrCtrl+Shift+F', click: () => mainWindow?.webContents.send('menu:find-in-files') },
       ],
     },
     {
@@ -146,17 +208,105 @@ function buildMenu(pluginMenuItems = []) {
         { label: 'Word Wrap', type: 'checkbox', id: 'wordWrap', click: (item) => mainWindow?.webContents.send('menu:word-wrap', item.checked) },
         { label: 'Line Numbers', type: 'checkbox', checked: true, id: 'lineNumbers', click: (item) => mainWindow?.webContents.send('menu:line-numbers', item.checked) },
         { type: 'separator' },
-        { label: 'Zoom In', accelerator: 'CmdOrCtrl+Plus', click: () => mainWindow?.webContents.send('menu:zoom-in') },
+        { label: 'Zoom In', accelerator: 'CmdOrCtrl+=', click: () => mainWindow?.webContents.send('menu:zoom-in') },
         { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: () => mainWindow?.webContents.send('menu:zoom-out') },
         { label: 'Reset Zoom', accelerator: 'CmdOrCtrl+0', click: () => mainWindow?.webContents.send('menu:zoom-reset') },
         { type: 'separator' },
         { label: 'Toggle Sidebar', accelerator: 'CmdOrCtrl+B', click: () => mainWindow?.webContents.send('menu:toggle-sidebar') },
+        { label: 'Toggle Minimap', click: () => mainWindow?.webContents.send('menu:toggle-minimap') },
+        { label: 'Toggle Split View', click: () => mainWindow?.webContents.send('menu:toggle-split-view') },
+        { type: 'separator' },
+        { label: 'Fold All', click: () => mainWindow?.webContents.send('menu:fold-all') },
+        { label: 'Unfold All', click: () => mainWindow?.webContents.send('menu:unfold-all') },
+        { type: 'separator' },
         { label: 'Dark Theme', type: 'checkbox', id: 'darkTheme', click: (item) => mainWindow?.webContents.send('menu:theme', item.checked ? 'dark' : 'light') },
+      ],
+    },
+    {
+      label: 'Encoding',
+      submenu: [
+        { label: 'UTF-8', click: () => mainWindow?.webContents.send('menu:encoding:utf8') },
+        { label: 'UTF-16 LE', click: () => mainWindow?.webContents.send('menu:encoding:utf16le') },
+        { label: 'UTF-16 BE', click: () => mainWindow?.webContents.send('menu:encoding:utf16be') },
+        { label: 'Latin1', click: () => mainWindow?.webContents.send('menu:encoding:latin1') },
+        { label: 'Windows-1252', click: () => mainWindow?.webContents.send('menu:encoding:windows-1252') },
+      ],
+    },
+    {
+      label: 'Language',
+      submenu: [
+        { label: 'Normal', click: () => mainWindow?.webContents.send('menu:language:plaintext') },
+        { label: 'JavaScript', click: () => mainWindow?.webContents.send('menu:language:javascript') },
+        { label: 'TypeScript', click: () => mainWindow?.webContents.send('menu:language:typescript') },
+        { label: 'HTML', click: () => mainWindow?.webContents.send('menu:language:html') },
+        { label: 'CSS', click: () => mainWindow?.webContents.send('menu:language:css') },
+        { label: 'JSON', click: () => mainWindow?.webContents.send('menu:language:json') },
+        { label: 'Markdown', click: () => mainWindow?.webContents.send('menu:language:markdown') },
+        { label: 'Python', click: () => mainWindow?.webContents.send('menu:language:python') },
+        { label: 'XML', click: () => mainWindow?.webContents.send('menu:language:xml') },
+        { type: 'separator' },
+        { label: 'C', click: () => mainWindow?.webContents.send('menu:language:c') },
+        { label: 'C++', click: () => mainWindow?.webContents.send('menu:language:cpp') },
+        { label: 'C#', click: () => mainWindow?.webContents.send('menu:language:csharp') },
+        { label: 'Java', click: () => mainWindow?.webContents.send('menu:language:java') },
+        { label: 'PHP', click: () => mainWindow?.webContents.send('menu:language:php') },
+        { label: 'Ruby', click: () => mainWindow?.webContents.send('menu:language:ruby') },
+        { label: 'Go', click: () => mainWindow?.webContents.send('menu:language:go') },
+        { label: 'Rust', click: () => mainWindow?.webContents.send('menu:language:rust') },
+        { label: 'SQL', click: () => mainWindow?.webContents.send('menu:language:sql') },
+        { label: 'Shell Script', click: () => mainWindow?.webContents.send('menu:language:shell') },
+        { label: 'YAML', click: () => mainWindow?.webContents.send('menu:language:yaml') },
+      ],
+    },
+    {
+      label: 'Macro',
+      submenu: [
+        { label: 'Start Recording', enabled: false },
+        { label: 'Stop Recording', enabled: false },
+        { label: 'Playback', enabled: false },
+      ],
+    },
+    {
+      label: 'Run',
+      submenu: [
+        { label: 'Run...', accelerator: 'F5', click: () => mainWindow?.webContents.send('menu:run-command') },
+        { label: 'Run Last Command', enabled: false, click: () => mainWindow?.webContents.send('menu:run-last-command') },
+      ],
+    },
+    {
+      label: 'Terminal',
+      submenu: [
+        { label: 'Toggle Integrated Terminal', click: () => mainWindow?.webContents.send('menu:toggle-terminal') },
+        { type: 'separator' },
+        { label: 'New Default Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-default') },
+        { label: 'New PowerShell Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-powershell') },
+        { label: 'New Git Bash Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-gitbash') },
+        { label: 'New WSL Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-wsl') },
+        { type: 'separator' },
+        { label: 'Next Terminal', accelerator: 'Ctrl+Tab', click: () => mainWindow?.webContents.send('menu:terminal-next') },
+        { label: 'Previous Terminal', accelerator: 'Ctrl+Shift+Tab', click: () => mainWindow?.webContents.send('menu:terminal-prev') },
+      ],
+    },
+    {
+      label: 'Tools',
+      submenu: [
+        { label: 'MD5 of Document', click: () => mainWindow?.webContents.send('menu:hash-md5') },
+        { label: 'SHA-1 of Document', click: () => mainWindow?.webContents.send('menu:hash-sha1') },
+        { label: 'SHA-256 of Document', click: () => mainWindow?.webContents.send('menu:hash-sha256') },
       ],
     },
     {
       label: 'Plugins',
       submenu: pluginsSubmenu,
+    },
+    {
+      label: 'Window',
+      submenu: [
+        { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
+        { type: 'separator' },
+        { label: 'Move to Other View', click: () => mainWindow?.webContents.send('menu:move-to-other-view') },
+        { label: 'Clone to Other View', click: () => mainWindow?.webContents.send('menu:clone-to-other-view') },
+      ],
     },
     {
       label: 'Settings',
@@ -295,6 +445,16 @@ function setSession(data) {
   store.set('session', data)
 }
 
+ipcMain.on('window:minimize', () => mainWindow?.minimize())
+ipcMain.on('window:maximize', () => {
+  if (mainWindow?.isMaximized()) {
+    mainWindow?.unmaximize()
+  } else {
+    mainWindow?.maximize()
+  }
+})
+ipcMain.on('window:close', () => mainWindow?.close())
+
 ipcMain.handle('store:getSession', () => getSession())
 ipcMain.handle('store:setSession', (_, data) => setSession(data))
 
@@ -348,7 +508,8 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
         file = process.env.COMSPEC || 'C:\\Windows\\System32\\cmd.exe'
       }
     } else {
-      file = process.env.SHELL || '/bin/bash'
+      // For Unix-like systems, try to detect the current user's shell
+      file = process.env.SHELL || (process.platform === 'darwin' ? '/bin/zsh' : '/bin/bash')
     }
 
     const cols = options.cols || 80
@@ -654,7 +815,7 @@ ipcMain.handle('plugin:openPluginsFolder', async () => {
 })
 
 app.whenReady().then(() => {
-  buildMinimalMenu()
+  buildMenu()
   createWindow()
 
   // Ensure the dock icon on macOS uses the AuroraPad branding
@@ -668,6 +829,10 @@ app.whenReady().then(() => {
   }
 
   ipcMain.on('app:quit', () => app.quit())
+
+  ipcMain.on('plugin:menuStructure', (_, items) => {
+    buildMenu(items)
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
