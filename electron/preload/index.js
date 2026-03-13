@@ -21,6 +21,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   renameFile: (oldPath, newPath) => ipcRenderer.invoke('fs:renameFile', oldPath, newPath),
   openInDefaultViewer: (filePath) => ipcRenderer.invoke('shell:openInDefaultViewer', filePath),
 
+  // Window controls
+  minimizeWindow: () => ipcRenderer.send('window:minimize'),
+  maximizeWindow: () => ipcRenderer.send('window:maximize'),
+  closeWindow: () => ipcRenderer.send('window:close'),
+
   // Menu events (renderer listens)
   onMenu: (channel, fn) => {
     const subscription = (_, ...args) => fn(...args)
