@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import { useStorage } from '@vueuse/core'
 
 export const useSettingsStore = defineStore('settings', () => {
   const theme = useStorage('notepad-theme', 'light') // 'light' | 'dark' | 'monokai' | 'solarized-dark'
-  const wordWrap = ref(false)
-  const lineNumbers = ref(true)
-  const sidebarVisible = ref(false)
-  const fontSize = ref(14)
-  const recentFiles = ref([])
-  const showWhitespace = ref(false)
-  const highlightCurrentLine = ref(true)
-  const showMinimap = ref(false)
+  const wordWrap = useStorage('aurorapad-word-wrap', false)
+  const lineNumbers = useStorage('aurorapad-line-numbers', true)
+  const sidebarVisible = useStorage('aurorapad-sidebar-visible', false)
+  const fontSize = useStorage('aurorapad-font-size', 14)
+  const recentFiles = useStorage('aurorapad-recent-files-cache', [])
+  const showWhitespace = useStorage('aurorapad-show-whitespace', false)
+  const highlightCurrentLine = useStorage('aurorapad-highlight-current-line', true)
+  const showMinimap = useStorage('aurorapad-show-minimap', false)
 
   function setTheme(value) {
     theme.value = value

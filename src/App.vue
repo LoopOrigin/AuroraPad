@@ -15,6 +15,7 @@
       :can-save="!!(tabsStore.activeTab?.isDirty)"
       :has-editor="!!tabsStore.activeTab"
       :can-save-all="tabsStore.hasDirty"
+      :word-wrap="settingsStore.wordWrap"
       @new="menuNew"
       @open="menuOpenFile"
       @save="menuSave"
@@ -47,6 +48,9 @@
           @click="openFileByPath(path)"
         >
           {{ path.split(/[/\\]/).pop() }}
+        </li>
+        <li v-if="!settingsStore.recentFiles.length" class="recent-files-empty">
+          Recently opened files will appear here.
         </li>
       </ul>
     </aside>
@@ -99,10 +103,18 @@
           </div>
         </template>
         <div v-else class="empty-state">
-          <p>No file open</p>
-          <p>Open a file or folder to get started.</p>
-          <button type="button" @click="menuOpenFile">Open File</button>
-          <button type="button" @click="menuNew">New File</button>
+          <div class="empty-state-badge">AuroraPad</div>
+          <h2>No file open</h2>
+          <p>Open a file, load a folder, or start a scratch note.</p>
+          <div class="empty-state-actions">
+            <button type="button" @click="menuOpenFile">Open File</button>
+            <button type="button" @click="menuOpenFolder">Open Folder</button>
+            <button type="button" class="secondary" @click="menuNew">New File</button>
+          </div>
+          <div class="empty-state-tips">
+            <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+P</kbd> Command Palette</span>
+            <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+Shift+F</kbd> Find in Files</span>
+          </div>
         </div>
       </div>
       <StatusBar @go-to-line="handleMenu('menu:go-to-line')" />
@@ -116,11 +128,15 @@
     <div v-if="showPluginManager" class="plugin-manager-overlay" @click.self="showPluginManager = false">
       <div class="plugin-manager">
         <h2>Plugins</h2>
-        <div class="plugin-manager-list">
-          <div v-for="p in pluginsStore.plugins" :key="p.id" class="plugin-manager-item">
+      <div class="plugin-manager-list">
+        <div v-for="p in pluginsStore.plugins" :key="p.id" class="plugin-manager-item">
+          <div class="plugin-manager-meta">
             <span><strong>{{ p.name }}</strong> {{ p.version || '' }}</span>
+            <span class="plugin-manager-description">{{ p.description || 'Built-in AuroraPad skill' }}</span>
           </div>
+          <span class="plugin-manager-count">{{ (p.menuItems || []).length }} actions</span>
         </div>
+      </div>
         <div class="plugin-manager-footer">
           Notepad++-style plugins. Add .js files to the plugins folder. Each file must export: <code>module.exports = { id, name, menuItems: [{ id, label, run(api) }] }</code>
         </div>

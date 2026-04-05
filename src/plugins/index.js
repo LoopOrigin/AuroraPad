@@ -9,6 +9,7 @@ import smartEdit from './smart-edit.js'
 import whitespaceTools from './whitespace-tools.js'
 import developerTools from './developer-tools.js'
 import textTools from './text-tools.js'
+import selectionTools from './selection-tools.js'
 
 const builtInPlugins = [
   insertDatetime,
@@ -18,6 +19,7 @@ const builtInPlugins = [
   whitespaceTools,
   developerTools,
   textTools,
+  selectionTools,
 ]
 
 export function getBuiltInPlugins() {

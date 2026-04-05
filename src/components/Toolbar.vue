@@ -94,6 +94,7 @@
     <button
       type="button"
       class="toolbar-btn"
+      :class="{ active: wordWrap }"
       title="Toggle Word Wrap"
       :disabled="!hasEditor"
       @click="emit('toggle-word-wrap')"
@@ -146,6 +147,7 @@ defineProps({
   canSave: { type: Boolean, default: false },
   hasEditor: { type: Boolean, default: false },
   canSaveAll: { type: Boolean, default: false },
+  wordWrap: { type: Boolean, default: false },
 })
 
 const isMac = navigator.userAgent.toLowerCase().includes('mac')

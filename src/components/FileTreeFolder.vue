@@ -10,9 +10,19 @@
         @click="entry.isDirectory ? toggle(entry) : openFile(entry.path)"
       >
         <span class="icon">
-          {{ entry.isDirectory ? (isExpanded(entry.path) ? '▼' : '▶') : fileIcon(entry.name) }}
+          <i
+            v-if="entry.isDirectory"
+            class="fa-solid"
+            :class="isExpanded(entry.path) ? 'fa-folder-open' : 'fa-folder'"
+            aria-hidden="true"
+          ></i>
+          <i
+            v-else
+            :class="fileIcon(entry.name)"
+            aria-hidden="true"
+          ></i>
         </span>
-        <span>{{ entry.name }}</span>
+        <span class="file-tree-label" :title="entry.name">{{ entry.name }}</span>
       </div>
       <FileTreeFolder
         v-if="entry.isDirectory && isExpanded(entry.path) && childrenMap.get(entry.path)"
@@ -65,17 +75,17 @@ function isActiveFile(path) {
 
 function fileIcon(name = '') {
   const lower = name.toLowerCase()
-  if (lower.endsWith('.js') || lower.endsWith('.ts')) return '🟨'
-  if (lower.endsWith('.vue')) return '🟢'
-  if (lower.endsWith('.html') || lower.endsWith('.htm')) return '🟠'
-  if (lower.endsWith('.css') || lower.endsWith('.scss') || lower.endsWith('.less')) return '🟦'
-  if (lower.endsWith('.json')) return '🟤'
-  if (lower.endsWith('.md')) return '📘'
-  if (lower.endsWith('.py')) return '🐍'
-  if (lower.endsWith('.rb')) return '♦️'
-  if (lower.endsWith('.go')) return '💧'
-  if (lower.endsWith('.rs')) return '🦀'
-  return '📄'
+  if (lower.endsWith('.js') || lower.endsWith('.ts') || lower.endsWith('.jsx') || lower.endsWith('.tsx')) return 'fa-brands fa-js'
+  if (lower.endsWith('.vue')) return 'fa-brands fa-vuejs'
+  if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'fa-brands fa-html5'
+  if (lower.endsWith('.css') || lower.endsWith('.scss') || lower.endsWith('.less')) return 'fa-brands fa-css3-alt'
+  if (lower.endsWith('.json') || lower.endsWith('.yml') || lower.endsWith('.yaml') || lower.endsWith('.toml')) return 'fa-solid fa-brackets-curly'
+  if (lower.endsWith('.md')) return 'fa-solid fa-book'
+  if (lower.endsWith('.py')) return 'fa-brands fa-python'
+  if (lower.endsWith('.rb')) return 'fa-regular fa-gem'
+  if (lower.endsWith('.go')) return 'fa-solid fa-droplet'
+  if (lower.endsWith('.rs')) return 'fa-solid fa-gear'
+  return 'fa-regular fa-file-lines'
 }
 </script>
 

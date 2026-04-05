@@ -229,6 +229,12 @@ input, select {
   border-color: var(--npp-toolbar-border);
 }
 
+.toolbar-btn.active {
+  background: var(--npp-menubar-hover);
+  border-color: var(--npp-toolbar-border);
+  color: var(--npp-accent);
+}
+
 .toolbar-btn:disabled {
   opacity: 0.5;
   cursor: default;
@@ -318,10 +324,14 @@ input, select {
   min-width: 60px;
   background: var(--npp-tab-bg);
   color: var(--npp-tab-text);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .tab .tab-icon {
   flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+  opacity: 0.9;
 }
 
 .tab span {
@@ -330,10 +340,18 @@ input, select {
   white-space: nowrap;
 }
 
+.tab:hover {
+  background: color-mix(in srgb, var(--npp-tab-bg) 76%, var(--npp-menubar-hover) 24%);
+}
+
 .tab.active {
   background: var(--npp-tab-active-bg);
   padding-bottom: 5px;
   border-bottom: 1px solid var(--npp-tab-active-bg);
+}
+
+.tab.active .tab-icon {
+  color: var(--npp-accent);
 }
 
 .tab .dirty-dot {
@@ -354,6 +372,10 @@ input, select {
 .tab .close-btn:hover {
   opacity: 1;
   color: var(--npp-dirty-dot);
+}
+
+.tab-label {
+  flex: 1;
 }
 
 /* Editor area */
@@ -464,13 +486,30 @@ input, select {
   font-weight: 500;
 }
 
+.file-tree-item .icon {
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
 .file-tree-item.active {
   background: var(--npp-menubar-hover);
   font-weight: 600;
 }
 
+.file-tree-item.active .icon {
+  color: var(--npp-accent);
+}
+
 .file-tree-children {
   padding-left: 12px;
+}
+
+.file-tree-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .recent-files-list {
@@ -490,6 +529,16 @@ input, select {
 
 .recent-files-list li:hover {
   background: var(--npp-toolbar-hover);
+}
+
+.recent-files-empty {
+  color: var(--npp-text-dim);
+  cursor: default;
+  font-style: italic;
+}
+
+.recent-files-empty:hover {
+  background: transparent;
 }
 
 .sidebar-section-title {
@@ -521,24 +570,79 @@ input, select {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--npp-text-dim);
+  color: var(--npp-text);
   font-size: 13px;
-  padding: 24px;
-  background: radial-gradient(circle at top, rgba(0, 122, 204, 0.07), transparent 55%);
+  padding: 32px 24px;
+  background:
+    radial-gradient(circle at top, rgba(0, 122, 204, 0.08), transparent 55%),
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.03));
 }
 
-.empty-state p { margin: 6px 0; }
+.empty-state h2 {
+  margin: 10px 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 6px 0;
+  color: var(--npp-text-dim);
+}
+
+.empty-state-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--npp-accent) 18%, transparent);
+  color: var(--npp-accent);
+  border: 1px solid color-mix(in srgb, var(--npp-accent) 28%, transparent);
+}
+
+.empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .empty-state button {
-  margin-top: 10px;
   padding: 6px 14px;
   background: var(--npp-accent);
   color: #fff;
-  border-radius: 2px;
+  border-radius: 999px;
   font-size: 12px;
+}
+
+.empty-state button.secondary {
+  background: transparent;
+  color: var(--npp-text);
+  border: 1px solid var(--npp-tab-border);
 }
 
 .empty-state button:hover {
   filter: brightness(1.1);
+}
+
+.empty-state-tips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--npp-text-dim);
+  font-size: 12px;
+}
+
+.empty-state-tips kbd {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--npp-tab-border);
+  background: var(--npp-tab-bg);
+  color: var(--npp-text);
+  font-family: inherit;
 }
 
 @media (min-resolution: 1.5dppx), (min-device-pixel-ratio: 1.5) {
@@ -655,6 +759,18 @@ input, select {
 
 .plugin-manager-item:hover {
   background: var(--npp-toolbar-hover);
+}
+
+.plugin-manager-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plugin-manager-description,
+.plugin-manager-count {
+  font-size: 11px;
+  color: var(--npp-text-dim);
 }
 
 .plugin-manager-footer {
