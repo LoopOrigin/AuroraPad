@@ -35,6 +35,7 @@ AuroraPad now includes GitHub release automation through:
 - Re-running the release workflow on the same commit reuses the matching semantic version tag if one already points at `HEAD`.
 - If you want signed macOS or Windows binaries later, add the appropriate signing secrets and extend the workflow.
 - GitHub Releases are now backed by real git tags, not just release entries.
+- The release job creates the GitHub Release with all assets attached in one step, which keeps it compatible with immutable releases.
 
 ## Recommended release flow
 

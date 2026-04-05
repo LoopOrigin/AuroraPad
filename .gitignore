@@ -56,3 +56,5 @@ agent-tools/
 
 # User data (if ever committed by mistake)
 *.config.json.user
+.vercel
+.env*.local
