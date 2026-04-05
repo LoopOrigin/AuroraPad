@@ -12,7 +12,7 @@ It takes the familiarity of tools like Notepad++ and combines it with a more cur
 - Integrated terminal dock with multiple sessions and platform-aware shell support
 - Preferences for theme, toolbar, status bar, autosave, font size, line numbers, whitespace, minimap, and sidebar visibility
 - Semantic versioning and release automation through GitHub Actions
-- Included marketing website inside `website/`, published through GitHub Pages
+- Included marketing website inside `website/`, built alongside the app
 
 ## Product Areas
 
@@ -106,9 +106,7 @@ The promotional site lives in:
 - [website/main.js](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/website/main.js)
 - [website/index.html](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/website/index.html)
 
-It builds into `dist/website/` and deploys to GitHub Pages through:
-
-- [.github/workflows/pages.yml](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/.github/workflows/pages.yml)
+It builds into `dist/website/`.
 
 ## Release Management
 

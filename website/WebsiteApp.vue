@@ -223,8 +223,8 @@ workspace:
               <p class="eyebrow">Releases & Links</p>
               <h2>Downloads, source, release automation, and platform packaging in one place.</h2>
               <p class="section-copy">
-                AuroraPad ships with CI-managed semantic versioning, automated release builds,
-                and GitHub Pages support for the website. Source and binaries stay easy to find.
+                AuroraPad ships with CI-managed semantic versioning and automated desktop release
+                builds, while keeping the website inside the same repository for easier maintenance.
               </p>
             </div>
 
