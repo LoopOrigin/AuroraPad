@@ -25,6 +25,88 @@ let watchers = new Map()
 let terminals = new Map()
 let nextTerminalId = 1
 
+function getPlatformInfo() {
+  const isWindows = process.platform === 'win32'
+  const isMac = process.platform === 'darwin'
+  const isLinux = process.platform === 'linux'
+  const defaultShellPath = process.env.SHELL || (isMac ? '/bin/zsh' : isWindows ? (process.env.COMSPEC || 'C:\\Windows\\System32\\cmd.exe') : '/bin/bash')
+  const terminalProfiles = [
+    {
+      id: 'default',
+      label: isWindows ? 'Command Prompt' : path.basename(defaultShellPath),
+      available: true,
+      accent: 'default',
+    },
+  ]
+
+  if (isWindows) {
+    const powerShellPath = process.env.POWERSHELL_EXE || 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+    terminalProfiles.push({
+      id: 'powershell',
+      label: 'PowerShell',
+      available: fsSync.existsSync(powerShellPath),
+      accent: 'powershell',
+    })
+    terminalProfiles.push({
+      id: 'bash',
+      label: 'Git Bash',
+      available: fsSync.existsSync('C:\\Program Files\\Git\\bin\\bash.exe'),
+      accent: 'bash',
+    })
+    terminalProfiles.push({
+      id: 'wsl',
+      label: 'WSL',
+      available: true,
+      accent: 'wsl',
+    })
+  }
+
+  return {
+    platform: process.platform,
+    isWindows,
+    isMac,
+    isLinux,
+    revealInFolderLabel: isMac ? 'Finder' : isWindows ? 'Explorer' : 'File Manager',
+    terminalAppLabel: isWindows ? 'Command Prompt' : 'Terminal',
+    defaultShellProfile: 'default',
+    terminalProfiles,
+  }
+}
+
+function resolveTerminalLaunch(shellType = 'default') {
+  const isWindows = process.platform === 'win32'
+
+  if (isWindows) {
+    if (shellType === 'powershell') {
+      const file = process.env.POWERSHELL_EXE || 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+      return fsSync.existsSync(file)
+        ? { file, args: ['-NoLogo'], shellKey: 'powershell' }
+        : null
+    }
+    if (shellType === 'bash') {
+      const file = 'C:\\Program Files\\Git\\bin\\bash.exe'
+      return fsSync.existsSync(file)
+        ? { file, args: ['--login', '-i'], shellKey: 'bash' }
+        : null
+    }
+    if (shellType === 'wsl') {
+      return { file: 'wsl.exe', args: [], shellKey: 'wsl' }
+    }
+
+    return {
+      file: process.env.COMSPEC || 'C:\\Windows\\System32\\cmd.exe',
+      args: [],
+      shellKey: 'default',
+    }
+  }
+
+  return {
+    file: process.env.SHELL || (process.platform === 'darwin' ? '/bin/zsh' : '/bin/bash'),
+    args: [],
+    shellKey: 'default',
+  }
+}
+
 function getRecentFiles() {
   return store.get('recentFiles', [])
 }
@@ -77,6 +159,7 @@ function createWindow() {
 }
 
 function buildMenu(pluginMenuItems = []) {
+  const platformInfo = getPlatformInfo()
   const pluginsSubmenu = [
     { label: 'Plugin Manager', click: () => mainWindow?.webContents.send('menu:plugin-manager') },
     { type: 'separator' },
@@ -151,11 +234,11 @@ function buildMenu(pluginMenuItems = []) {
           label: 'Open Containing Folder',
           submenu: [
             {
-              label: process.platform === 'darwin' ? 'in Finder' : 'in Explorer',
+              label: `in ${platformInfo.revealInFolderLabel}`,
               click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer'),
             },
             {
-              label: process.platform === 'win32' ? 'in Command Prompt' : 'in Terminal',
+              label: `in ${platformInfo.terminalAppLabel}`,
               click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd'),
             },
             { label: 'as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
@@ -281,9 +364,15 @@ function buildMenu(pluginMenuItems = []) {
         { label: 'Toggle Integrated Terminal', click: () => mainWindow?.webContents.send('menu:toggle-terminal') },
         { type: 'separator' },
         { label: 'New Default Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-default') },
-        { label: 'New PowerShell Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-powershell') },
-        { label: 'New Git Bash Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-gitbash') },
-        { label: 'New WSL Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-wsl') },
+        ...(platformInfo.terminalProfiles.find(profile => profile.id === 'powershell')?.available
+          ? [{ label: 'New PowerShell Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-powershell') }]
+          : []),
+        ...(platformInfo.terminalProfiles.find(profile => profile.id === 'bash')?.available
+          ? [{ label: 'New Git Bash Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-gitbash') }]
+          : []),
+        ...(platformInfo.terminalProfiles.find(profile => profile.id === 'wsl')?.available
+          ? [{ label: 'New WSL Terminal', click: () => mainWindow?.webContents.send('menu:terminal-new-wsl') }]
+          : []),
         { type: 'separator' },
         { label: 'Next Terminal', accelerator: 'Ctrl+Tab', click: () => mainWindow?.webContents.send('menu:terminal-next') },
         { label: 'Previous Terminal', accelerator: 'Ctrl+Shift+Tab', click: () => mainWindow?.webContents.send('menu:terminal-prev') },
@@ -443,6 +532,25 @@ ipcMain.handle('shell:openInDefaultViewer', async (_, filePath) => {
   }
 })
 
+ipcMain.handle('shell:revealInFolder', async (_, filePath) => {
+  if (!filePath) return { error: 'No file path provided' }
+  try {
+    if (fsSync.existsSync(filePath)) {
+      shell.showItemInFolder(filePath)
+      return { ok: true }
+    }
+
+    const fallbackDir = path.dirname(filePath)
+    const res = await shell.openPath(fallbackDir)
+    if (res) return { error: res }
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('platform:getInfo', () => getPlatformInfo())
+
 function getSession() {
   return store.get('session', null)
 }
@@ -496,27 +604,11 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
   try {
     const shellType = options.shell || 'default'
     const cwd = options.cwd || process.cwd()
-
-    let file
-    let args = []
-    if (process.platform === 'win32') {
-      if (shellType === 'powershell') {
-        // Prefer modern PowerShell if available, otherwise fall back to Windows PowerShell
-        file = process.env.POWERSHELL_EXE || 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
-        args = ['-NoLogo']
-      } else if (shellType === 'bash') {
-        // Common Git Bash location; adjust if user has a custom install
-        file = 'C:\\Program Files\\Git\\bin\\bash.exe'
-        args = ['--login', '-i']
-      } else if (shellType === 'wsl') {
-        file = 'wsl.exe'
-      } else {
-        file = process.env.COMSPEC || 'C:\\Windows\\System32\\cmd.exe'
-      }
-    } else {
-      // For Unix-like systems, try to detect the current user's shell
-      file = process.env.SHELL || (process.platform === 'darwin' ? '/bin/zsh' : '/bin/bash')
+    const terminalLaunch = resolveTerminalLaunch(shellType) || resolveTerminalLaunch('default')
+    if (!terminalLaunch) {
+      return { error: `The ${shellType} terminal profile is not available on this platform.` }
     }
+    const { file, args, shellKey } = terminalLaunch
 
     const cols = options.cols || 80
     const rows = options.rows || 24
@@ -541,7 +633,7 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
       mainWindow?.webContents.send('terminal:exit', { id })
     })
 
-    return { ok: true, id }
+    return { ok: true, id, shell: shellKey }
   } catch (e) {
     return { error: e.message }
   }

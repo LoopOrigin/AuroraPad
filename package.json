@@ -9,6 +9,7 @@
     "version:set": "node scripts/set-version.js",
     "dev": "vite",
     "site:dev": "vite --open /website/",
+    "site:build": "vite build",
     "build": "vite build",
     "preview": "vite preview",
     "site:preview": "vite preview --open /website/",

@@ -1,310 +1,278 @@
 <template>
   <v-app class="aurora-site">
-    <div class="site-background"></div>
+    <div class="site-noise" aria-hidden="true"></div>
 
-    <v-app-bar flat color="transparent" class="site-bar px-2 px-sm-4">
-      <div class="brand">
+    <v-app-bar flat color="transparent" class="site-bar px-3 px-md-5">
+      <a href="#top" class="brand-link" aria-label="AuroraPad home">
         <div class="brand-mark">A</div>
         <div class="brand-copy">
           <strong>AuroraPad</strong>
-          <span>Desktop editor for builders</span>
+          <span>Code editor for focused desktop work</span>
         </div>
-      </div>
+      </a>
 
       <v-spacer />
 
-      <div class="nav-links d-none d-md-flex">
-        <a href="#features">Features</a>
+      <nav class="site-nav d-none d-md-flex" aria-label="Primary">
+        <a href="#product">Product</a>
         <a href="#workflow">Workflow</a>
-        <a href="#skills">Skills</a>
-        <a href="#links">Links</a>
+        <a href="#releases">Releases</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <div class="site-actions d-none d-md-flex">
+        <v-btn variant="text" :href="repoUrl" target="_blank" rel="noreferrer">GitHub</v-btn>
+        <v-btn color="primary" :href="downloadUrl" target="_blank" rel="noreferrer">Download</v-btn>
       </div>
     </v-app-bar>
 
     <v-main>
-      <section class="hero-shell">
-        <v-container class="py-10 py-md-16">
-          <v-row align="center" class="hero-grid">
-            <v-col cols="12" lg="5">
-              <div class="hero-copy">
-                <v-chip color="accent" variant="tonal" class="mb-4 text-uppercase tracking">
-                  New built-in skills for developer workflows
-                </v-chip>
-                <p class="eyebrow mb-3">Monaco power. Desktop focus. Zero wasted motion.</p>
-                <h1 class="hero-title">
-                  A modern tool website for an editor that keeps the work moving.
-                </h1>
-                <p class="hero-body">
-                  AuroraPad combines Notepad++ familiarity with Monaco editing, workspace search,
-                  command palette flows, plugin skills, and terminal sessions in one tight desktop
-                  experience.
-                </p>
+      <section id="top" class="hero">
+        <div class="hero-backdrop" aria-hidden="true"></div>
+        <v-container class="hero-container">
+          <div class="hero-layout">
+            <div class="hero-copy">
+              <p class="eyebrow">Desktop editor · Open source · Cross-platform</p>
+              <h1 class="hero-title">Fast file editing, project search, terminal context, and plugin-driven workflows in one desktop window.</h1>
+              <p class="hero-body">
+                AuroraPad is built for developers who want the immediacy of Notepad++,
+                the editing depth of Monaco, and a cleaner modern workspace for Windows,
+                macOS, and Linux.
+              </p>
 
-                <div class="hero-actions">
-                  <v-btn color="primary" size="x-large" :href="downloadUrl" target="_blank" rel="noreferrer">
-                    Download AuroraPad
-                  </v-btn>
-                  <v-btn variant="outlined" size="x-large" :href="repoUrl" target="_blank" rel="noreferrer">
-                    View Repository
-                  </v-btn>
+              <div class="hero-actions">
+                <v-btn color="primary" size="x-large" :href="downloadUrl" target="_blank" rel="noreferrer">
+                  Download Builds
+                </v-btn>
+                <v-btn variant="outlined" size="x-large" :href="repoUrl" target="_blank" rel="noreferrer">
+                  View Repository
+                </v-btn>
+              </div>
+
+              <dl class="hero-meta">
+                <div>
+                  <dt>Platforms</dt>
+                  <dd>macOS, Windows, Linux</dd>
+                </div>
+                <div>
+                  <dt>Built With</dt>
+                  <dd>Electron, Vue, Monaco, Vuetify</dd>
+                </div>
+                <div>
+                  <dt>Versioning</dt>
+                  <dd>CI-managed semantic releases</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="hero-visual">
+              <div class="hero-frame">
+                <div class="frame-top">
+                  <div class="frame-dots">
+                    <span class="dot red"></span>
+                    <span class="dot amber"></span>
+                    <span class="dot green"></span>
+                  </div>
+                  <span class="frame-title">AuroraPad</span>
+                  <span class="frame-pill">Workspace Ready</span>
                 </div>
 
-                <div class="hero-links">
-                  <div>
-                    <span class="hero-links-label">Repo URL</span>
-                    <a :href="repoUrl" target="_blank" rel="noreferrer">{{ repoUrl }}</a>
-                  </div>
-                  <div>
-                    <span class="hero-links-label">Download URL</span>
-                    <a :href="downloadUrl" target="_blank" rel="noreferrer">{{ downloadUrl }}</a>
+                <div class="frame-body">
+                  <aside class="frame-sidebar">
+                    <span class="frame-label">Project</span>
+                    <span>src/</span>
+                    <span>plugins/</span>
+                    <span>website/</span>
+                    <span>electron/</span>
+                    <span class="frame-spacer"></span>
+                    <span class="frame-label">Recent</span>
+                    <span>App.vue</span>
+                    <span>TerminalDock.vue</span>
+                    <span>WebsiteApp.vue</span>
+                  </aside>
+
+                  <div class="frame-editor">
+                    <div class="frame-tabs">
+                      <span class="is-active">release.yml</span>
+                      <span>app.css</span>
+                      <span>README.md</span>
+                    </div>
+
+                    <pre class="editor-code"><code>release:
+  semanticVersioning: true
+  platforms:
+    - macOS
+    - Windows
+    - Linux
+
+workspace:
+  search: enabled
+  commandPalette: enabled
+  terminalDock: enabled
+  pluginSkills:
+    - developer-tools
+    - text-tools
+    - selection-tools</code></pre>
+
+                    <div class="frame-status">
+                      <span>Workspace Search</span>
+                      <span>Integrated Terminal</span>
+                      <span>Semantic Releases</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </v-col>
 
-            <v-col cols="12" lg="7">
-              <div class="hero-stage">
-                <div class="hero-orb orb-a"></div>
-                <div class="hero-orb orb-b"></div>
-
-                <v-card class="editor-showcase" elevation="0">
-                  <div class="showcase-topbar">
-                    <div class="topbar-dots">
-                      <span class="dot red"></span>
-                      <span class="dot amber"></span>
-                      <span class="dot green"></span>
-                    </div>
-                    <span class="window-title">AuroraPad.app</span>
-                    <v-chip size="small" variant="tonal">Aurora Dark</v-chip>
-                  </div>
-
-                  <div class="showcase-toolbar">
-                    <span>File</span>
-                    <span>Edit</span>
-                    <span>Search</span>
-                    <span>Plugins</span>
-                    <span>Terminal</span>
-                  </div>
-
-                  <div class="showcase-body">
-                    <aside class="showcase-sidebar">
-                      <div class="sidebar-group">
-                        <span class="sidebar-label">Workspace</span>
-                        <span>src/</span>
-                        <span>components/</span>
-                        <span>plugins/</span>
-                        <span>website/</span>
-                      </div>
-                      <div class="sidebar-group">
-                        <span class="sidebar-label">Recent</span>
-                        <span>App.vue</span>
-                        <span>FindInFiles.vue</span>
-                        <span>WebsiteApp.vue</span>
-                      </div>
-                    </aside>
-
-                    <div class="showcase-editor">
-                      <div class="editor-tabs">
-                        <span class="is-active">aurorapad.config.ts</span>
-                        <span>plugin-api.js</span>
-                        <span>README.md</span>
-                      </div>
-                      <pre class="editor-code"><code>const aurora = {
-  stack: ['Electron', 'Vue', 'Monaco'],
-  workflow: ['search', 'tabs', 'plugins', 'terminal'],
-  feel: 'familiar desktop confidence',
-}
-
-launch({
-  sessionRestore: true,
-  commandPalette: true,
-  workspaceSearch: true,
-  builtInSkills: ['developer-tools', 'text-tools'],
-})</code></pre>
-                      <div class="showcase-status">
-                        <span>TypeScript</span>
-                        <span>Ln 12, Col 4</span>
-                        <span>UTF-8</span>
-                        <span>Ready</span>
-                      </div>
-                    </div>
-                  </div>
-                </v-card>
-
-                <v-card class="floating-note note-top" elevation="0">
-                  <span class="floating-label">Workspace Search</span>
-                  <strong>Find across the project</strong>
-                  <p>Search the full folder and jump straight into the result.</p>
-                </v-card>
-
-                <v-card class="floating-note note-bottom" elevation="0">
-                  <span class="floating-label">Terminal Dock</span>
-                  <strong>Run inside context</strong>
-                  <p>Open a shell from the same workspace and keep momentum intact.</p>
-                </v-card>
+              <div class="hero-callout hero-callout-top">
+                <span class="callout-label">Project Search</span>
+                <strong>Jump across the whole workspace</strong>
+                <p>Search, filter, open, and continue editing without leaving the app.</p>
               </div>
-            </v-col>
-          </v-row>
+
+              <div class="hero-callout hero-callout-bottom">
+                <span class="callout-label">Terminal Dock</span>
+                <strong>Run commands in context</strong>
+                <p>Open the terminal from the active project path and keep your flow intact.</p>
+              </div>
+            </div>
+          </div>
         </v-container>
       </section>
 
-      <section class="signal-section">
+      <section class="proof-strip">
         <v-container>
-          <div class="signal-strip">
-            <span>Notepad++-style chrome</span>
-            <span>Monaco editing engine</span>
-            <span>Workspace search</span>
-            <span>Plugin skill system</span>
-            <span>Integrated terminal</span>
+          <div class="proof-grid">
+            <div v-for="proof in proofPoints" :key="proof.label" class="proof-item">
+              <span class="proof-value">{{ proof.value }}</span>
+              <span class="proof-label">{{ proof.label }}</span>
+            </div>
           </div>
         </v-container>
       </section>
 
-      <section id="features" class="content-section">
-        <v-container class="py-14 py-md-16">
-          <div class="section-heading">
-            <p class="eyebrow mb-3">Features</p>
-            <h2>Everything you need to explain AuroraPad as a serious modern tool.</h2>
+      <section id="product" class="section-shell">
+        <v-container class="section-container">
+          <div class="section-head">
+            <p class="eyebrow">Product</p>
+            <h2>Designed for the moments where friction usually slows editing down.</h2>
+            <p class="section-copy">
+              AuroraPad keeps the workspace compact, readable, and desktop-native while
+              adding the features that save time every single day.
+            </p>
           </div>
 
-          <v-row class="mt-8" dense>
-            <v-col cols="12" md="6" lg="5">
-              <v-card class="feature-card feature-card-large" elevation="0">
-                <span class="feature-kicker">Core editing</span>
-                <h3>Compact interface, deep capability.</h3>
-                <p>
-                  Multi-tab editing, bookmarks, language switching, find and replace, file tree
-                  navigation, and session restore all sit inside one clean desktop shell.
-                </p>
-                <ul>
-                  <li>Syntax support across major languages</li>
-                  <li>Command palette and project-wide search</li>
-                  <li>Status-aware editing with encoding and EOL context</li>
-                </ul>
-              </v-card>
-            </v-col>
+          <div class="feature-layout">
+            <article class="feature-panel feature-panel-primary">
+              <span class="feature-kicker">Editor Surface</span>
+              <h3>Familiar structure, cleaner execution.</h3>
+              <p>
+                Multi-tab editing, split view, file tree navigation, recent files, bookmarks,
+                encoding tools, and line-ending control all live in a layout that stays quick to scan.
+              </p>
+            </article>
 
-            <v-col cols="12" md="6" lg="7">
-              <v-row dense>
-                <v-col cols="12" md="6">
-                  <v-card class="feature-card" elevation="0">
-                    <span class="feature-kicker">Workflow</span>
-                    <h3>Search, command, act.</h3>
-                    <p>
-                      Move from tabs to command palette to terminal without falling out of flow.
-                    </p>
-                  </v-card>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <v-card class="feature-card" elevation="0">
-                    <span class="feature-kicker">Plugins</span>
-                    <h3>Extend cleanly.</h3>
-                    <p>
-                      Add JavaScript plugins and expose custom actions through the same menu system.
-                    </p>
-                  </v-card>
-                </v-col>
-                <v-col cols="12">
-                  <v-card class="feature-card feature-band" elevation="0">
-                    <span class="feature-kicker">Positioning</span>
-                    <h3>Familiar enough to trust, modern enough to feel like an upgrade.</h3>
-                    <p>
-                      That balance is AuroraPad’s strongest pitch. The UI lowers adoption friction
-                      while the workflow features make it feel meaningfully more capable.
-                    </p>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
+            <article v-for="feature in features" :key="feature.title" class="feature-panel">
+              <span class="feature-kicker">{{ feature.kicker }}</span>
+              <h3>{{ feature.title }}</h3>
+              <p>{{ feature.body }}</p>
+            </article>
+          </div>
         </v-container>
       </section>
 
-      <section id="workflow" class="content-section alt-section">
-        <v-container class="py-14 py-md-16">
-          <v-row align="start">
-            <v-col cols="12" lg="4">
-              <div class="section-heading">
-                <p class="eyebrow mb-3">Workflow</p>
-                <h2>One window, one rhythm, fewer interruptions.</h2>
-                <p class="section-copy">
-                  Open a folder, jump across files, search the workspace, trigger a skill, and run a
-                  command from the same place. AuroraPad is strongest when the day’s little delays
-                  disappear.
-                </p>
+      <section id="workflow" class="section-shell section-contrast">
+        <v-container class="section-container">
+          <div class="section-head">
+            <p class="eyebrow">Workflow</p>
+            <h2>One focused desktop loop from open, to edit, to search, to run.</h2>
+          </div>
+
+          <div class="workflow-grid">
+            <div v-for="(step, index) in workflowSteps" :key="step.title" class="workflow-step">
+              <span class="workflow-index">{{ String(index + 1).padStart(2, '0') }}</span>
+              <div>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.body }}</p>
               </div>
-            </v-col>
-            <v-col cols="12" lg="8">
-              <div class="workflow-stack">
-                <v-card
-                  v-for="(step, index) in workflowSteps"
-                  :key="step.title"
-                  class="workflow-card"
-                  elevation="0"
-                >
-                  <span class="workflow-index">{{ String(index + 1).padStart(2, '0') }}</span>
-                  <div>
-                    <h3>{{ step.title }}</h3>
-                    <p>{{ step.body }}</p>
-                  </div>
-                </v-card>
-              </div>
-            </v-col>
-          </v-row>
+            </div>
+          </div>
         </v-container>
       </section>
 
-      <section id="skills" class="content-section">
-        <v-container class="py-14 py-md-16">
-          <div class="section-heading">
-            <p class="eyebrow mb-3">Built-in skills</p>
-            <h2>Useful on day one, extensible after that.</h2>
+      <section class="section-shell">
+        <v-container class="section-container">
+          <div class="section-head">
+            <p class="eyebrow">Built-In Skills</p>
+            <h2>Useful out of the box, extensible when your workflow grows.</h2>
           </div>
 
-          <v-row class="mt-8" dense>
-            <v-col v-for="skill in skills" :key="skill.title" cols="12" md="4">
-              <v-card class="skill-card" elevation="0">
-                <span class="feature-kicker">{{ skill.kicker }}</span>
-                <h3>{{ skill.title }}</h3>
-                <p>{{ skill.body }}</p>
-              </v-card>
-            </v-col>
-          </v-row>
+          <div class="skills-grid">
+            <article v-for="skill in skills" :key="skill.title" class="skill-panel">
+              <span class="feature-kicker">{{ skill.kicker }}</span>
+              <h3>{{ skill.title }}</h3>
+              <p>{{ skill.body }}</p>
+            </article>
+          </div>
         </v-container>
       </section>
 
-      <section id="links" class="content-section">
-        <v-container class="py-14 py-md-16">
-          <v-card class="links-panel" elevation="0">
-            <v-row align="center">
-              <v-col cols="12" lg="7">
-                <p class="eyebrow mb-3">Links</p>
-                <h2>Everything someone needs to try AuroraPad or inspect the project.</h2>
-                <p class="section-copy">
-                  Use the repository for source, issues, and roadmap. Use the download page for
-                  packaged builds and release updates.
-                </p>
-              </v-col>
-              <v-col cols="12" lg="5">
-                <div class="link-stack">
-                  <v-card class="link-card" elevation="0" :href="repoUrl" target="_blank" rel="noreferrer">
-                    <div>
-                      <span class="feature-kicker">Repository</span>
-                      <strong>{{ repoUrl }}</strong>
-                    </div>
-                    <v-icon icon="mdi-open-in-new" />
-                  </v-card>
-                  <v-card class="link-card" elevation="0" :href="downloadUrl" target="_blank" rel="noreferrer">
-                    <div>
-                      <span class="feature-kicker">Download URL</span>
-                      <strong>{{ downloadUrl }}</strong>
-                    </div>
-                    <v-icon icon="mdi-download" />
-                  </v-card>
-                </div>
-              </v-col>
-            </v-row>
-          </v-card>
+      <section id="releases" class="section-shell section-contrast">
+        <v-container class="section-container">
+          <div class="release-layout">
+            <div class="section-head compact">
+              <p class="eyebrow">Releases & Links</p>
+              <h2>Downloads, source, release automation, and platform packaging in one place.</h2>
+              <p class="section-copy">
+                AuroraPad ships with CI-managed semantic versioning, automated release builds,
+                and GitHub Pages support for the website. Source and binaries stay easy to find.
+              </p>
+            </div>
+
+            <div class="release-stack">
+              <a class="release-link" :href="downloadUrl" target="_blank" rel="noreferrer">
+                <span class="feature-kicker">Download URL</span>
+                <strong>{{ downloadUrl }}</strong>
+                <span class="release-hint">Get packaged desktop builds and release notes.</span>
+              </a>
+
+              <a class="release-link" :href="repoUrl" target="_blank" rel="noreferrer">
+                <span class="feature-kicker">Repository URL</span>
+                <strong>{{ repoUrl }}</strong>
+                <span class="release-hint">Browse source, roadmap, issues, and workflows.</span>
+              </a>
+            </div>
+          </div>
+        </v-container>
+      </section>
+
+      <section id="faq" class="section-shell">
+        <v-container class="section-container">
+          <div class="section-head">
+            <p class="eyebrow">FAQ</p>
+            <h2>Common questions, answered quickly.</h2>
+          </div>
+
+          <div class="faq-list">
+            <article v-for="item in faqItems" :key="item.q" class="faq-item">
+              <h3>{{ item.q }}</h3>
+              <p>{{ item.a }}</p>
+            </article>
+          </div>
+        </v-container>
+      </section>
+
+      <section class="final-cta">
+        <v-container class="final-cta-inner">
+          <p class="eyebrow">Try AuroraPad</p>
+          <h2>Open the repo, download a build, and shape the editor around your workflow.</h2>
+          <div class="hero-actions">
+            <v-btn color="primary" size="x-large" :href="downloadUrl" target="_blank" rel="noreferrer">
+              Download AuroraPad
+            </v-btn>
+            <v-btn variant="outlined" size="x-large" :href="repoUrl" target="_blank" rel="noreferrer">
+              Explore the Source
+            </v-btn>
+          </div>
         </v-container>
       </section>
     </v-main>
@@ -315,97 +283,148 @@ launch({
 const repoUrl = 'https://github.com/ali111887/AuroraPad'
 const downloadUrl = 'https://github.com/ali111887/AuroraPad/releases'
 
+const proofPoints = [
+  { value: '3', label: 'desktop platforms shipped in CI' },
+  { value: '1', label: 'workspace for editing, search, plugins & terminal' },
+  { value: '0.1.0+', label: 'semantic release flow managed by CI' },
+  { value: 'Built-in', label: 'developer and text skills included' },
+]
+
+const features = [
+  {
+    kicker: 'Workspace Search',
+    title: 'Find across folders, not just files',
+    body: 'Search the project, jump to exact matches, and stay inside the same focused editing flow.',
+  },
+  {
+    kicker: 'Terminal',
+    title: 'Run where the code already is',
+    body: 'Use the integrated terminal with platform-aware shell profiles and workspace-aware starting paths.',
+  },
+  {
+    kicker: 'Command Palette',
+    title: 'Use intent-driven actions',
+    body: 'Trigger editing, navigation, workspace, and sorting actions from one searchable launcher.',
+  },
+  {
+    kicker: 'Customization',
+    title: 'Keep the UI under control',
+    body: 'Tune sidebar, toolbar, status bar, minimap, wrapping, whitespace, autosave, and theme behavior.',
+  },
+]
+
 const workflowSteps = [
   {
-    title: 'Open the workspace',
-    body: 'Load a folder, restore a session, and get your files back into view without setup overhead.',
+    title: 'Open a folder & restore context',
+    body: 'Bring the project back instantly with recent files, persisted preferences, and session-aware workspace state.',
   },
   {
-    title: 'Navigate with intent',
-    body: 'Use the command palette, tabs, and workspace search instead of digging through UI.',
+    title: 'Edit with Monaco-level capability',
+    body: 'Work with syntax highlighting, language modes, bookmarks, split view, and editor controls that stay out of the way.',
   },
   {
-    title: 'Edit without drift',
-    body: 'Stay in the same editor while Monaco handles language support, search, and code ergonomics.',
+    title: 'Search & jump across the project',
+    body: 'Use command palette flows or find-in-files to move through the codebase without digging through windows and menus.',
   },
   {
-    title: 'Run in context',
-    body: 'Open the terminal dock or run commands from the active project path instead of leaving the app.',
+    title: 'Run commands in the same workspace',
+    body: 'Open the terminal dock from the active project path and keep debugging, building, or testing inside the same tool.',
   },
 ]
 
 const skills = [
   {
     kicker: 'Developer Tools',
-    title: 'Format and transform data fast',
-    body: 'Pretty-print JSON, minify payloads, and encode or decode URL and Base64 text.',
+    title: 'Format, encode, hash, and transform',
+    body: 'Built-in tools cover JSON formatting, Base64 and URL transforms, and document hashing utilities.',
   },
   {
     kicker: 'Text Tools',
-    title: 'Clean up content in place',
-    body: 'Convert to title case, slugify selections, and inspect text statistics instantly.',
+    title: 'Clean up text in place',
+    body: 'Slugify text, title-case selections, inspect document stats, and make small content tasks take seconds instead of minutes.',
   },
   {
     kicker: 'Plugin System',
-    title: 'Add your own capabilities',
-    body: 'Drop JavaScript plugins into the user folder and surface custom actions inside AuroraPad.',
+    title: 'Extend the editor with your own actions',
+    body: 'Drop JavaScript plugins into the user plugin folder and surface custom actions directly in AuroraPad.',
+  },
+]
+
+const faqItems = [
+  {
+    q: 'What is AuroraPad for?',
+    a: 'AuroraPad is for developers who want a fast desktop editor for day-to-day file work, code inspection, project search, and terminal-assisted workflows.',
+  },
+  {
+    q: 'Why not just use a browser-based editor?',
+    a: 'AuroraPad is optimized for desktop-native editing, file-system access, terminal context, packaging, and lightweight project operations without browser friction.',
+  },
+  {
+    q: 'How are releases managed?',
+    a: 'GitHub Actions computes semantic versions from commit history, builds desktop packages for macOS, Windows, and Linux, and publishes release assets automatically.',
   },
 ]
 </script>
 
 <style>
+:root {
+  color-scheme: dark;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  background: #060d18;
+  background: #07101a;
 }
 
 .aurora-site {
-  color: #edf5ff;
+  color: #eef6ff;
   background:
-    radial-gradient(circle at top left, rgba(95, 174, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 88% 14%, rgba(116, 230, 255, 0.16), transparent 24%),
-    linear-gradient(180deg, #0b1730 0%, #060d18 42%, #040912 100%);
+    radial-gradient(circle at 10% 10%, rgba(105, 208, 255, 0.18), transparent 24%),
+    radial-gradient(circle at 88% 12%, rgba(69, 126, 255, 0.18), transparent 20%),
+    linear-gradient(180deg, #09121f 0%, #07101a 48%, #040911 100%);
 }
 
-.site-background {
+.site-noise {
   position: fixed;
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 72px 72px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.74), transparent 92%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 92%);
 }
 
 .site-bar {
-  backdrop-filter: blur(18px);
-  background: rgba(4, 9, 18, 0.58) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  background: rgba(7, 13, 24, 0.6) !important;
+  border-bottom: 1px solid rgba(163, 205, 255, 0.08);
 }
 
-.brand {
+.brand-link {
   display: inline-flex;
   align-items: center;
   gap: 0.9rem;
+  text-decoration: none;
+  color: inherit;
 }
 
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 2.9rem;
+  height: 2.9rem;
   border-radius: 1rem;
-  background: linear-gradient(135deg, #74e6ff, #5faeff);
-  color: #04101d;
+  background: linear-gradient(135deg, #8ceaff, #5ca9ff);
+  color: #07101a;
   font-family: "Iowan Old Style", "Georgia", serif;
   font-size: 1.45rem;
   font-weight: 700;
-  box-shadow: 0 14px 34px rgba(95, 174, 255, 0.32);
+  box-shadow: 0 18px 40px rgba(92, 169, 255, 0.28);
 }
 
 .brand-copy {
@@ -415,87 +434,99 @@ body {
 }
 
 .brand-copy strong {
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .brand-copy span,
-.nav-links a,
-.hero-body,
-.hero-links a,
-.hero-links-label,
+.site-nav a,
 .section-copy,
-.feature-card p,
-.workflow-card p,
-.skill-card p,
-.link-card strong,
-.showcase-toolbar span,
-.showcase-sidebar span,
-.showcase-status span,
-.editor-tabs span {
-  color: #9db4ce;
+.feature-panel p,
+.workflow-step p,
+.skill-panel p,
+.faq-item p,
+.release-hint,
+.proof-label {
+  color: #a8b9cd;
 }
 
-.nav-links {
-  gap: 1.2rem;
+.site-nav,
+.site-actions {
+  align-items: center;
+  gap: 1.15rem;
 }
 
-.nav-links a {
+.site-nav a {
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.18s ease;
 }
 
-.nav-links a:hover {
-  color: #edf5ff;
+.site-nav a:hover,
+.brand-link:hover .brand-copy strong {
+  color: #ffffff;
 }
 
-.tracking,
-.eyebrow,
-.feature-kicker,
-.floating-label,
-.sidebar-label,
-.hero-links-label,
-.workflow-index {
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: 0.74rem;
-}
-
-.eyebrow,
-.feature-kicker,
-.floating-label,
-.sidebar-label,
-.hero-links-label,
-.workflow-index {
-  color: #f4c98d;
-}
-
-.hero-shell {
+.hero {
   position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
 }
 
-.hero-grid {
-  min-height: calc(100vh - 64px);
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 40% 32%, rgba(140, 234, 255, 0.11), transparent 22%),
+    radial-gradient(circle at 70% 56%, rgba(92, 169, 255, 0.14), transparent 26%);
+  pointer-events: none;
+}
+
+.hero-container,
+.section-container {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: 3rem;
+  min-height: calc(100svh - 64px);
+  padding: 5rem 0 2rem;
+}
+
+.eyebrow,
+.feature-kicker,
+.callout-label {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  color: #f2c57c;
 }
 
 .hero-title,
-.section-heading h2 {
+.section-head h2,
+.final-cta h2 {
+  margin: 0;
   font-family: "Iowan Old Style", "Georgia", serif;
   font-weight: 600;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
   line-height: 0.94;
+  text-wrap: balance;
 }
 
 .hero-title {
-  margin: 0;
-  font-size: clamp(3.25rem, 7vw, 6.9rem);
-  max-width: 9ch;
+  max-width: 11ch;
+  font-size: clamp(3.6rem, 7vw, 7.25rem);
 }
 
 .hero-body {
-  margin-top: 1.2rem;
-  max-width: 56ch;
-  font-size: 1.05rem;
-  line-height: 1.75;
+  max-width: 58ch;
+  margin-top: 1.3rem;
+  color: #d6e4f3;
+  font-size: 1.1rem;
+  line-height: 1.78;
 }
 
 .hero-actions {
@@ -505,90 +536,72 @@ body {
   margin-top: 2rem;
 }
 
-.hero-links {
+.hero-meta {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 2.25rem;
 }
 
-.hero-links div {
+.hero-meta div {
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(196, 221, 250, 0.12);
 }
 
-.hero-links a {
-  display: inline-block;
-  margin-top: 0.35rem;
-  word-break: break-all;
+.hero-meta dt {
+  color: #8fa7c3;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.hero-stage {
+.hero-meta dd {
+  margin: 0.4rem 0 0;
+  color: #f1f6fd;
+}
+
+.hero-visual {
   position: relative;
   min-height: 720px;
   display: grid;
   place-items: center;
 }
 
-.hero-orb {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(14px);
+.hero-frame,
+.hero-callout,
+.feature-panel,
+.workflow-step,
+.skill-panel,
+.release-link,
+.faq-item {
+  background: rgba(10, 18, 31, 0.72);
+  border: 1px solid rgba(163, 205, 255, 0.12);
+  box-shadow: 0 30px 80px rgba(2, 6, 18, 0.46);
+  backdrop-filter: blur(18px);
 }
 
-.orb-a {
-  top: 8%;
-  left: 5%;
-  width: 260px;
-  height: 260px;
-  background: radial-gradient(circle, rgba(116, 230, 255, 0.3), transparent 70%);
-}
-
-.orb-b {
-  right: 4%;
-  bottom: 8%;
-  width: 340px;
-  height: 340px;
-  background: radial-gradient(circle, rgba(95, 174, 255, 0.24), transparent 72%);
-}
-
-.editor-showcase,
-.floating-note,
-.feature-card,
-.workflow-card,
-.skill-card,
-.links-panel,
-.link-card {
-  border: 1px solid rgba(151, 193, 255, 0.14) !important;
-  background: rgba(9, 20, 38, 0.72) !important;
-  box-shadow: 0 30px 90px rgba(2, 8, 20, 0.48) !important;
-  backdrop-filter: blur(16px);
-}
-
-.editor-showcase {
-  position: relative;
-  z-index: 2;
+.hero-frame {
   width: min(780px, 100%);
+  border-radius: 28px;
   overflow: hidden;
-  transform: perspective(1600px) rotateY(-10deg) rotateX(7deg);
+  transform: perspective(1700px) rotateY(-9deg) rotateX(6deg);
 }
 
-.showcase-topbar,
-.showcase-toolbar,
-.editor-tabs,
-.showcase-status {
+.frame-top,
+.frame-tabs,
+.frame-status {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.85rem 1rem;
+  gap: 0.85rem;
 }
 
-.showcase-topbar,
-.showcase-toolbar,
-.editor-tabs {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+.frame-top {
+  justify-content: space-between;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.topbar-dots {
+.frame-dots {
   display: inline-flex;
   gap: 0.45rem;
 }
@@ -599,227 +612,342 @@ body {
   border-radius: 50%;
 }
 
-.dot.red { background: #ff6f61; }
-.dot.amber { background: #ffc857; }
-.dot.green { background: #45da9a; }
+.dot.red { background: #ff7c73; }
+.dot.amber { background: #f5c767; }
+.dot.green { background: #69dd9d; }
 
-.window-title,
-.showcase-toolbar span,
-.showcase-sidebar span,
-.editor-tabs span,
+.frame-title,
+.frame-pill,
+.frame-sidebar span,
+.frame-tabs span,
 .editor-code,
-.showcase-status span {
+.frame-status span {
   font-family: "SFMono-Regular", "Menlo", monospace;
   font-size: 0.83rem;
 }
 
-.window-title,
-.editor-tabs .is-active,
-.showcase-status span:last-child {
-  color: #edf5ff;
+.frame-title,
+.frame-tabs .is-active,
+.frame-status span:last-child {
+  color: #f4f8ff;
 }
 
-.showcase-body {
+.frame-pill {
+  padding: 0.32rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(115, 198, 255, 0.12);
+  color: #8ddcff;
+}
+
+.frame-body {
   display: grid;
   grid-template-columns: 220px 1fr;
-  min-height: 500px;
+  min-height: 520px;
 }
 
-.showcase-sidebar {
-  padding: 1.2rem 1rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.sidebar-group {
+.frame-sidebar {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  margin-bottom: 1.4rem;
+  padding: 1.15rem 1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.showcase-editor {
+.frame-label {
+  color: #f2c57c !important;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.72rem !important;
+}
+
+.frame-spacer {
+  height: 10px;
+}
+
+.frame-editor {
   display: flex;
   flex-direction: column;
 }
 
+.frame-tabs,
+.frame-status {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .editor-code {
-  margin: 0;
-  padding: 1.25rem;
   flex: 1;
-  overflow: auto;
-  color: #dff5ff;
-  line-height: 1.74;
-}
-
-.floating-note {
-  position: absolute;
-  z-index: 3;
-  max-width: 230px;
-  padding: 1rem 1.1rem;
-}
-
-.floating-note strong {
-  display: block;
-  margin: 0.3rem 0 0.45rem;
-  font-size: 1.1rem;
-}
-
-.floating-note p {
   margin: 0;
-  color: #9db4ce;
+  padding: 1.35rem;
+  overflow: auto;
+  line-height: 1.76;
+  color: #daf3ff;
+}
+
+.frame-status {
+  border-bottom: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hero-callout {
+  position: absolute;
+  max-width: 240px;
+  padding: 1rem 1.05rem;
+  border-radius: 18px;
+}
+
+.hero-callout strong {
+  display: block;
+  margin: 0.35rem 0 0.45rem;
+}
+
+.hero-callout p {
+  margin: 0;
+  color: #a8b9cd;
   line-height: 1.55;
 }
 
-.note-top {
-  top: 14%;
-  left: -1%;
+.hero-callout-top {
+  top: 11%;
+  left: -2%;
 }
 
-.note-bottom {
+.hero-callout-bottom {
   right: -2%;
-  bottom: 12%;
+  bottom: 10%;
 }
 
-.signal-section {
-  padding-bottom: 1rem;
+.proof-strip {
+  padding: 0 0 1rem;
 }
 
-.signal-strip {
+.proof-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.8rem;
-}
-
-.signal-strip span {
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  color: #9db4ce;
-}
-
-.content-section {
-  position: relative;
-}
-
-.alt-section {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0));
-}
-
-.section-heading h2 {
-  margin: 0;
-  font-size: clamp(2.35rem, 5vw, 4.5rem);
-  max-width: 12ch;
-}
-
-.feature-card,
-.workflow-card,
-.skill-card {
-  height: 100%;
-  padding: 1.5rem;
-}
-
-.feature-card-large {
-  min-height: 100%;
-}
-
-.feature-card h3,
-.workflow-card h3,
-.skill-card h3 {
-  margin: 0.45rem 0 0.8rem;
-  font-size: 1.45rem;
-}
-
-.feature-card ul {
-  margin: 1rem 0 0;
-  padding-left: 1rem;
-  color: #9db4ce;
-  line-height: 1.85;
-}
-
-.feature-band {
-  min-height: 100%;
-}
-
-.workflow-stack {
-  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.workflow-card {
+.proof-item {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(192, 219, 252, 0.12);
+}
+
+.proof-value {
+  display: block;
+  color: #f1f6fd;
+  font-size: 1.55rem;
+  font-weight: 700;
+}
+
+.section-shell {
+  padding: 2rem 0;
+}
+
+.section-contrast {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+}
+
+.section-container {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.section-head {
+  max-width: 780px;
+}
+
+.section-head.compact {
+  max-width: 560px;
+}
+
+.section-head h2 {
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  max-width: 12ch;
+}
+
+.section-copy {
+  margin-top: 1rem;
+  max-width: 58ch;
+  line-height: 1.78;
+}
+
+.feature-layout {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 1.15fr 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2.4rem;
+}
+
+.feature-panel,
+.skill-panel,
+.workflow-step,
+.faq-item,
+.release-link {
+  border-radius: 24px;
+  padding: 1.5rem;
+}
+
+.feature-panel-primary {
+  grid-row: span 2;
+}
+
+.feature-panel h3,
+.workflow-step h3,
+.skill-panel h3,
+.faq-item h3 {
+  margin: 0.55rem 0 0.8rem;
+  font-size: 1.45rem;
+}
+
+.workflow-grid,
+.skills-grid,
+.faq-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.4rem;
+}
+
+.workflow-step {
+  display: grid;
+  grid-template-columns: 76px 1fr;
   gap: 1rem;
 }
 
 .workflow-index {
-  display: inline-flex;
-  align-items: flex-start;
-  justify-content: center;
-  color: #74e6ff;
-  font-size: 1rem;
+  color: #8de0ff;
+  font-size: 1.1rem;
   font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.links-panel {
-  padding: 2rem;
+.skills-grid,
+.faq-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.link-stack {
+.release-layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 420px);
+  gap: 2rem;
+  align-items: start;
+}
+
+.release-stack {
   display: grid;
   gap: 1rem;
 }
 
-.link-card {
-  display: flex !important;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.1rem;
+.release-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
   text-decoration: none;
+  color: inherit;
 }
 
-.link-card strong {
-  display: block;
-  margin-top: 0.35rem;
-  line-height: 1.5;
+.release-link strong {
+  color: #f1f6fd;
   word-break: break-all;
 }
 
+.release-link:hover {
+  border-color: rgba(141, 224, 255, 0.26);
+  transform: translateY(-1px);
+}
+
+.final-cta {
+  padding: 3rem 0 5rem;
+}
+
+.final-cta-inner {
+  padding: 2.5rem 0;
+  border-top: 1px solid rgba(196, 221, 250, 0.12);
+}
+
+.final-cta h2 {
+  max-width: 13ch;
+  font-size: clamp(2.6rem, 5vw, 5rem);
+  margin-top: 0.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-frame,
+  .hero-callout,
+  .feature-panel,
+  .workflow-step,
+  .skill-panel,
+  .release-link,
+  .faq-item {
+    transition: transform 0.24s ease, border-color 0.24s ease, background 0.24s ease;
+  }
+
+  .feature-panel:hover,
+  .workflow-step:hover,
+  .skill-panel:hover,
+  .faq-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(141, 224, 255, 0.24);
+  }
+}
+
 @media (max-width: 1180px) {
-  .editor-showcase {
+  .hero-layout,
+  .release-layout,
+  .feature-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-frame {
     transform: none;
   }
 
-  .floating-note {
+  .hero-callout {
     position: static;
     max-width: none;
     margin-top: 1rem;
   }
 
-  .hero-stage {
+  .hero-visual {
     min-height: auto;
+  }
+
+  .feature-panel-primary {
+    grid-row: auto;
   }
 }
 
 @media (max-width: 960px) {
-  .signal-strip {
+  .proof-grid,
+  .skills-grid,
+  .faq-list,
+  .hero-meta {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 760px) {
-  .showcase-body {
+  .frame-body,
+  .skills-grid,
+  .faq-list,
+  .proof-grid,
+  .hero-meta,
+  .workflow-step {
     grid-template-columns: 1fr;
   }
 
-  .showcase-sidebar {
+  .frame-sidebar {
     border-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
-  .signal-strip,
-  .workflow-card {
-    grid-template-columns: 1fr;
+  .hero-layout {
+    padding-top: 4.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 15vw, 4.6rem);
   }
 }
 </style>

@@ -21,9 +21,10 @@ AuroraPad now includes GitHub release automation through:
    - Windows for Windows artifacts
    - macOS for macOS artifacts
 7. The workflow updates `package.json` and `package-lock.json` during CI so packaged binaries carry the computed version.
-8. The workflow collects packaged artifacts from `release/`.
-9. A GitHub Release is created or updated for the CI-generated tag.
-10. The generated installers and metadata files are uploaded to the release.
+8. The workflow creates and pushes the matching git tag, such as `v0.1.0`.
+9. The workflow collects packaged artifacts from `release/`.
+10. A GitHub Release is created or updated for that tag.
+11. The generated installers and metadata files are uploaded to the release.
 
 ## Notes
 
@@ -33,6 +34,7 @@ AuroraPad now includes GitHub release automation through:
 - GitHub’s generated release notes are grouped using `.github/release.yml`.
 - Re-running the release workflow on the same commit reuses the matching semantic version tag if one already points at `HEAD`.
 - If you want signed macOS or Windows binaries later, add the appropriate signing secrets and extend the workflow.
+- GitHub Releases are now backed by real git tags, not just release entries.
 
 ## Recommended release flow
 

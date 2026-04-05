@@ -3,20 +3,42 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 export const vuetify = createVuetify({
   theme: {
-    defaultTheme: 'auroraDesktop',
+    defaultTheme: 'auroraDesktopDark',
     themes: {
-      auroraDesktop: {
+      auroraDesktopLight: {
+        dark: false,
+        colors: {
+          background: '#f5f8fc',
+          surface: '#ffffff',
+          'surface-bright': '#f3f6fb',
+          'surface-variant': '#dde7f2',
+          primary: '#0b76d1',
+          secondary: '#2d9df5',
+          accent: '#b47412',
+          success: '#197a43',
+          warning: '#a05c00',
+          error: '#bf2d2d',
+          info: '#0b76d1',
+          'on-background': '#18202b',
+          'on-surface': '#18202b',
+        },
+      },
+      auroraDesktopDark: {
         dark: true,
         colors: {
-          background: '#141922',
-          surface: '#1b212c',
-          'surface-bright': '#252c39',
-          primary: '#58b6ff',
-          secondary: '#7ad7ff',
-          accent: '#d6a34a',
-          success: '#63d471',
-          warning: '#ffcb6b',
-          error: '#ff7a7a',
+          background: '#0e141d',
+          surface: '#151d28',
+          'surface-bright': '#202a37',
+          'surface-variant': '#2a3442',
+          primary: '#78c9ff',
+          secondary: '#9fe1ff',
+          accent: '#f3c97a',
+          success: '#6fdf9a',
+          warning: '#ffd37f',
+          error: '#ff8c8c',
+          info: '#78c9ff',
+          'on-background': '#edf4ff',
+          'on-surface': '#edf4ff',
         },
       },
     },

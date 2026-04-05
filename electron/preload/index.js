@@ -20,6 +20,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setSession: (data) => ipcRenderer.invoke('store:setSession', data),
   renameFile: (oldPath, newPath) => ipcRenderer.invoke('fs:renameFile', oldPath, newPath),
   openInDefaultViewer: (filePath) => ipcRenderer.invoke('shell:openInDefaultViewer', filePath),
+  revealInFolder: (filePath) => ipcRenderer.invoke('shell:revealInFolder', filePath),
+  getPlatformInfo: () => ipcRenderer.invoke('platform:getInfo'),
 
   // Window controls
   minimizeWindow: () => ipcRenderer.send('window:minimize'),

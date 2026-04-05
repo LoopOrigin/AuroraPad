@@ -12,14 +12,15 @@ const vuetify = createVuetify({
       aurora: {
         dark: true,
         colors: {
-          background: '#060d18',
-          surface: '#0a1628',
-          primary: '#74e6ff',
-          secondary: '#5faeff',
-          accent: '#f4c98d',
-          error: '#ff7b7b',
-          info: '#86d7ff',
-          success: '#67d8a5',
+          background: '#07101a',
+          surface: '#101a28',
+          'surface-bright': '#172334',
+          primary: '#8ceaff',
+          secondary: '#5ca9ff',
+          accent: '#f2c57c',
+          error: '#ff8f8f',
+          info: '#8ceaff',
+          success: '#6fdf9a',
           warning: '#ffd37f',
         },
       },
@@ -34,6 +35,7 @@ const vuetify = createVuetify({
     VBtn: {
       rounded: 'pill',
       variant: 'flat',
+      style: 'letter-spacing: 0.01em; text-transform: none;',
     },
     VCard: {
       rounded: 'xl',

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-layout" :class="{ 'is-mac': isMacPlatform }">
+  <div class="app-layout" :class="{ 'is-mac': isMacPlatform, 'terminal-open': showTerminal }">
     <header class="app-menu-bar" :class="{ 'is-mac-header': isMacPlatform }">
       <MenuBar
         v-if="!isMacPlatform"
@@ -107,6 +107,11 @@
           <div class="empty-state-badge">AuroraPad</div>
           <h2>No file open</h2>
           <p>Open a file, load a folder, or start a scratch note.</p>
+          <div class="empty-state-platform">
+            <span>{{ platformInfo.revealInFolderLabel }}</span>
+            <span>{{ platformInfo.terminalAppLabel }}</span>
+            <span>{{ platformInfo.platform }}</span>
+          </div>
           <div class="empty-state-actions">
             <button type="button" @click="menuOpenFile">Open File</button>
             <button type="button" @click="menuOpenFolder">Open Folder</button>
@@ -125,6 +130,7 @@
       <TerminalDock
         v-if="showTerminal"
         ref="terminalDockRef"
+        :platform-info="platformInfo"
         @close="showTerminal = false"
       />
     </div>
@@ -311,6 +317,7 @@ const terminalDockRef = ref(null)
 const splitViewEnabled = ref(false)
 const secondaryTabId = ref(null)
 const lastRunCommand = ref('')
+const platformInfo = ref(createFallbackPlatformInfo())
 let autoSaveInterval = null
 
 const primaryTab = computed(() => tabsStore.activeTab)
@@ -339,7 +346,52 @@ const themeOptions = [
   { title: 'Solarized Dark', value: 'solarized-dark' },
 ]
 
-const isMacPlatform = navigator.userAgent.toLowerCase().includes('mac')
+const isMacPlatform = computed(() => platformInfo.value.isMac)
+
+function createFallbackPlatformInfo() {
+  const ua = navigator.userAgent.toLowerCase()
+  const isWindows = ua.includes('win')
+  const isMac = ua.includes('mac')
+  const isLinux = !isWindows && !isMac
+
+  return {
+    platform: isWindows ? 'win32' : isMac ? 'darwin' : 'linux',
+    isWindows,
+    isMac,
+    isLinux,
+    revealInFolderLabel: isMac ? 'Finder' : isWindows ? 'Explorer' : 'File Manager',
+    terminalAppLabel: isWindows ? 'Command Prompt' : 'Terminal',
+    defaultShellProfile: 'default',
+    terminalProfiles: [
+      { id: 'default', label: isWindows ? 'Command Prompt' : 'Shell', available: true, accent: 'default' },
+      ...(isWindows
+        ? [
+            { id: 'powershell', label: 'PowerShell', available: true, accent: 'powershell' },
+            { id: 'bash', label: 'Git Bash', available: true, accent: 'bash' },
+            { id: 'wsl', label: 'WSL', available: true, accent: 'wsl' },
+          ]
+        : []),
+    ],
+  }
+}
+
+const availableTerminalProfiles = computed(() =>
+  (platformInfo.value.terminalProfiles || []).filter(profile => profile.available)
+)
+
+function isTerminalProfileAvailable(profileId) {
+  return availableTerminalProfiles.value.some(profile => profile.id === profileId)
+}
+
+function openTerminalSession(shell = platformInfo.value.defaultShellProfile || 'default', cwd = '') {
+  const nextShell = isTerminalProfileAvailable(shell)
+    ? shell
+    : (platformInfo.value.defaultShellProfile || 'default')
+  showTerminal.value = true
+  setTimeout(() => {
+    terminalDockRef.value?.newSession?.(nextShell, cwd)
+  }, 100)
+}
 
 // Notepad++ menu order: File, Edit, Search, View, Encoding, Language, Settings, Plugins, Window, Help
 const menuBarMenus = computed(() => [
@@ -365,8 +417,8 @@ const menuBarMenus = computed(() => [
       { type: 'separator' },
       { label: 'Reload from Disk', action: 'menu:reload-from-disk', enabled: !!tabsStore.activeTab?.path },
       { type: 'separator' },
-      { label: isMacPlatform ? 'Open Containing Folder in Finder' : 'Open Containing Folder in Explorer', action: 'menu:open-containing-folder:explorer', enabled: !!tabsStore.activeTab?.path },
-      { label: isMacPlatform ? 'Open Containing Folder in Terminal' : 'Open Containing Folder in Command Prompt', action: 'menu:open-containing-folder:cmd', enabled: !!tabsStore.activeTab?.path },
+      { label: `Open Containing Folder in ${platformInfo.value.revealInFolderLabel}`, action: 'menu:open-containing-folder:explorer', enabled: !!tabsStore.activeTab?.path },
+      { label: `Open Containing Folder in ${platformInfo.value.terminalAppLabel}`, action: 'menu:open-containing-folder:cmd', enabled: !!tabsStore.activeTab?.path },
       { label: 'Open Containing Folder as Workspace', action: 'menu:open-containing-folder:faw', enabled: !!tabsStore.activeTab?.path },
       { label: 'Open in Default Viewer', action: 'menu:open-in-default-viewer', enabled: !!tabsStore.activeTab?.path },
       { type: 'separator' },
@@ -530,9 +582,9 @@ const menuBarMenus = computed(() => [
     items: [
       { label: 'Toggle Terminal Panel', action: 'menu:toggle-terminal' },
       { label: 'New Default Terminal', action: 'menu:terminal-new-default' },
-      { label: 'New PowerShell Terminal', action: 'menu:terminal-new-powershell' },
-      { label: 'New Git Bash Terminal', action: 'menu:terminal-new-gitbash' },
-      { label: 'New WSL Terminal', action: 'menu:terminal-new-wsl' },
+      ...(isTerminalProfileAvailable('powershell') ? [{ label: 'New PowerShell Terminal', action: 'menu:terminal-new-powershell' }] : []),
+      ...(isTerminalProfileAvailable('bash') ? [{ label: 'New Git Bash Terminal', action: 'menu:terminal-new-gitbash' }] : []),
+      ...(isTerminalProfileAvailable('wsl') ? [{ label: 'New WSL Terminal', action: 'menu:terminal-new-wsl' }] : []),
       { label: 'Next Terminal', action: 'menu:terminal-next' },
       { label: 'Previous Terminal', action: 'menu:terminal-prev' },
     ],
@@ -587,7 +639,18 @@ const menuBarMenus = computed(() => [
   },
 ])
 
-onMounted(() => {
+onMounted(async () => {
+  if (window.electronAPI?.getPlatformInfo) {
+    try {
+      const result = await window.electronAPI.getPlatformInfo()
+      if (result?.platform) {
+        platformInfo.value = {
+          ...createFallbackPlatformInfo(),
+          ...result,
+        }
+      }
+    } catch {}
+  }
   settingsStore.loadRecentFilesFromMain()
   setupMenuListeners()
   setupFolderWatcher()
@@ -599,7 +662,7 @@ onMounted(() => {
 })
 
 function setupKeyboardShortcuts() {
-  const isMac = navigator.userAgent.toLowerCase().includes('mac')
+  const isMac = platformInfo.value.isMac
   const keydown = (e) => {
     // Zoom shortcuts (CmdOrCtrl + Plus/Minus/0) - handle early as they are global
     if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+' || e.key === '-' || e.key === '0')) {
@@ -1036,23 +1099,19 @@ function onMenuBarAction(action, item) {
     return true
   }
   if (action === 'menu:terminal-new-default') {
-    if (!showTerminal.value) showTerminal.value = true
-    terminalDockRef.value?.newSession?.('default')
+    openTerminalSession('default')
     return true
   }
   if (action === 'menu:terminal-new-powershell') {
-    if (!showTerminal.value) showTerminal.value = true
-    terminalDockRef.value?.newSession?.('powershell')
+    openTerminalSession('powershell')
     return true
   }
   if (action === 'menu:terminal-new-gitbash') {
-    if (!showTerminal.value) showTerminal.value = true
-    terminalDockRef.value?.newSession?.('bash')
+    openTerminalSession('bash')
     return true
   }
   if (action === 'menu:terminal-new-wsl') {
-    if (!showTerminal.value) showTerminal.value = true
-    terminalDockRef.value?.newSession?.('wsl')
+    openTerminalSession('wsl')
     return true
   }
   if (action === 'menu:terminal-next') {
@@ -1584,15 +1643,14 @@ async function openContainingFolder(kind) {
     return
   }
   if (kind === 'explorer') {
-    // showItemInFolder will highlight the file; this is close to Explorer behavior
-    await window.electronAPI.openInDefaultViewer(dir)
+    const result = await window.electronAPI.revealInFolder?.(full)
+    if (result?.error) {
+      alert(`Failed to reveal in ${platformInfo.value.revealInFolderLabel}: ${result.error}`)
+    }
     return
   }
   if (kind === 'cmd') {
-    showTerminal.value = true
-    setTimeout(() => {
-      terminalDockRef.value?.newSession('default', dir)
-    }, 100)
+    openTerminalSession(platformInfo.value.defaultShellProfile || 'default', dir)
   }
 }
 
