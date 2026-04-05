@@ -822,8 +822,29 @@ function setupSessionPersistence() {
     }
     scheduleSave()
   })
-  watch(() => tabsStore.tabs.map(t => ({ id: t.id, path: t.path, cursorPosition: t.cursorPosition })), scheduleSave, { deep: true })
+  watch(() => tabsStore.tabs.map(t => ({
+    id: t.id,
+    path: t.path,
+    name: t.name,
+    content: t.path ? null : t.content,
+    cursorPosition: t.cursorPosition,
+    bookmarks: t.bookmarks,
+    encoding: t.encoding,
+    eol: t.eol,
+    language: t.language,
+    isDirty: t.isDirty,
+  })), scheduleSave, { deep: true })
   window.addEventListener('beforeunload', () => saveSession())
+}
+
+function getCommandWorkingDirectory() {
+  if (tabsStore.activeTab?.path) {
+    return tabsStore.activeTab.path.replace(/[\\/][^\\/]+$/, '')
+  }
+  if (fileTreeStore.openFolderPath) {
+    return fileTreeStore.openFolderPath
+  }
+  return undefined
 }
 
 function setupMenuListeners() {
@@ -1529,7 +1550,7 @@ async function runCommandPrompt() {
   const cmd = prompt('Run command (will execute on your machine):', lastRunCommand.value || '')
   if (!cmd) return
   lastRunCommand.value = cmd
-  const result = await window.electronAPI.runCommand(cmd)
+  const result = await window.electronAPI.runCommand(cmd, getCommandWorkingDirectory())
   if (result?.error) {
     alert(`Command failed:\n${result.error}\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)
     return
@@ -1542,7 +1563,7 @@ async function runLastCommand() {
     alert('No previous command to run.')
     return
   }
-  const result = await window.electronAPI.runCommand(lastRunCommand.value)
+  const result = await window.electronAPI.runCommand(lastRunCommand.value, getCommandWorkingDirectory())
   if (result?.error) {
     alert(`Command failed:\n${result.error}\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)
     return

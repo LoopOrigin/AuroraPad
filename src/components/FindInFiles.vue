@@ -178,6 +178,11 @@ async function search() {
       useRegex: useRegex.value,
       matchCase: matchCase.value,
     })
+    if (res?.error) {
+      results.value = []
+      statusText.value = res.error
+      return
+    }
     results.value = Array.isArray(res) ? res : []
     if (results.value.length) {
       statusText.value = `${results.value.length} matches`
@@ -202,6 +207,10 @@ async function replaceInFiles() {
       useRegex: useRegex.value,
       matchCase: matchCase.value,
     })
+    if (res?.error) {
+      statusText.value = res.error
+      return
+    }
     const fileCount = Array.isArray(res?.files) ? res.files.length : 0
     const total = res?.totalReplacements ?? 0
     statusText.value = total
@@ -221,4 +230,3 @@ function fileName(p) {
   return parts[parts.length - 1] || p
 }
 </script>
-

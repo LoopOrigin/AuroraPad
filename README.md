@@ -104,9 +104,15 @@ npm run electron:dev
 npm run build
 npm run start
 
+# Marketing site only
+npm run site:dev
+npm run site:preview
+
 # Create packaged app (Electron Builder)
 npm run electron:build
 ```
+
+The promotional website is included inside this repository at `website/` and builds to `dist/website/index.html`.
 
 ---
 

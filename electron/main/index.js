@@ -627,9 +627,14 @@ ipcMain.handle('search:findInFiles', async (_, options) => {
   }
 
   const maskRe = buildMaskRegex(mask)
-  const patternRe = useRegex
-    ? new RegExp(needle, matchCase ? 'g' : 'gi')
-    : new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), matchCase ? 'g' : 'gi')
+  let patternRe
+  try {
+    patternRe = useRegex
+      ? new RegExp(needle, matchCase ? 'g' : 'gi')
+      : new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), matchCase ? 'g' : 'gi')
+  } catch (error) {
+    return { error: `Invalid search pattern: ${error.message}` }
+  }
 
   const results = []
   let filesScanned = 0
@@ -707,6 +712,7 @@ ipcMain.handle('search:replaceInFiles', async (_, options) => {
   }
 
   const maskRe = buildMaskRegex(mask)
+  let regexError = null
 
   const results = []
   let filesScanned = 0
@@ -749,6 +755,7 @@ ipcMain.handle('search:replaceInFiles', async (_, options) => {
           try {
             re = new RegExp(needle, flags)
           } catch {
+            regexError = 'Invalid search pattern'
             continue
           }
           newContent = content.replace(re, () => {
@@ -783,6 +790,9 @@ ipcMain.handle('search:replaceInFiles', async (_, options) => {
   }
 
   await walk(root)
+  if (regexError) {
+    return { error: regexError, files: [], totalReplacements: 0 }
+  }
   return { files: results, totalReplacements }
 })
 

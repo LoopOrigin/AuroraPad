@@ -7,8 +7,18 @@ import sortLines from './sort-lines.js'
 import removeEmptyLines from './remove-empty-lines.js'
 import smartEdit from './smart-edit.js'
 import whitespaceTools from './whitespace-tools.js'
+import developerTools from './developer-tools.js'
+import textTools from './text-tools.js'
 
-const builtInPlugins = [insertDatetime, sortLines, removeEmptyLines, smartEdit, whitespaceTools]
+const builtInPlugins = [
+  insertDatetime,
+  sortLines,
+  removeEmptyLines,
+  smartEdit,
+  whitespaceTools,
+  developerTools,
+  textTools,
+]
 
 export function getBuiltInPlugins() {
   return builtInPlugins
