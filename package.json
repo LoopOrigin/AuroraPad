@@ -1,11 +1,12 @@
 {
   "name": "aurorapad",
   "productName": "AuroraPad",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "AuroraPad — a modern Notepad++-style editor powered by Monaco",
   "main": "electron/main/index.js",
   "scripts": {
     "assets:generate-icons": "node scripts/generate-icons.js",
+    "version:set": "node scripts/set-version.js",
     "dev": "vite",
     "site:dev": "vite --open /website/",
     "build": "vite build",
