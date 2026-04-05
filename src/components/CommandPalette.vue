@@ -37,7 +37,19 @@ import { useFileTreeStore } from '../stores/fileTree'
 const props = defineProps({
   recentOnly: { type: Boolean, default: false },
 })
-const emit = defineEmits(['close', 'open-file', 'open-file-dialog', 'new', 'run-command'])
+const emit = defineEmits([
+  'close',
+  'open-file',
+  'open-file-dialog',
+  'new',
+  'run-command',
+  'toggle-terminal',
+  'toggle-sidebar',
+  'preferences',
+  'sort-tabs-name',
+  'sort-tabs-path',
+  'sort-tabs-type',
+])
 
 const settingsStore = useSettingsStore()
 const fileTreeStore = useFileTreeStore()
@@ -49,6 +61,12 @@ const commands = [
   { id: 'new', label: 'New File', icon: '📄', action: 'new' },
   { id: 'open-file', label: 'Open File...', icon: '📂', action: 'open-file' },
   { id: 'open-folder', label: 'Open Folder...', icon: '📁', action: 'open-folder' },
+  { id: 'toggle-sidebar', label: 'Toggle Sidebar', icon: '🧭', action: 'toggle-sidebar' },
+  { id: 'toggle-terminal', label: 'Toggle Terminal', icon: '⌨️', action: 'toggle-terminal' },
+  { id: 'sort-tabs-name', label: 'Sort Tabs by Name', icon: '🔤', action: 'sort-tabs-name' },
+  { id: 'sort-tabs-path', label: 'Sort Tabs by Path', icon: '🗂️', action: 'sort-tabs-path' },
+  { id: 'sort-tabs-type', label: 'Sort Tabs by Type', icon: '🧩', action: 'sort-tabs-type' },
+  { id: 'preferences', label: 'Open Preferences', icon: '⚙️', action: 'preferences' },
   { id: 'run', label: 'Run Command...', icon: '▶️', action: 'run-command' },
 ]
 
@@ -122,6 +140,24 @@ function runItem(item) {
       break
     case 'run-command':
       emit('run-command')
+      break
+    case 'toggle-terminal':
+      emit('toggle-terminal')
+      break
+    case 'toggle-sidebar':
+      emit('toggle-sidebar')
+      break
+    case 'preferences':
+      emit('preferences')
+      break
+    case 'sort-tabs-name':
+      emit('sort-tabs-name')
+      break
+    case 'sort-tabs-path':
+      emit('sort-tabs-path')
+      break
+    case 'sort-tabs-type':
+      emit('sort-tabs-type')
       break
     default:
       break

@@ -1,128 +1,97 @@
 <template>
-  <div v-if="visible" class="plugin-manager-overlay" @click.self="close">
-    <div class="plugin-manager preferences-panel find-in-files-panel">
-      <h2>Find in Files</h2>
-      <div class="plugin-manager-list preferences-body">
-        <div class="preferences-section">
-          <div class="plugin-manager-item">
-            <div class="preferences-item-main">
-              <span class="preferences-label">Find what</span>
-            </div>
-            <input
-              ref="patternInputRef"
-              v-model="pattern"
-              type="text"
-              placeholder="Text or regex to search for"
-              @keydown.enter.prevent="search"
-            />
-          </div>
-          <div class="plugin-manager-item">
-            <div class="preferences-item-main">
-              <span class="preferences-label">Replace with</span>
-            </div>
-            <input
-              v-model="replaceWith"
-              type="text"
-              placeholder="Replacement text"
-            />
-          </div>
-          <div class="plugin-manager-item">
-            <div class="preferences-item-main">
-              <span class="preferences-label">Filters</span>
-              <span class="preferences-hint">Semicolon-separated masks, e.g. *.js;*.ts;*.vue</span>
-            </div>
-            <input
-              v-model="mask"
-              type="text"
-              placeholder="*.*"
-            />
-          </div>
-          <div class="plugin-manager-item">
-            <div class="preferences-item-main">
-              <span class="preferences-label">Directory</span>
-              <span class="preferences-hint">Root folder to search</span>
-            </div>
-            <div class="find-in-files-dir">
-              <input
-                v-model="root"
-                type="text"
-                placeholder="Select folder…"
+  <v-dialog :model-value="visible" max-width="980" @update:model-value="!$event && close()">
+    <v-card class="aurora-dialog">
+      <v-toolbar color="transparent" density="comfortable">
+        <v-toolbar-title>Find in Files</v-toolbar-title>
+        <v-spacer />
+        <v-btn icon="mdi-close" variant="text" @click="close" />
+      </v-toolbar>
+      <v-card-text class="dialog-body">
+        <v-row dense>
+          <v-col cols="12" md="5">
+            <div class="settings-group">
+              <div class="settings-group-title">Search Setup</div>
+              <v-text-field
+                ref="patternInputRef"
+                v-model="pattern"
+                label="Find what"
+                placeholder="Text or regex to search for"
+                @keydown.enter.prevent="search"
               />
-              <button type="button" @click="browse">Browse…</button>
-            </div>
-          </div>
-          <div class="plugin-manager-item">
-            <label class="find-in-files-flag">
-              <input v-model="matchCase" type="checkbox" />
-              Match case
-            </label>
-            <label class="find-in-files-flag">
-              <input v-model="useRegex" type="checkbox" />
-              Regular expression
-            </label>
-          </div>
-        </div>
-        <div class="preferences-section">
-          <div class="preferences-section-title">Results</div>
-          <div class="find-in-files-results">
-            <div v-if="isSearching" class="find-in-files-status">
-              Searching…
-            </div>
-            <div v-else-if="!results.length" class="find-in-files-status">
-              No results yet. Enter a search and press “Find All”.
-            </div>
-            <div
-              v-else
-              v-for="(r, idx) in results"
-              :key="idx"
-              class="find-in-files-result"
-              :title="r.path"
-              @click="open(r)"
-            >
-              <div class="find-in-files-result-main">
-                <span class="find-in-files-result-file">
-                  {{ fileName(r.path) }}
-                </span>
-                <span class="find-in-files-result-location">
-                  ({{ r.line }} : {{ r.column }})
-                </span>
+              <v-text-field
+                v-model="replaceWith"
+                label="Replace with"
+                placeholder="Replacement text"
+              />
+              <v-text-field
+                v-model="mask"
+                label="Filters"
+                placeholder="*.*"
+                hint="Semicolon-separated masks, e.g. *.js;*.ts;*.vue"
+                persistent-hint
+              />
+              <div class="find-root-row">
+                <v-text-field
+                  v-model="root"
+                  class="flex-grow-1"
+                  label="Directory"
+                  placeholder="Select folder…"
+                />
+                <v-btn variant="tonal" color="secondary" prepend-icon="mdi-folder-open-outline" @click="browse">
+                  Browse
+                </v-btn>
               </div>
-              <div class="find-in-files-result-path">
-                {{ r.path }}
-              </div>
-              <div class="find-in-files-result-preview">
-                {{ r.preview }}
+              <v-switch v-model="matchCase" label="Match case" />
+              <v-switch v-model="useRegex" label="Regular expression" />
+            </div>
+          </v-col>
+          <v-col cols="12" md="7">
+            <div class="settings-group">
+              <div class="settings-group-title">Results</div>
+              <div class="find-results-surface">
+                <div v-if="isSearching" class="find-in-files-status">Searching…</div>
+                <div v-else-if="!results.length" class="find-in-files-status">No results yet. Enter a search and press Find All.</div>
+                <v-list v-else class="dialog-list" bg-color="transparent">
+                  <v-list-item
+                    v-for="(r, idx) in results"
+                    :key="idx"
+                    class="dialog-list-item find-result-item"
+                    :title="r.path"
+                    @click="open(r)"
+                  >
+                    <v-list-item-title>
+                      {{ fileName(r.path) }}
+                      <span class="find-in-files-result-location">({{ r.line }} : {{ r.column }})</span>
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ r.path }}
+                    </v-list-item-subtitle>
+                    <template #append>
+                      <span class="find-preview">{{ r.preview }}</span>
+                    </template>
+                  </v-list-item>
+                </v-list>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="preferences-footer find-in-files-footer">
-        <span class="find-in-files-count">
-          {{ statusText }}
-        </span>
-        <div>
-          <button type="button" @click="search" :disabled="!pattern || !root || isSearching">
-            Find All
-          </button>
-          <button
-            type="button"
-            @click="replaceInFiles"
-            :disabled="!pattern || !root || isSearching"
-          >
-            Replace in Files
-          </button>
-          <button type="button" @click="close">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-actions class="dialog-actions">
+        <span class="find-in-files-count">{{ statusText }}</span>
+        <v-spacer />
+        <v-btn color="secondary" variant="tonal" :disabled="!pattern || !root || isSearching" @click="search">
+          Find All
+        </v-btn>
+        <v-btn color="primary" :disabled="!pattern || !root || isSearching" @click="replaceInFiles">
+          Replace in Files
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -147,7 +116,9 @@ watch(
   (v) => {
     if (v) {
       root.value = root.value || props.defaultRoot || ''
-      setTimeout(() => patternInputRef.value?.focus(), 40)
+      nextTick(() => {
+        patternInputRef.value?.focus?.()
+      })
     }
   }
 )

@@ -208,6 +208,28 @@ export const useTabsStore = defineStore('tabs', () => {
     activeTabId.value = dirtyTabs.length ? dirtyTabs[0].id : null
   }
 
+  function sortTabs(compare) {
+    const active = activeTabId.value
+    tabs.value = [...tabs.value].sort(compare)
+    activeTabId.value = active
+  }
+
+  function sortTabsByName() {
+    sortTabs((a, b) => a.name.localeCompare(b.name))
+  }
+
+  function sortTabsByPath() {
+    sortTabs((a, b) => (a.path || a.name).localeCompare(b.path || b.name))
+  }
+
+  function sortTabsByType() {
+    sortTabs((a, b) => {
+      const extA = (a.name.split('.').pop() || '').toLowerCase()
+      const extB = (b.name.split('.').pop() || '').toLowerCase()
+      return extA.localeCompare(extB) || a.name.localeCompare(b.name)
+    })
+  }
+
   return {
     tabs,
     activeTabId,
@@ -227,6 +249,9 @@ export const useTabsStore = defineStore('tabs', () => {
     closeAll,
     closeOthers,
     closeAllUnchanged,
+    sortTabsByName,
+    sortTabsByPath,
+    sortTabsByType,
     encodings,
     languageFromPath,
     inferLanguage,

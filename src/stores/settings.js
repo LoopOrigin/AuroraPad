@@ -7,11 +7,14 @@ export const useSettingsStore = defineStore('settings', () => {
   const wordWrap = useStorage('aurorapad-word-wrap', false)
   const lineNumbers = useStorage('aurorapad-line-numbers', true)
   const sidebarVisible = useStorage('aurorapad-sidebar-visible', false)
+  const toolbarVisible = useStorage('aurorapad-toolbar-visible', true)
+  const statusBarVisible = useStorage('aurorapad-statusbar-visible', true)
   const fontSize = useStorage('aurorapad-font-size', 14)
   const recentFiles = useStorage('aurorapad-recent-files-cache', [])
   const showWhitespace = useStorage('aurorapad-show-whitespace', false)
   const highlightCurrentLine = useStorage('aurorapad-highlight-current-line', true)
   const showMinimap = useStorage('aurorapad-show-minimap', false)
+  const autoSave = useStorage('aurorapad-auto-save', false)
 
   function setTheme(value) {
     theme.value = value
@@ -30,6 +33,14 @@ export const useSettingsStore = defineStore('settings', () => {
     sidebarVisible.value = value
   }
 
+  function setToolbarVisible(value) {
+    toolbarVisible.value = !!value
+  }
+
+  function setStatusBarVisible(value) {
+    statusBarVisible.value = !!value
+  }
+
   function setFontSize(value) {
     fontSize.value = Math.max(10, Math.min(24, value))
   }
@@ -44,6 +55,10 @@ export const useSettingsStore = defineStore('settings', () => {
 
   function setShowMinimap(value) {
     showMinimap.value = !!value
+  }
+
+  function setAutoSave(value) {
+    autoSave.value = !!value
   }
 
   function loadRecentFilesFromMain() {
@@ -78,19 +93,25 @@ export const useSettingsStore = defineStore('settings', () => {
     wordWrap,
     lineNumbers,
     sidebarVisible,
+    toolbarVisible,
+    statusBarVisible,
     fontSize,
     recentFiles,
     showWhitespace,
     highlightCurrentLine,
     showMinimap,
+    autoSave,
     setTheme,
     setWordWrap,
     setLineNumbers,
     setSidebarVisible,
+    setToolbarVisible,
+    setStatusBarVisible,
     setFontSize,
     setShowWhitespace,
     setHighlightCurrentLine,
     setShowMinimap,
+    setAutoSave,
     loadRecentFilesFromMain,
     clearRecentFiles,
   }

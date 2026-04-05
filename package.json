@@ -5,6 +5,7 @@
   "description": "AuroraPad — a modern Notepad++-style editor powered by Monaco",
   "main": "electron/main/index.js",
   "scripts": {
+    "assets:generate-icons": "node scripts/generate-icons.js",
     "dev": "vite",
     "site:dev": "vite --open /website/",
     "build": "vite build",
@@ -12,6 +13,9 @@
     "site:preview": "vite preview --open /website/",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "electron:build": "vite build && electron-builder",
+    "electron:build:win": "npm run assets:generate-icons && vite build && electron-builder --win nsis portable --x64",
+    "electron:build:linux": "npm run assets:generate-icons && vite build && electron-builder --linux AppImage tar.gz --x64",
+    "electron:build:mac": "npm run assets:generate-icons && vite build && electron-builder --mac dmg zip",
     "start": "electron ."
   },
   "dependencies": {
@@ -69,18 +73,25 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "portable"
       ],
       "icon": "assets/aurorapad-app-icon.ico",
       "signAndEditExecutable": false
     },
     "linux": {
+      "category": "Development",
       "target": [
         {
           "target": "AppImage",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
+          ]
+        },
+        {
+          "target": "tar.gz",
+          "arch": [
+            "x64"
           ]
         }
       ],

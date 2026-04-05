@@ -12,6 +12,7 @@
       <span v-else class="mac-title">AuroraPad</span>
     </header>
     <Toolbar
+      v-if="settingsStore.toolbarVisible"
       :can-save="!!(tabsStore.activeTab?.isDirty)"
       :has-editor="!!tabsStore.activeTab"
       :can-save-all="tabsStore.hasDirty"
@@ -117,7 +118,10 @@
           </div>
         </div>
       </div>
-      <StatusBar @go-to-line="handleMenu('menu:go-to-line')" />
+      <StatusBar
+        v-if="settingsStore.statusBarVisible"
+        @go-to-line="handleMenu('menu:go-to-line')"
+      />
       <TerminalDock
         v-if="showTerminal"
         ref="terminalDockRef"
@@ -125,112 +129,132 @@
       />
     </div>
     </div>
-    <div v-if="showPluginManager" class="plugin-manager-overlay" @click.self="showPluginManager = false">
-      <div class="plugin-manager">
-        <h2>Plugins</h2>
-      <div class="plugin-manager-list">
-        <div v-for="p in pluginsStore.plugins" :key="p.id" class="plugin-manager-item">
-          <div class="plugin-manager-meta">
-            <span><strong>{{ p.name }}</strong> {{ p.version || '' }}</span>
-            <span class="plugin-manager-description">{{ p.description || 'Built-in AuroraPad skill' }}</span>
+    <v-dialog v-model="showPluginManager" max-width="760">
+      <v-card class="aurora-dialog">
+        <v-toolbar color="transparent" density="comfortable">
+          <v-toolbar-title>Plugins</v-toolbar-title>
+          <v-spacer />
+          <v-btn icon="mdi-close" variant="text" @click="showPluginManager = false" />
+        </v-toolbar>
+        <v-card-text class="dialog-body">
+          <div class="dialog-intro">
+            AuroraPad uses built-in skills plus user JavaScript plugins. Drop `.js` plugins into the plugins folder to extend the app.
           </div>
-          <span class="plugin-manager-count">{{ (p.menuItems || []).length }} actions</span>
-        </div>
-      </div>
-        <div class="plugin-manager-footer">
-          Notepad++-style plugins. Add .js files to the plugins folder. Each file must export: <code>module.exports = { id, name, menuItems: [{ id, label, run(api) }] }</code>
-        </div>
-        <div style="padding: 8px 16px; display: flex; gap: 8px;">
-          <button type="button" @click="openPluginsFolder">Open Plugins Folder</button>
-          <button type="button" @click="showPluginManager = false">Close</button>
-        </div>
-      </div>
-    </div>
-    <div v-if="showPreferences" class="plugin-manager-overlay" @click.self="showPreferences = false">
-      <div class="plugin-manager preferences-panel">
-        <h2>Preferences</h2>
-        <div class="plugin-manager-list preferences-body">
-          <div class="preferences-section">
-            <div class="preferences-section-title">Appearance</div>
-            <div class="plugin-manager-item">
-              <div class="preferences-item-main">
-                <span class="preferences-label">Theme</span>
-                <span class="preferences-hint">Choose a Notepad++-style color scheme.</span>
+          <v-list class="dialog-list" bg-color="transparent">
+            <v-list-item
+              v-for="p in pluginsStore.plugins"
+              :key="p.id"
+              class="dialog-list-item"
+            >
+              <template #prepend>
+                <v-avatar color="primary" variant="tonal" size="34">
+                  <v-icon icon="mdi-puzzle-outline" />
+                </v-avatar>
+              </template>
+              <v-list-item-title>
+                {{ p.name }} <span class="plugin-version">{{ p.version || '' }}</span>
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ p.description || 'Built-in AuroraPad skill' }}
+              </v-list-item-subtitle>
+              <template #append>
+                <v-chip size="small" variant="tonal" color="secondary">
+                  {{ (p.menuItems || []).length }} actions
+                </v-chip>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+        <v-card-actions class="dialog-actions">
+          <v-btn color="secondary" variant="tonal" prepend-icon="mdi-folder-open-outline" @click="openPluginsFolder">
+            Open Plugins Folder
+          </v-btn>
+          <v-spacer />
+          <v-btn color="primary" @click="showPluginManager = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showPreferences" max-width="860">
+      <v-card class="aurora-dialog">
+        <v-toolbar color="transparent" density="comfortable">
+          <v-toolbar-title>Preferences</v-toolbar-title>
+          <v-spacer />
+          <v-btn icon="mdi-close" variant="text" @click="showPreferences = false" />
+        </v-toolbar>
+        <v-card-text class="dialog-body">
+          <v-row dense>
+            <v-col cols="12" md="5">
+              <div class="settings-group">
+                <div class="settings-group-title">Appearance</div>
+                <v-select
+                  :model-value="settingsStore.theme"
+                  :items="themeOptions"
+                  label="Theme"
+                  @update:model-value="settingsStore.setTheme"
+                />
+                <v-switch
+                  :model-value="settingsStore.toolbarVisible"
+                  label="Show Toolbar"
+                  @update:model-value="settingsStore.setToolbarVisible"
+                />
+                <v-switch
+                  :model-value="settingsStore.statusBarVisible"
+                  label="Show Status Bar"
+                  @update:model-value="settingsStore.setStatusBarVisible"
+                />
+                <v-text-field
+                  :model-value="settingsStore.fontSize"
+                  type="number"
+                  min="8"
+                  max="32"
+                  label="Editor Font Size"
+                  @update:model-value="settingsStore.setFontSize(Number($event) || 14)"
+                />
               </div>
-              <select v-model="settingsStore.theme">
-                <option value="light">Aurora Light</option>
-                <option value="dark">Aurora Dark</option>
-                <option value="monokai">Monokai Dark</option>
-                <option value="solarized-dark">Solarized Dark</option>
-              </select>
-            </div>
-          </div>
-          <div class="preferences-section">
-            <div class="preferences-section-title">Editor</div>
-            <div class="plugin-manager-item">
-              <div class="preferences-item-main">
-                <span class="preferences-label">Word Wrap</span>
-                <span class="preferences-hint">Wrap long lines instead of scrolling horizontally.</span>
+            </v-col>
+            <v-col cols="12" md="7">
+              <div class="settings-group">
+                <div class="settings-group-title">Editor Behavior</div>
+                <v-switch
+                  :model-value="settingsStore.autoSave"
+                  label="Auto Save Saved Files"
+                  @update:model-value="settingsStore.setAutoSave"
+                />
+                <v-switch
+                  :model-value="settingsStore.wordWrap"
+                  label="Word Wrap"
+                  @update:model-value="settingsStore.setWordWrap"
+                />
+                <v-switch
+                  :model-value="settingsStore.lineNumbers"
+                  label="Line Numbers"
+                  @update:model-value="settingsStore.setLineNumbers"
+                />
+                <v-switch
+                  :model-value="settingsStore.showWhitespace"
+                  label="Show Whitespace and Tabs"
+                  @update:model-value="settingsStore.setShowWhitespace"
+                />
+                <v-switch
+                  :model-value="settingsStore.highlightCurrentLine"
+                  label="Highlight Current Line"
+                  @update:model-value="settingsStore.setHighlightCurrentLine"
+                />
+                <v-switch
+                  :model-value="settingsStore.showMinimap"
+                  label="Show Minimap"
+                  @update:model-value="settingsStore.setShowMinimap"
+                />
               </div>
-              <input
-                type="checkbox"
-                :checked="settingsStore.wordWrap"
-                @change="settingsStore.setWordWrap($event.target.checked)"
-              />
-            </div>
-            <div class="plugin-manager-item">
-              <div class="preferences-item-main">
-                <span class="preferences-label">Line Numbers</span>
-                <span class="preferences-hint">Show line numbers in the editor gutter.</span>
-              </div>
-              <input
-                type="checkbox"
-                :checked="settingsStore.lineNumbers"
-                @change="settingsStore.setLineNumbers($event.target.checked)"
-              />
-            </div>
-            <div class="plugin-manager-item">
-              <div class="preferences-item-main">
-                <span class="preferences-label">Editor Font Size</span>
-                <span class="preferences-hint">Adjust the main editor font size.</span>
-              </div>
-              <input
-                type="number"
-                min="8"
-                max="32"
-                :value="settingsStore.fontSize"
-                @input="settingsStore.setFontSize(Number($event.target.value) || 14)"
-              />
-            </div>
-            <div class="plugin-manager-item">
-              <div class="preferences-item-main">
-                <span class="preferences-label">Show Whitespace & Tabs</span>
-                <span class="preferences-hint">Draw visible markers for spaces and tab characters.</span>
-              </div>
-              <input
-                type="checkbox"
-                :checked="settingsStore.showWhitespace"
-                @change="settingsStore.setShowWhitespace($event.target.checked)"
-              />
-            </div>
-            <div class="plugin-manager-item">
-              <div class="preferences-item-main">
-                <span class="preferences-label">Highlight Current Line</span>
-                <span class="preferences-hint">Shade the line with the text cursor (caret).</span>
-              </div>
-              <input
-                type="checkbox"
-                :checked="settingsStore.highlightCurrentLine"
-                @change="settingsStore.setHighlightCurrentLine($event.target.checked)"
-              />
-            </div>
-          </div>
-        </div>
-        <div class="preferences-footer">
-          <button type="button" @click="showPreferences = false">Close</button>
-        </div>
-      </div>
-    </div>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions class="dialog-actions">
+          <v-spacer />
+          <v-btn color="primary" @click="showPreferences = false">Done</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <CommandPalette
       v-if="showCommandPalette"
       :recent-only="commandPaletteRecentOnly"
@@ -239,6 +263,12 @@
       @open-file-dialog="menuOpenFile"
       @new="menuNew"
       @run-command="runCommandPrompt"
+      @toggle-terminal="handleMenu('menu:toggle-terminal')"
+      @toggle-sidebar="handleMenu('menu:toggle-sidebar')"
+      @preferences="openPreferences"
+      @sort-tabs-name="tabsStore.sortTabsByName()"
+      @sort-tabs-path="tabsStore.sortTabsByPath()"
+      @sort-tabs-type="tabsStore.sortTabsByType()"
     />
     <FindInFiles
       :visible="showFindInFiles"
@@ -281,6 +311,7 @@ const terminalDockRef = ref(null)
 const splitViewEnabled = ref(false)
 const secondaryTabId = ref(null)
 const lastRunCommand = ref('')
+let autoSaveInterval = null
 
 const primaryTab = computed(() => tabsStore.activeTab)
 const secondaryTab = computed(() => {
@@ -301,6 +332,12 @@ const monacoTheme = computed(() => {
   }
 })
 const showPreferences = ref(false)
+const themeOptions = [
+  { title: 'Aurora Light', value: 'light' },
+  { title: 'Aurora Dark', value: 'dark' },
+  { title: 'Monokai Dark', value: 'monokai' },
+  { title: 'Solarized Dark', value: 'solarized-dark' },
+]
 
 const isMacPlatform = navigator.userAgent.toLowerCase().includes('mac')
 
@@ -409,6 +446,8 @@ const menuBarMenus = computed(() => [
       { label: 'Reset Zoom', shortcut: isMacPlatform ? 'Cmd+0' : 'Ctrl+0', action: 'menu:zoom-reset' },
       { type: 'separator' },
       { label: 'Toggle Sidebar', shortcut: isMacPlatform ? 'Cmd+B' : 'Ctrl+B', action: 'menu:toggle-sidebar' },
+      { label: 'Toggle Toolbar', action: 'menu:toggle-toolbar' },
+      { label: 'Toggle Status Bar', action: 'menu:toggle-status-bar' },
       { label: 'Dark Theme', action: 'menu:theme-toggle' },
       { type: 'separator' },
       { label: 'Toggle Minimap', action: 'menu:toggle-minimap' },
@@ -531,6 +570,10 @@ const menuBarMenus = computed(() => [
     items: [
       { label: 'Close Tab', shortcut: 'Ctrl+W', action: 'menu:close-tab', enabled: !!tabsStore.activeTab },
       { type: 'separator' },
+      { label: 'Sort Tabs by Name', action: 'menu:sort-tabs-name', enabled: tabsStore.tabs.length > 1 },
+      { label: 'Sort Tabs by Path', action: 'menu:sort-tabs-path', enabled: tabsStore.tabs.length > 1 },
+      { label: 'Sort Tabs by Type', action: 'menu:sort-tabs-type', enabled: tabsStore.tabs.length > 1 },
+      { type: 'separator' },
       { label: 'Move to Other View', action: 'menu:move-to-other-view', enabled: !!tabsStore.activeTab && splitViewEnabled.value },
       { label: 'Clone to Other View', action: 'menu:clone-to-other-view', enabled: !!tabsStore.activeTab && splitViewEnabled.value },
     ],
@@ -552,6 +595,7 @@ onMounted(() => {
   setupKeyboardShortcuts()
   restoreSession()
   setupSessionPersistence()
+  setupAutoSave()
 })
 
 function setupKeyboardShortcuts() {
@@ -689,9 +733,9 @@ function setupKeyboardShortcuts() {
           showCommandPalette.value = true
           break
         case 'tab':
-          // Ctrl+Tab: cycle to next tab
+          // Ctrl+Tab / Ctrl+Shift+Tab: cycle through tabs like desktop editors
           e.preventDefault()
-          cycleTab(1)
+          cycleTab(e.shiftKey ? -1 : 1)
           break
         case 'b':
           e.preventDefault()
@@ -853,6 +897,28 @@ function setupSessionPersistence() {
   window.addEventListener('beforeunload', () => saveSession())
 }
 
+function setupAutoSave() {
+  if (autoSaveInterval) clearInterval(autoSaveInterval)
+  autoSaveInterval = window.setInterval(async () => {
+    if (!settingsStore.autoSave || !window.electronAPI?.writeFile) return
+    const dirtySavedTabs = tabsStore.tabs.filter(tab => tab.isDirty && tab.path)
+    for (const tab of dirtySavedTabs) {
+      const content = applyEol(tab.content, tab.eol || 'crlf')
+      const result = await window.electronAPI.writeFile(tab.path, content, tab.encoding)
+      if (!result?.error) {
+        tabsStore.setDirty(tab.id, false)
+      }
+    }
+  }, 15000)
+
+  onBeforeUnmount(() => {
+    if (autoSaveInterval) {
+      clearInterval(autoSaveInterval)
+      autoSaveInterval = null
+    }
+  })
+}
+
 function getCommandWorkingDirectory() {
   if (tabsStore.activeTab?.path) {
     return tabsStore.activeTab.path.replace(/[\\/][^\\/]+$/, '')
@@ -885,7 +951,7 @@ function setupMenuListeners() {
     'menu:close-tab', 'menu:close-all', 'menu:close-others', 'menu:close-all-unchanged',
     'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
     'menu:find', 'menu:replace', 'menu:find-next', 'menu:find-prev', 'menu:go-to-line',
-    'menu:word-wrap', 'menu:line-numbers', 'menu:toggle-sidebar', 'menu:theme',
+    'menu:word-wrap', 'menu:line-numbers', 'menu:toggle-sidebar', 'menu:toggle-toolbar', 'menu:toggle-status-bar', 'menu:theme',
     'menu:command-palette', 'menu:plugin-manager', 'menu:preferences', 'menu:about', 'menu:find-in-files',
     'menu:save-copy-as', 'menu:rename', 'menu:reload-from-disk',
     'menu:open-containing-folder:explorer', 'menu:open-containing-folder:cmd', 'menu:open-containing-folder:faw',
@@ -897,6 +963,7 @@ function setupMenuListeners() {
     'menu:duplicate-line', 'menu:delete-line', 'menu:move-line-up', 'menu:move-line-down', 'menu:join-lines',
     'menu:toggle-comment', 'menu:lowercase', 'menu:uppercase', 'menu:toggle-minimap', 'menu:toggle-split-view',
     'menu:fold-all', 'menu:unfold-all', 'menu:move-to-other-view', 'menu:clone-to-other-view',
+    'menu:sort-tabs-name', 'menu:sort-tabs-path', 'menu:sort-tabs-type',
     'menu:encoding:utf8', 'menu:encoding:utf16le', 'menu:encoding:utf16be', 'menu:encoding:latin1', 'menu:encoding:windows-1252',
     'menu:language:plaintext', 'menu:language:javascript', 'menu:language:typescript', 'menu:language:html', 'menu:language:css',
     'menu:language:json', 'menu:language:markdown', 'menu:language:python', 'menu:language:xml', 'menu:language:c',
@@ -940,6 +1007,14 @@ function onMenuBarAction(action, item) {
   }
   if (action === 'menu:toggle-minimap') {
     settingsStore.setShowMinimap(!settingsStore.showMinimap)
+    return true
+  }
+  if (action === 'menu:toggle-toolbar') {
+    settingsStore.setToolbarVisible(!settingsStore.toolbarVisible)
+    return true
+  }
+  if (action === 'menu:toggle-status-bar') {
+    settingsStore.setStatusBarVisible(!settingsStore.statusBarVisible)
     return true
   }
   if (action === 'menu:toggle-split-view') {
@@ -1002,6 +1077,18 @@ function onMenuBarAction(action, item) {
   }
   if (action === 'menu:hash-md5' || action === 'menu:hash-sha1' || action === 'menu:hash-sha256') {
     runHashTool(action)
+    return true
+  }
+  if (action === 'menu:sort-tabs-name') {
+    tabsStore.sortTabsByName()
+    return true
+  }
+  if (action === 'menu:sort-tabs-path') {
+    tabsStore.sortTabsByPath()
+    return true
+  }
+  if (action === 'menu:sort-tabs-type') {
+    tabsStore.sortTabsByType()
     return true
   }
   if (action === 'menu:run-command') {

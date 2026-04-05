@@ -1,0 +1,72 @@
+name: Build Artifacts
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Windows Build
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows artifacts
+        run: npm run electron:build:win
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aurorapad-windows
+          path: |
+            release/**/*.exe
+            release/**/*.zip
+            release/**/*.yml
+            release/**/*.blockmap
+          if-no-files-found: warn
+
+  build-linux:
+    name: Linux Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux artifacts
+        run: npm run electron:build:linux
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aurorapad-linux
+          path: |
+            release/**/*.AppImage
+            release/**/*.tar.gz
+            release/**/*.yml
+            release/**/*.blockmap
+          if-no-files-found: warn

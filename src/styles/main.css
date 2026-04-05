@@ -773,6 +773,93 @@ input, select {
   color: var(--npp-text-dim);
 }
 
+.aurora-dialog {
+  background: color-mix(in srgb, var(--npp-tab-active-bg) 94%, #0d121a 6%) !important;
+  border: 1px solid color-mix(in srgb, var(--npp-tab-border) 78%, var(--npp-accent) 22%);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dialog-body {
+  padding-top: 8px !important;
+}
+
+.dialog-intro {
+  margin-bottom: 14px;
+  color: var(--npp-text-dim);
+  line-height: 1.6;
+}
+
+.dialog-actions {
+  padding: 12px 18px 16px !important;
+}
+
+.dialog-list {
+  background: transparent !important;
+}
+
+.dialog-list-item {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.dialog-list-item:hover {
+  background: color-mix(in srgb, var(--npp-toolbar-hover) 72%, transparent);
+  border-color: color-mix(in srgb, var(--npp-tab-border) 75%, var(--npp-accent) 25%);
+}
+
+.plugin-version {
+  color: var(--npp-text-dim);
+  font-weight: 400;
+}
+
+.settings-group {
+  padding: 16px;
+  border: 1px solid var(--npp-tab-border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--npp-tab-bg) 82%, transparent);
+}
+
+.settings-group-title {
+  margin-bottom: 12px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--npp-text-dim);
+  font-weight: 700;
+}
+
+.find-root-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.find-results-surface {
+  min-height: 360px;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--npp-tab-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--npp-tab-bg) 78%, transparent);
+  padding: 8px;
+}
+
+.find-result-item {
+  cursor: pointer;
+}
+
+.find-preview {
+  max-width: 240px;
+  color: var(--npp-text-dim);
+  font-size: 11px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .plugin-manager-footer {
   padding: 10px 16px;
   border-top: 1px solid var(--npp-tab-border);
