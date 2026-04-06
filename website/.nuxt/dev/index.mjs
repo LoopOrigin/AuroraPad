@@ -2016,7 +2016,7 @@ async function errorHandler(error, event) {
 
 const rootDir = "/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/website";
 
-const appHead = {"meta":[{"charset":"utf-8"},{"name":"viewport","content":"width=device-width, initial-scale=1"},{"name":"theme-color","content":"#07101a"}],"link":[],"style":[],"script":[],"noscript":[]};
+const appHead = {"meta":[{"charset":"utf-8"},{"name":"viewport","content":"width=device-width, initial-scale=1"},{"name":"theme-color","content":"#07101a"}],"link":[],"style":[],"script":[{"src":"https://www.googletagmanager.com/gtag/js?id=G-25XBXWX1DB","async":true},{"innerHTML":"\n            window.dataLayer = window.dataLayer || [];\n            function gtag(){dataLayer.push(arguments);}\n            gtag('js', new Date());\n            gtag('config', 'G-25XBXWX1DB');\n          "}],"noscript":[]};
 
 const appRootTag = "div";
 
