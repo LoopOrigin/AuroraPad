@@ -635,6 +635,12 @@ const _inlineRuntimeConfig = {
       "/__nuxt_error": {
         "cache": false
       },
+      "/sitemap.xml": {
+        "prerender": true
+      },
+      "/robots.txt": {
+        "prerender": true
+      },
       "/_nuxt/builds/meta/**": {
         "headers": {
           "cache-control": "public, max-age=31536000, immutable"
@@ -644,13 +650,20 @@ const _inlineRuntimeConfig = {
         "headers": {
           "cache-control": "public, max-age=1, immutable"
         }
+      },
+      "/sitemap.xml/_payload.json": {
+        "prerender": true
+      },
+      "/robots.txt/_payload.json": {
+        "prerender": true
       }
     }
   },
   "public": {
     "googleAnalyticsId": "G-25XBXWX1DB",
     "googleTagManagerId": "",
-    "googleSiteVerification": ""
+    "googleSiteVerification": "",
+    "siteUrl": "https://example.com"
   }
 };
 const envOptions = {

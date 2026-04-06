@@ -20,6 +20,8 @@ import { RuntimeConfig as UserRuntimeConfig, PublicRuntimeConfig as UserPublicRu
    googleTagManagerId: string,
 
    googleSiteVerification: string,
+
+   siteUrl: string,
   }
 declare module '@nuxt/schema' {
   interface RuntimeConfig extends UserRuntimeConfig {}
