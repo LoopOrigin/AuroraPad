@@ -163,6 +163,7 @@ declare global {
   const useServerHeadSafe: typeof import('../../../node_modules/nuxt/dist/app/composables/head').useServerHeadSafe
   const useServerSeoMeta: typeof import('../../../node_modules/nuxt/dist/app/composables/head').useServerSeoMeta
   const useShadowRoot: typeof import('vue').useShadowRoot
+  const useSiteAnalytics: typeof import('../../composables/useSiteAnalytics').useSiteAnalytics
   const useSlots: typeof import('vue').useSlots
   const useState: typeof import('../../../node_modules/nuxt/dist/app/composables/state').useState
   const useTemplateRef: typeof import('vue').useTemplateRef
@@ -353,6 +354,7 @@ declare module 'vue' {
     readonly useServerHeadSafe: UnwrapRef<typeof import('../../../node_modules/nuxt/dist/app/composables/head')['useServerHeadSafe']>
     readonly useServerSeoMeta: UnwrapRef<typeof import('../../../node_modules/nuxt/dist/app/composables/head')['useServerSeoMeta']>
     readonly useShadowRoot: UnwrapRef<typeof import('vue')['useShadowRoot']>
+    readonly useSiteAnalytics: UnwrapRef<typeof import('../../composables/useSiteAnalytics')['useSiteAnalytics']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useState: UnwrapRef<typeof import('../../../node_modules/nuxt/dist/app/composables/state')['useState']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>

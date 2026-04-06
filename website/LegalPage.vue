@@ -17,9 +17,9 @@
         </NuxtLink>
 
         <div class="legal-header__actions">
-          <NuxtLink to="/">Home</NuxtLink>
-          <a :href="repoUrl" target="_blank" rel="noreferrer">Repository</a>
-          <a :href="downloadUrl" target="_blank" rel="noreferrer">Releases</a>
+          <NuxtLink to="/" @click="handleNavClick('home', '/')">Home</NuxtLink>
+          <a :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_legal_header', repoUrl, 'legal-header')">Repository</a>
+          <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_legal_header', downloadUrl, 'legal-header')">Releases</a>
         </div>
       </div>
     </header>
@@ -52,10 +52,10 @@
           </article>
 
           <div class="legal-links">
-            <NuxtLink to="/terms">Terms</NuxtLink>
-            <NuxtLink to="/privacy">Privacy</NuxtLink>
-            <NuxtLink to="/usage">Usage</NuxtLink>
-            <NuxtLink to="/license">License</NuxtLink>
+            <NuxtLink to="/terms" @click="handleNavClick('terms', '/terms')">Terms</NuxtLink>
+            <NuxtLink to="/privacy" @click="handleNavClick('privacy', '/privacy')">Privacy</NuxtLink>
+            <NuxtLink to="/usage" @click="handleNavClick('usage', '/usage')">Usage</NuxtLink>
+            <NuxtLink to="/license" @click="handleNavClick('license', '/license')">License</NuxtLink>
           </div>
         </div>
       </section>
@@ -65,6 +65,7 @@
 
 <script setup>
 import appIcon from '../assets/aurorapad-app-icon.png'
+const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
 
 defineProps({
   page: {
@@ -80,6 +81,14 @@ defineProps({
     required: true,
   },
 })
+
+function handleNavClick(label, target) {
+  trackNavigation(`legal_${label}`, target, 'legal-page')
+}
+
+function handleOutboundClick(label, destination, placement) {
+  trackOutboundLink(label, destination, placement)
+}
 </script>
 
 <style scoped>

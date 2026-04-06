@@ -18,16 +18,16 @@
         </a>
 
         <nav class="site-nav site-nav--desktop" aria-label="Primary">
-          <a href="#why">Why</a>
-          <a href="#workspace">Workspace</a>
-          <a href="#showcase">Showcase</a>
-          <a href="#releases">Releases</a>
-          <a href="#faq">FAQ</a>
+          <a href="#why" @click="handleSectionNavigation('why', 'header-nav')">Why</a>
+          <a href="#workspace" @click="handleSectionNavigation('workspace', 'header-nav')">Workspace</a>
+          <a href="#showcase" @click="handleSectionNavigation('showcase', 'header-nav')">Showcase</a>
+          <a href="#releases" @click="handleSectionNavigation('releases', 'header-nav')">Releases</a>
+          <a href="#faq" @click="handleSectionNavigation('faq', 'header-nav')">FAQ</a>
         </nav>
 
         <div class="site-header__actions">
-          <a class="site-btn site-btn--ghost" :href="repoUrl" target="_blank" rel="noreferrer">Repository</a>
-          <a class="site-btn site-btn--primary" :href="downloadUrl" target="_blank" rel="noreferrer">Download</a>
+          <a class="site-btn site-btn--ghost" :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_header', repoUrl, 'header')">Repository</a>
+          <a class="site-btn site-btn--primary" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_header', downloadUrl, 'header')">Download</a>
         </div>
       </div>
     </header>
@@ -44,10 +44,10 @@
             </p>
 
             <div class="hero__actions">
-              <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer">
+              <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_hero', downloadUrl, 'hero')">
                 Download Latest Release
               </a>
-              <a class="site-btn site-btn--outline site-btn--large" :href="repoUrl" target="_blank" rel="noreferrer">
+              <a class="site-btn site-btn--outline site-btn--large" :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_hero', repoUrl, 'hero')">
                 View Repository
               </a>
             </div>
@@ -252,6 +252,7 @@
               :href="downloadUrl"
               target="_blank"
               rel="noreferrer"
+              @click="handleOutboundClick(`download_${item.kicker.toLowerCase()}`, downloadUrl, 'download-matrix')"
             >
               <span class="eyebrow">{{ item.kicker }}</span>
               <strong>{{ item.title }}</strong>
@@ -262,11 +263,11 @@
           <div class="release-aside">
             <div class="release-link-group">
               <span class="eyebrow">Repository</span>
-              <a :href="repoUrl" target="_blank" rel="noreferrer">{{ repoUrl }}</a>
+              <a :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_release_section', repoUrl, 'release-section')">{{ repoUrl }}</a>
             </div>
             <div class="release-link-group">
               <span class="eyebrow">Latest Builds</span>
-              <a :href="downloadUrl" target="_blank" rel="noreferrer">{{ downloadUrl }}</a>
+              <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_release_section', downloadUrl, 'release-section')">{{ downloadUrl }}</a>
             </div>
             <div class="release-callout">
               AuroraPad publishes packaged binaries first. GitHub’s auto-generated source archives still exist,
@@ -347,10 +348,10 @@
             </div>
           </div>
           <div class="hero__actions">
-            <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer">
+            <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_final_cta', downloadUrl, 'final-cta')">
               Download AuroraPad
             </a>
-            <a class="site-btn site-btn--outline site-btn--large" :href="repoUrl" target="_blank" rel="noreferrer">
+            <a class="site-btn site-btn--outline site-btn--large" :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_final_cta', repoUrl, 'final-cta')">
               Browse Source
             </a>
           </div>
@@ -364,14 +365,14 @@
             <p>Cross-platform desktop editing with real project awareness.</p>
           </div>
           <div class="site-footer__links">
-            <a :href="repoUrl" target="_blank" rel="noreferrer">GitHub</a>
-            <a :href="downloadUrl" target="_blank" rel="noreferrer">Releases</a>
-            <a href="#workspace">Workspace</a>
-            <a href="#faq">FAQ</a>
-            <NuxtLink to="/terms">Terms</NuxtLink>
-            <NuxtLink to="/privacy">Privacy</NuxtLink>
-            <NuxtLink to="/usage">Usage</NuxtLink>
-            <NuxtLink to="/license">License</NuxtLink>
+            <a :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_footer', repoUrl, 'footer')">GitHub</a>
+            <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_footer', downloadUrl, 'footer')">Releases</a>
+            <a href="#workspace" @click="handleSectionNavigation('workspace', 'footer')">Workspace</a>
+            <a href="#faq" @click="handleSectionNavigation('faq', 'footer')">FAQ</a>
+            <NuxtLink to="/terms" @click="handleLegalNavigation('terms', 'footer')">Terms</NuxtLink>
+            <NuxtLink to="/privacy" @click="handleLegalNavigation('privacy', 'footer')">Privacy</NuxtLink>
+            <NuxtLink to="/usage" @click="handleLegalNavigation('usage', 'footer')">Usage</NuxtLink>
+            <NuxtLink to="/license" @click="handleLegalNavigation('license', 'footer')">License</NuxtLink>
           </div>
         </div>
       </footer>
@@ -381,9 +382,22 @@
 
 <script setup>
 import appIcon from '../assets/aurorapad-app-icon.png'
+const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
 
 const repoUrl = 'https://github.com/ali111887/AuroraPad'
 const downloadUrl = 'https://github.com/ali111887/AuroraPad/releases'
+
+function handleOutboundClick(label, destination, placement) {
+  trackOutboundLink(label, destination, placement)
+}
+
+function handleSectionNavigation(section, placement) {
+  trackNavigation(`section_${section}`, `#${section}`, placement)
+}
+
+function handleLegalNavigation(page, placement) {
+  trackNavigation(`legal_${page}`, `/${page}`, placement)
+}
 
 const heroMeta = [
   { label: 'Platforms', value: 'Windows, macOS, Linux' },
