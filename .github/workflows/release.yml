@@ -78,13 +78,13 @@ jobs:
         with:
           name: release-${{ needs.metadata.outputs.version }}-${{ matrix.name }}
           path: |
-            release/**/*.dmg
-            release/**/*.exe
-            release/**/*.AppImage
-            release/**/*.tar.gz
-            release/**/*.zip
-            release/**/*.yml
-            release/**/*.blockmap
+            release/*.dmg
+            release/*.exe
+            release/*.AppImage
+            release/*.tar.gz
+            release/*.zip
+            release/*.yml
+            release/*.blockmap
           if-no-files-found: warn
 
   publish:
@@ -132,14 +132,148 @@ jobs:
             exit 0
           fi
 
-          mapfile -d '' files < <(find release-artifacts -type f -print0)
+          staging_dir="$(mktemp -d)"
+          notes_file="$(mktemp)"
+          declare -A seen
+          declare -A platform_downloads
+
+          rename_asset() {
+            local platform="$1"
+            local name="$2"
+
+            case "$platform::$name" in
+              windows::AuroraPad\ Setup\ *.exe)
+                echo "AuroraPad-${VERSION}-windows-setup.exe"
+                ;;
+              windows::AuroraPad\ Setup\ *.exe.blockmap)
+                echo "AuroraPad-${VERSION}-windows-setup.exe.blockmap"
+                ;;
+              windows::AuroraPad\ *.exe)
+                echo "AuroraPad-${VERSION}-windows-portable.exe"
+                ;;
+              windows::latest.yml)
+                echo "AuroraPad-${VERSION}-windows-latest.yml"
+                ;;
+              windows::app-update.yml)
+                echo "AuroraPad-${VERSION}-windows-app-update.yml"
+                ;;
+              mac::AuroraPad-*.dmg)
+                echo "AuroraPad-${VERSION}-macos-arm64.dmg"
+                ;;
+              mac::AuroraPad-*.dmg.blockmap)
+                echo "AuroraPad-${VERSION}-macos-arm64.dmg.blockmap"
+                ;;
+              mac::AuroraPad-*-mac.zip)
+                echo "AuroraPad-${VERSION}-macos-arm64.zip"
+                ;;
+              mac::AuroraPad-*-mac.zip.blockmap)
+                echo "AuroraPad-${VERSION}-macos-arm64.zip.blockmap"
+                ;;
+              mac::latest-mac.yml)
+                echo "AuroraPad-${VERSION}-macos-latest.yml"
+                ;;
+              mac::app-update.yml)
+                echo "AuroraPad-${VERSION}-macos-app-update.yml"
+                ;;
+              linux::AuroraPad-*.AppImage)
+                echo "AuroraPad-${VERSION}-linux-x64.AppImage"
+                ;;
+              linux::aurorapad-*.tar.gz)
+                echo "AuroraPad-${VERSION}-linux-x64.tar.gz"
+                ;;
+              linux::latest-linux.yml)
+                echo "AuroraPad-${VERSION}-linux-latest.yml"
+                ;;
+              linux::app-update.yml)
+                echo "AuroraPad-${VERSION}-linux-app-update.yml"
+                ;;
+              *)
+                echo "$name"
+                ;;
+            esac
+          }
+
+          while IFS= read -r -d '' file; do
+            name="$(basename "$file")"
+            parent_dir="$(basename "$(dirname "$file")")"
+            suffix="${parent_dir#release-${VERSION}-}"
+            platform="$suffix"
+
+            case "$name" in
+              builder-debug.yml)
+                echo "Skipping non-release artifact: $name"
+                continue
+                ;;
+            esac
+
+            target_name="$(rename_asset "$platform" "$name")"
+            if [[ -n "${seen[$target_name]}" ]]; then
+              extension=""
+              base_name="$target_name"
+              if [[ "$target_name" == *.tar.gz ]]; then
+                extension=".tar.gz"
+                base_name="${target_name%.tar.gz}"
+              elif [[ "$target_name" == *.* ]]; then
+                extension=".${target_name##*.}"
+                base_name="${target_name%.*}"
+              fi
+
+              counter=2
+              while [[ -n "${seen[$target_name]}" ]]; do
+                target_name="${base_name}-${counter}${extension}"
+                counter=$((counter + 1))
+              done
+
+              echo "Renaming colliding asset: $name -> $target_name"
+            fi
+
+            seen[$target_name]=1
+            cp "$file" "$staging_dir/$target_name"
+
+            case "$platform::$target_name" in
+              windows::*-windows-setup.exe|windows::*-windows-portable.exe)
+                platform_downloads[windows]="$target_name"
+                ;;
+              mac::*-macos-arm64.dmg|mac::*-macos-arm64.zip)
+                if [[ -z "${platform_downloads[mac]:-}" || "$target_name" == *.dmg ]]; then
+                  platform_downloads[mac]="$target_name"
+                fi
+                ;;
+              linux::*-linux-x64.AppImage|linux::*-linux-x64.tar.gz)
+                if [[ -z "${platform_downloads[linux]:-}" || "$target_name" == *.AppImage ]]; then
+                  platform_downloads[linux]="$target_name"
+                fi
+                ;;
+            esac
+          done < <(find release-artifacts -type f -print0)
+
+          mapfile -d '' files < <(find "$staging_dir" -maxdepth 1 -type f -print0)
           if [ "${#files[@]}" -eq 0 ]; then
             echo "No release artifacts found."
             exit 1
           fi
 
+          {
+            echo "## Downloads"
+            echo
+            if [[ -n "${platform_downloads[windows]:-}" ]]; then
+              echo "- Windows: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${platform_downloads[windows]}"
+            fi
+            if [[ -n "${platform_downloads[mac]:-}" ]]; then
+              echo "- macOS: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${platform_downloads[mac]}"
+            fi
+            if [[ -n "${platform_downloads[linux]:-}" ]]; then
+              echo "- Linux: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${platform_downloads[linux]}"
+            fi
+            echo
+            echo "## Notes"
+            echo
+            echo "Binary downloads are listed first. GitHub may still show source archives automatically, but the platform installers and packages above are the intended downloads."
+          } > "$notes_file"
+
           gh release create "$TAG_NAME" \
             --target "${GITHUB_SHA}" \
             --generate-notes \
             --title "AuroraPad $VERSION" \
+            --notes "$(cat "$notes_file")" \
             "${files[@]}"

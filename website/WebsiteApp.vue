@@ -229,6 +229,21 @@ workspace:
             </div>
 
             <div class="release-stack">
+              <div class="download-grid">
+                <a
+                  v-for="option in downloadOptions"
+                  :key="option.title"
+                  class="download-card"
+                  :href="downloadUrl"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span class="feature-kicker">{{ option.kicker }}</span>
+                  <strong>{{ option.title }}</strong>
+                  <span class="release-hint">{{ option.body }}</span>
+                </a>
+              </div>
+
               <a class="release-link" :href="downloadUrl" target="_blank" rel="noreferrer">
                 <span class="feature-kicker">Download URL</span>
                 <strong>{{ downloadUrl }}</strong>
@@ -347,6 +362,24 @@ const skills = [
     kicker: 'Plugin System',
     title: 'Extend the editor with your own actions',
     body: 'Drop JavaScript plugins into the user plugin folder and surface custom actions directly in AuroraPad.',
+  },
+]
+
+const downloadOptions = [
+  {
+    kicker: 'Windows',
+    title: 'Installer and portable builds',
+    body: 'Download the latest Windows setup package or portable executable from the latest release.',
+  },
+  {
+    kicker: 'macOS',
+    title: 'DMG and archive builds',
+    body: 'Get the latest macOS package from the release page with platform-specific packaged binaries.',
+  },
+  {
+    kicker: 'Linux',
+    title: 'AppImage and tar.gz builds',
+    body: 'Use the latest Linux release assets instead of the repository source archives.',
   },
 ]
 
@@ -839,6 +872,12 @@ body {
   gap: 1rem;
 }
 
+.download-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.download-card,
 .release-link {
   display: flex;
   flex-direction: column;
@@ -847,11 +886,24 @@ body {
   color: inherit;
 }
 
+.download-card {
+  padding: 1.15rem 1.25rem;
+  border-radius: 20px;
+  background: rgba(10, 18, 31, 0.58);
+  border: 1px solid rgba(163, 205, 255, 0.1);
+}
+
+.download-card strong,
 .release-link strong {
   color: #f1f6fd;
+}
+
+.download-card strong {
+  font-size: 1.15rem;
   word-break: break-all;
 }
 
+.download-card:hover,
 .release-link:hover {
   border-color: rgba(141, 224, 255, 0.26);
   transform: translateY(-1px);
