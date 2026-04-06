@@ -2,6 +2,7 @@
   "name": "aurorapad",
   "productName": "AuroraPad",
   "version": "0.1.0",
+  "author": "Muhammad Ali",
   "description": "AuroraPad — a modern Notepad++-style editor powered by Monaco",
   "main": "electron/main/index.js",
   "scripts": {
@@ -9,15 +10,15 @@
     "version:set": "node scripts/set-version.js",
     "dev": "vite",
     "site:dev": "vite --open /website/",
-    "site:build": "vite build",
+    "site:build": "vite build --mode website",
     "build": "vite build",
     "preview": "vite preview",
     "site:preview": "vite preview --open /website/",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:build": "vite build && electron-builder",
-    "electron:build:win": "npm run assets:generate-icons && vite build && electron-builder --win nsis portable --x64",
-    "electron:build:linux": "npm run assets:generate-icons && vite build && electron-builder --linux AppImage tar.gz --x64",
-    "electron:build:mac": "npm run assets:generate-icons && vite build && electron-builder --mac dmg zip",
+    "electron:build": "vite build && electron-builder --publish never",
+    "electron:build:win": "npm run assets:generate-icons && vite build && electron-builder --publish never --win nsis portable --x64",
+    "electron:build:linux": "npm run assets:generate-icons && vite build && electron-builder --publish never --linux AppImage tar.gz --x64",
+    "electron:build:mac": "npm run assets:generate-icons && vite build && electron-builder --publish never --mac dmg zip",
     "start": "electron ."
   },
   "dependencies": {
