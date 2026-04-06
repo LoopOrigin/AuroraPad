@@ -84,7 +84,7 @@ const env = sanitizeSigningEnv(process.env)
 const result = spawnSync(builderBin, process.argv.slice(2), {
   stdio: 'inherit',
   env,
-  shell: false,
+  shell: process.platform === 'win32',
 })
 
 if (result.error) {
