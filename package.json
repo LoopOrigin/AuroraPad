@@ -15,10 +15,10 @@
     "preview": "vite preview",
     "site:preview": "nuxi preview website --open",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://127.0.0.1:5173 && electron .\"",
-    "electron:build": "vite build && electron-builder --publish never",
-    "electron:build:win": "npm run assets:generate-icons && vite build && electron-builder --publish never --win nsis portable --x64",
-    "electron:build:linux": "npm run assets:generate-icons && vite build && electron-builder --publish never --linux AppImage tar.gz --x64",
-    "electron:build:mac": "npm run assets:generate-icons && vite build && electron-builder --publish never --mac dmg zip",
+    "electron:build": "vite build && node scripts/run-electron-builder.js --publish never",
+    "electron:build:win": "npm run assets:generate-icons && vite build && node scripts/run-electron-builder.js --publish never --win nsis portable --x64",
+    "electron:build:linux": "npm run assets:generate-icons && vite build && node scripts/run-electron-builder.js --publish never --linux AppImage tar.gz --x64",
+    "electron:build:mac": "npm run assets:generate-icons && vite build && node scripts/run-electron-builder.js --publish never --mac dmg zip",
     "start": "electron ."
   },
   "dependencies": {
