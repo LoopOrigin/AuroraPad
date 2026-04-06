@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
+  "framework": "nuxtjs",
   "buildCommand": "npm run site:build",
-  "outputDirectory": "dist-website"
+  "outputDirectory": "website/.output/public"
 }

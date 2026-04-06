@@ -152,10 +152,9 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 30px;
-  padding: 0;
-  background: var(--npp-menubar-bg, #f0f0f0);
-  border-bottom: 1px solid var(--npp-toolbar-border);
+  height: 34px;
+  padding: 0 0 0 6px;
+  background: transparent;
   font-size: 13px;
   flex-shrink: 0;
   -webkit-app-region: drag;
@@ -164,25 +163,27 @@ onBeforeUnmount(() => {
 .menu-bar-left {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 2px;
   height: 100%;
-  padding-left: 4px;
   -webkit-app-region: no-drag;
 }
 
 .menu-bar-item {
   display: flex;
   align-items: center;
-  height: 100%;
+  height: 28px;
   padding: 0 10px;
+  border-radius: 10px;
   cursor: default;
   user-select: none;
   color: var(--npp-text);
+  font-weight: 500;
+  transition: background 0.14s ease, color 0.14s ease;
 }
 
 .menu-bar-item:hover,
 .menu-bar-item.open {
-  background: var(--npp-menubar-hover, #cce8ff);
+  background: color-mix(in srgb, var(--npp-menubar-hover) 92%, transparent);
 }
 
 .menu-bar-right {
@@ -194,7 +195,7 @@ onBeforeUnmount(() => {
 }
 
 .menu-bar-icon {
-  width: 46px;
+  width: 42px;
   height: 100%;
   display: flex;
   align-items: center;
@@ -203,7 +204,7 @@ onBeforeUnmount(() => {
   color: var(--npp-text);
   border: none;
   background: transparent;
-  transition: background 0.1s;
+  transition: background 0.14s ease, color 0.14s ease;
 }
 
 .window-control-inner {
@@ -228,10 +229,12 @@ onBeforeUnmount(() => {
 .menu-bar-dropdown {
   position: fixed;
   z-index: 1000;
-  padding: 4px 0;
-  background: var(--npp-tab-active-bg);
-  border: 1px solid var(--npp-tab-border);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px;
+  background: color-mix(in srgb, var(--npp-tab-active-bg) 96%, transparent);
+  border: 1px solid color-mix(in srgb, var(--npp-tab-border) 78%, transparent);
+  border-radius: 18px;
+  box-shadow: var(--npp-shadow-md);
+  backdrop-filter: blur(18px) saturate(125%);
   font-size: 13px;
 }
 
@@ -240,13 +243,15 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 4px 24px 4px 8px;
+  padding: 8px 16px 8px 10px;
   text-align: left;
   cursor: pointer;
   color: var(--npp-text);
   background: transparent;
   border: none;
   font: inherit;
+  border-radius: 12px;
+  transition: background 0.14s ease, color 0.14s ease;
 }
 
 .menu-dropdown-left {
@@ -266,7 +271,7 @@ onBeforeUnmount(() => {
 }
 
 .menu-dropdown-item:hover:not(.disabled) {
-  background: var(--npp-menubar-hover, #cce8ff);
+  background: color-mix(in srgb, var(--npp-menubar-hover) 92%, transparent);
 }
 
 .menu-dropdown-item.disabled {
@@ -282,7 +287,7 @@ onBeforeUnmount(() => {
 
 .menu-dropdown-sep {
   height: 1px;
-  margin: 4px 8px;
-  background: var(--npp-toolbar-border);
+  margin: 6px 6px;
+  background: color-mix(in srgb, var(--npp-toolbar-border) 88%, transparent);
 }
 </style>
