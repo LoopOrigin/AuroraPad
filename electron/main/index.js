@@ -19,6 +19,7 @@ const pty = require('node-pty')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
+const shouldOpenDevTools = process.env.AURORAPAD_OPEN_DEVTOOLS === '1'
 
 let mainWindow = null
 let watchers = new Map()
@@ -147,9 +148,11 @@ function createWindow() {
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173')
-    mainWindow.webContents.on('did-finish-load', () => {
-      mainWindow.webContents.openDevTools()
-    })
+    if (shouldOpenDevTools) {
+      mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.webContents.openDevTools()
+      })
+    }
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'))
   }
