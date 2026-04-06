@@ -14,6 +14,10 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  PUBLIC_RELEASES_REPO: ${{ vars.PUBLIC_RELEASES_REPO }}
+  PUBLIC_RELEASES_TARGET: ${{ vars.PUBLIC_RELEASES_TARGET || 'main' }}
+
 jobs:
   metadata:
     name: Resolve release version
@@ -21,6 +25,9 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
+      windows_signed: ${{ steps.signing.outputs.windows_signed }}
+      mac_signed: ${{ steps.signing.outputs.mac_signed }}
+      gpg_enabled: ${{ steps.signing.outputs.gpg_enabled }}
 
     steps:
       - name: Checkout
@@ -35,6 +42,37 @@ jobs:
         id: version
         run: |
           node scripts/resolve-release-version.js >> "$GITHUB_OUTPUT"
+
+      - name: Detect signing availability
+        id: signing
+        env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if [[ -n "$WIN_CSC_LINK" && -n "$WIN_CSC_KEY_PASSWORD" ]]; then
+            echo "windows_signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "windows_signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ -n "$CSC_LINK" && -n "$CSC_KEY_PASSWORD" && -n "$APPLE_API_KEY" && -n "$APPLE_API_KEY_ID" && -n "$APPLE_API_ISSUER" ]]; then
+            echo "mac_signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mac_signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ -n "$GPG_PRIVATE_KEY" && -n "$GPG_PASSPHRASE" ]]; then
+            echo "gpg_enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "gpg_enabled=false" >> "$GITHUB_OUTPUT"
+          fi
 
   build:
     name: Build ${{ matrix.name }}
@@ -67,14 +105,57 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare platform signing mode
+        shell: bash
+        env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          case "${{ matrix.name }}" in
+            windows)
+              if [[ -z "$WIN_CSC_LINK" || -z "$WIN_CSC_KEY_PASSWORD" ]]; then
+                echo "Windows signing secrets missing. Building unsigned Windows artifacts."
+              else
+                echo "Windows signing enabled."
+              fi
+              ;;
+            mac)
+              if [[ -z "$CSC_LINK" || -z "$CSC_KEY_PASSWORD" || -z "$APPLE_API_KEY" || -z "$APPLE_API_KEY_ID" || -z "$APPLE_API_ISSUER" ]]; then
+                echo "macOS signing or notarization secrets missing. Skipping macOS public release build."
+                exit 0
+              else
+                echo "macOS signing enabled."
+              fi
+              ;;
+            linux)
+              ;;
+          esac
+
       - name: Apply release version
         run: npm run version:set -- ${{ needs.metadata.outputs.version }}
+        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
 
       - name: Build packaged app
         run: ${{ matrix.command }}
+        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
+        env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ matrix.name == 'windows' && needs.metadata.outputs.windows_signed != 'true' && 'false' || (matrix.name == 'linux' && 'false' || '') }}
 
       - name: Upload packaged artifacts
         uses: actions/upload-artifact@v4
+        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
         with:
           name: release-${{ needs.metadata.outputs.version }}-${{ matrix.name }}
           path: |
@@ -88,7 +169,7 @@ jobs:
           if-no-files-found: warn
 
   publish:
-    name: Publish GitHub Release
+    name: Publish Public GitHub Release
     runs-on: ubuntu-latest
     needs:
       - metadata
@@ -121,13 +202,44 @@ jobs:
         with:
           path: release-artifacts
 
-      - name: Create or update release
+      - name: Validate public release settings
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLIC_RELEASES_TOKEN: ${{ secrets.PUBLIC_RELEASES_TOKEN }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if [[ -z "${PUBLIC_RELEASES_REPO}" ]]; then
+            echo "PUBLIC_RELEASES_REPO is not configured."
+            echo "Set a repository variable like: ali111887/AuroraPad-Releases"
+            exit 1
+          fi
+
+          if [[ -z "${PUBLIC_RELEASES_TOKEN}" ]]; then
+            echo "PUBLIC_RELEASES_TOKEN is not configured."
+            echo "Create a fine-grained token for the public releases repository and store it as a secret."
+            exit 1
+          fi
+
+      - name: Import GPG key
+        if: ${{ needs.metadata.outputs.gpg_enabled == 'true' }}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          printf '%s' "$GPG_PRIVATE_KEY" | base64 --decode > /tmp/aurorapad-signing.key
+          gpg --batch --import /tmp/aurorapad-signing.key
+          rm -f /tmp/aurorapad-signing.key
+
+      - name: Create or update public release
+        env:
+          GH_TOKEN: ${{ secrets.PUBLIC_RELEASES_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           TAG_NAME="${{ needs.metadata.outputs.tag }}"
           VERSION="${{ needs.metadata.outputs.version }}"
-          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+          TARGET_REPO="${PUBLIC_RELEASES_REPO}"
+          TARGET_REF="${PUBLIC_RELEASES_TARGET}"
+
+          if gh release view "$TAG_NAME" --repo "$TARGET_REPO" >/dev/null 2>&1; then
             echo "Release $TAG_NAME already exists. Immutable releases prevent modifying assets after publish, so skipping upload."
             exit 0
           fi
@@ -253,27 +365,63 @@ jobs:
             exit 1
           fi
 
+          (
+            cd "$staging_dir"
+            shasum -a 256 * > SHA256SUMS.txt
+          )
+
+          if [[ "${{ needs.metadata.outputs.gpg_enabled }}" == "true" ]]; then
+            (
+              cd "$staging_dir"
+              gpg --batch --yes --pinentry-mode loopback \
+                --passphrase "$GPG_PASSPHRASE" \
+                --armor --detach-sign \
+                --output SHA256SUMS.txt.asc \
+                SHA256SUMS.txt
+            )
+          fi
+
+          mapfile -d '' files < <(find "$staging_dir" -maxdepth 1 -type f -print0)
+
           {
             echo "## Downloads"
             echo
             if [[ -n "${platform_downloads[windows]:-}" ]]; then
-              echo "- Windows: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${platform_downloads[windows]}"
+              echo "- Windows: https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${platform_downloads[windows]}"
             fi
             if [[ -n "${platform_downloads[mac]:-}" ]]; then
-              echo "- macOS: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${platform_downloads[mac]}"
+              echo "- macOS: https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${platform_downloads[mac]}"
+            else
+              echo "- macOS: not published in this release because Apple signing/notarization is not configured."
             fi
             if [[ -n "${platform_downloads[linux]:-}" ]]; then
-              echo "- Linux: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${platform_downloads[linux]}"
+              echo "- Linux: https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${platform_downloads[linux]}"
             fi
             echo
             echo "## Notes"
             echo
+            echo "Source repository: https://github.com/${GITHUB_REPOSITORY}"
+            echo "Public downloads repository: https://github.com/${TARGET_REPO}"
+            echo
             echo "Binary downloads are listed first. GitHub may still show source archives automatically, but the platform installers and packages above are the intended downloads."
+            if [[ "${{ needs.metadata.outputs.windows_signed }}" != "true" ]]; then
+              echo
+              echo "Windows artifacts in this release are unsigned and may trigger SmartScreen warnings."
+            fi
+            echo
+            echo "## Verification"
+            echo
+            echo "- Checksums: SHA256SUMS.txt"
+            if [[ "${{ needs.metadata.outputs.gpg_enabled }}" == "true" ]]; then
+              echo "- Signature: SHA256SUMS.txt.asc"
+            else
+              echo "- Signature: not included because GPG signing is not configured."
+            fi
           } > "$notes_file"
 
           gh release create "$TAG_NAME" \
-            --target "${GITHUB_SHA}" \
-            --generate-notes \
+            --repo "$TARGET_REPO" \
+            --target "$TARGET_REF" \
             --title "AuroraPad $VERSION" \
-            --notes "$(cat "$notes_file")" \
+            --notes-file "$notes_file" \
             "${files[@]}"

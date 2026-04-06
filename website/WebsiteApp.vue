@@ -382,10 +382,8 @@
 
 <script setup>
 import appIcon from '../assets/aurorapad-app-icon.png'
+import { repoUrl, downloadUrl } from './data/site'
 const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
-
-const repoUrl = 'https://github.com/ali111887/AuroraPad'
-const downloadUrl = 'https://github.com/ali111887/AuroraPad/releases'
 
 function handleOutboundClick(label, destination, placement) {
   trackOutboundLink(label, destination, placement)

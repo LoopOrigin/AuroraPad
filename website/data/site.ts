@@ -1,5 +1,6 @@
-export const repoUrl = 'https://github.com/ali111887/AuroraPad'
-export const downloadUrl = 'https://github.com/ali111887/AuroraPad/releases'
+export const repoUrl = process.env.NUXT_PUBLIC_REPO_URL || 'https://github.com/ali111887/AuroraPad'
+export const downloadUrl =
+  process.env.NUXT_PUBLIC_DOWNLOAD_URL || 'https://github.com/ali111887/AuroraPad-Releases/releases'
 
 export const legalPages = {
   terms: {

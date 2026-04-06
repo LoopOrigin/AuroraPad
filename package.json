@@ -66,7 +66,12 @@
     "icon": "assets/aurorapad-app-icon",
     "mac": {
       "category": "public.app-category.developer-tools",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
       "icon": "assets/aurorapad-app-icon.png",
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "notarize": true,
       "target": [
         {
           "target": "dmg",
@@ -78,12 +83,13 @@
       ]
     },
     "win": {
+      "publisherName": "Muhammad Ali",
       "target": [
         "nsis",
         "portable"
       ],
       "icon": "assets/aurorapad-app-icon.ico",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": true
     },
     "linux": {
       "category": "Development",

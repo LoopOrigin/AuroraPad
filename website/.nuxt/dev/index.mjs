@@ -1,5 +1,5 @@
 import process from 'node:process';globalThis._importMeta_={url:import.meta.url,env:process.env};import { tmpdir } from 'node:os';
-import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, getRouterParam, getResponseStatusText } from 'file:///Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/node_modules/h3/dist/index.mjs';
+import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, getRouterParam, setHeader, getResponseStatusText } from 'file:///Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/node_modules/h3/dist/index.mjs';
 import { Server } from 'node:http';
 import { resolve, dirname, join } from 'node:path';
 import nodeCrypto from 'node:crypto';
@@ -2598,10 +2598,14 @@ async function getIslandContext(event) {
 	};
 }
 
+const _lazy_b_WtAx = () => Promise.resolve().then(function () { return robots_txt$1; });
+const _lazy_2PZl5f = () => Promise.resolve().then(function () { return sitemap_xml$1; });
 const _lazy_kkzdwV = () => Promise.resolve().then(function () { return renderer; });
 
 const handlers = [
   { route: '', handler: _U8BciQ, lazy: false, middleware: true, method: undefined },
+  { route: '/robots.txt', handler: _lazy_b_WtAx, lazy: true, middleware: false, method: undefined },
+  { route: '/sitemap.xml', handler: _lazy_2PZl5f, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_error', handler: _lazy_kkzdwV, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_island/**', handler: handler$1, lazy: false, middleware: false, method: undefined },
   { route: '/**', handler: _lazy_kkzdwV, lazy: true, middleware: false, method: undefined }
@@ -2942,6 +2946,64 @@ const styles = {};
 const styles$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: styles
+}, Symbol.toStringTag, { value: 'Module' }));
+
+function normalizeBaseUrl$1(input) {
+  return input.replace(/\/+$/, "");
+}
+const robots_txt = defineEventHandler((event) => {
+  const config = useRuntimeConfig(event);
+  const baseUrl = normalizeBaseUrl$1(config.public.siteUrl || "https://example.com");
+  const body = [
+    "User-agent: *",
+    "Allow: /",
+    "",
+    `Sitemap: ${baseUrl}/sitemap.xml`
+  ].join("\n");
+  setHeader(event, "content-type", "text/plain; charset=utf-8");
+  return body;
+});
+
+const robots_txt$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: robots_txt
+}, Symbol.toStringTag, { value: 'Module' }));
+
+function normalizeBaseUrl(input) {
+  return input.replace(/\/+$/, "");
+}
+function toAbsoluteUrl(baseUrl, path) {
+  return path === "/" ? baseUrl : `${baseUrl}${path}`;
+}
+const sitemap_xml = defineEventHandler((event) => {
+  const config = useRuntimeConfig(event);
+  const baseUrl = normalizeBaseUrl(config.public.siteUrl || "https://example.com");
+  const lastmod = "2026-04-06";
+  const routes = [
+    { path: "/", changefreq: "weekly", priority: "1.0" },
+    { path: "/terms", changefreq: "yearly", priority: "0.3" },
+    { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+    { path: "/usage", changefreq: "yearly", priority: "0.3" },
+    { path: "/license", changefreq: "yearly", priority: "0.3" }
+  ];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${routes.map(
+    (route) => `  <url>
+    <loc>${toAbsoluteUrl(baseUrl, route.path)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>
+  </url>`
+  ).join("\n")}
+</urlset>`;
+  setHeader(event, "content-type", "application/xml; charset=utf-8");
+  return xml;
+});
+
+const sitemap_xml$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: sitemap_xml
 }, Symbol.toStringTag, { value: 'Module' }));
 
 function renderPayloadResponse(ssrContext) {
