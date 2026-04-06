@@ -88,6 +88,8 @@ AuroraPad now includes GitHub release automation through:
 5. Optionally add platform signing secrets for Windows and macOS.
 6. Optionally add GPG signing secrets for release checksum signing.
 
+The public releases repository may start empty. On the first successful publish, the workflow will bootstrap it with an initial `main` branch and a small README before creating the first public release.
+
 ## Signing materials checklist
 
 ### Windows

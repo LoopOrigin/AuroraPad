@@ -262,6 +262,25 @@ jobs:
             exit 0
           fi
 
+          target_default_branch="$(gh api "repos/${TARGET_REPO}" --jq '.default_branch // empty')"
+          if [[ -z "$target_default_branch" ]]; then
+            echo "Public releases repository is empty. Bootstrapping ${TARGET_REPO} with branch ${TARGET_REF}."
+            bootstrap_dir="$(mktemp -d)"
+            git clone "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" "$bootstrap_dir"
+            pushd "$bootstrap_dir" >/dev/null
+            git checkout --orphan "$TARGET_REF"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            printf '# AuroraPad Releases\n\nPublic download repository for AuroraPad packaged builds.\n' > README.md
+            git add README.md
+            git commit -m "chore: initialize public releases repository"
+            git push origin "$TARGET_REF"
+            popd >/dev/null
+            rm -rf "$bootstrap_dir"
+          else
+            TARGET_REF="$target_default_branch"
+          fi
+
           staging_dir="$(mktemp -d)"
           notes_file="$(mktemp)"
           declare -A seen
