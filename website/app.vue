@@ -1,3 +1,6 @@
 <template>
-  <NuxtPage />
+  <div>
+    <NuxtPage />
+    <ConsentBanner />
+  </div>
 </template>

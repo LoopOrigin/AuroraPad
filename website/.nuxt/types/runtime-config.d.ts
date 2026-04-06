@@ -15,7 +15,11 @@ import { RuntimeConfig as UserRuntimeConfig, PublicRuntimeConfig as UserPublicRu
    },
   }
   interface SharedPublicRuntimeConfig {
+   googleAnalyticsId: string,
 
+   googleTagManagerId: string,
+
+   googleSiteVerification: string,
   }
 declare module '@nuxt/schema' {
   interface RuntimeConfig extends UserRuntimeConfig {}

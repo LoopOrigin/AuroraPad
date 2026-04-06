@@ -63,8 +63,8 @@ export const legalPages = {
       {
         title: '3. Cookies and Analytics',
         paragraphs: [
-          'This website is not presented as a user-account product or tracking-heavy service. If hosting infrastructure uses essential operational cookies, caching, or request logging, that processing is typically limited to what is required to deliver and secure the site.',
-          'If dedicated analytics or behavioral tracking are added later, this notice should be updated to reflect that change more specifically.',
+          'This website uses a consent banner to manage optional Google Analytics and any future Google Tag Manager-based measurement. In stricter consent regions such as the EU, EEA, United Kingdom, and Switzerland, optional analytics are intended to remain disabled until a visitor explicitly opts in.',
+          'Outside stricter consent regions, visitors are still given a privacy choice and can keep the site on essential-only mode. Search Console verification, when configured, is treated as a technical ownership-verification mechanism rather than advertising or behavioral profiling.',
         ],
       },
       {
