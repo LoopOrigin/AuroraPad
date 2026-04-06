@@ -140,17 +140,41 @@ jobs:
         run: npm run version:set -- ${{ needs.metadata.outputs.version }}
         if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
 
+      - name: Log build signing mode
+        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
+        shell: bash
+        run: |
+          case "${{ matrix.name }}" in
+            windows)
+              if [[ "${{ needs.metadata.outputs.windows_signed }}" == "true" ]]; then
+                echo "Windows build mode: signed"
+              else
+                echo "Windows build mode: unsigned"
+              fi
+              ;;
+            mac)
+              if [[ "${{ needs.metadata.outputs.mac_signed }}" == "true" ]]; then
+                echo "macOS build mode: signed-and-notarized"
+              else
+                echo "macOS build mode: skipped"
+              fi
+              ;;
+            linux)
+              echo "Linux build mode: unsigned package + checksum release"
+              ;;
+          esac
+
       - name: Build packaged app
         run: ${{ matrix.command }}
         if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
         env:
-          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          WIN_CSC_LINK: ${{ needs.metadata.outputs.windows_signed == 'true' && secrets.WIN_CSC_LINK || '' }}
+          WIN_CSC_KEY_PASSWORD: ${{ needs.metadata.outputs.windows_signed == 'true' && secrets.WIN_CSC_KEY_PASSWORD || '' }}
+          CSC_LINK: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.CSC_KEY_PASSWORD || '' }}
+          APPLE_API_KEY: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.APPLE_API_KEY || '' }}
+          APPLE_API_KEY_ID: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.APPLE_API_KEY_ID || '' }}
+          APPLE_API_ISSUER: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.APPLE_API_ISSUER || '' }}
           CSC_IDENTITY_AUTO_DISCOVERY: ${{ matrix.name == 'windows' && needs.metadata.outputs.windows_signed != 'true' && 'false' || (matrix.name == 'linux' && 'false' || '') }}
 
       - name: Upload packaged artifacts
