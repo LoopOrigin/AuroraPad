@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PUBLIC_RELEASES_REPO: ${{ vars.PUBLIC_RELEASES_REPO }}
+  PUBLIC_RELEASES_REPO: ${{ vars.PUBLIC_RELEASES_REPO || 'ali111887/AuroraPad-Releases' }}
   PUBLIC_RELEASES_TARGET: ${{ vars.PUBLIC_RELEASES_TARGET || 'main' }}
 
 jobs:
@@ -232,12 +232,6 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          if [[ -z "${PUBLIC_RELEASES_REPO}" ]]; then
-            echo "PUBLIC_RELEASES_REPO is not configured."
-            echo "Set a repository variable like: ali111887/AuroraPad-Releases"
-            exit 1
-          fi
-
           if [[ -z "${PUBLIC_RELEASES_TOKEN}" ]]; then
             echo "PUBLIC_RELEASES_TOKEN is not configured."
             echo "Create a fine-grained token for the public releases repository and store it as a secret."
