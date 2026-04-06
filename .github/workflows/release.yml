@@ -262,8 +262,10 @@ jobs:
             exit 0
           fi
 
-          target_default_branch="$(gh api "repos/${TARGET_REPO}" --jq '.default_branch // empty')"
-          if [[ -z "$target_default_branch" ]]; then
+          repo_info="$(gh api "repos/${TARGET_REPO}")"
+          target_default_branch="$(printf '%s' "$repo_info" | jq -r '.default_branch // empty')"
+          repo_is_empty="$(printf '%s' "$repo_info" | jq -r 'if (.size == 0 or .pushed_at == null) then "true" else "false" end')"
+          if [[ "$repo_is_empty" == "true" ]]; then
             echo "Public releases repository is empty. Bootstrapping ${TARGET_REPO} with branch ${TARGET_REF}."
             bootstrap_dir="$(mktemp -d)"
             git clone "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" "$bootstrap_dir"
