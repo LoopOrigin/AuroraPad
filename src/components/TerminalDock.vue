@@ -130,7 +130,14 @@ watch(availableProfiles, (profiles) => {
   }
 }, { immediate: true })
 
+function isSshShell(shell) {
+  return String(shell || '').startsWith('ssh:')
+}
+
 function profileForShell(shell) {
+  if (isSshShell(shell)) {
+    return { id: shell, label: 'SSH', accent: 'ssh' }
+  }
   return availableProfiles.value.find(profile => profile.id === shell)
     || availableProfiles.value.find(profile => profile.id === 'default')
     || { id: 'default', label: 'Default', accent: 'default' }
@@ -154,6 +161,10 @@ function compactPath(cwd) {
 }
 
 function makeSessionTitle(shell, cwd) {
+  if (isSshShell(shell)) {
+    const tail = cwd ? cwd.split(/[/\\]/).filter(Boolean).pop() : ''
+    return tail ? `SSH • ${tail}` : 'SSH Session'
+  }
   const profile = profileForShell(shell)
   const label = profile.label
   const leaf = cwd ? cwd.split(/[/\\]/).filter(Boolean).pop() : ''
@@ -161,12 +172,12 @@ function makeSessionTitle(shell, cwd) {
   return leaf ? `${label} • ${leaf}` : `${label} ${counter}`
 }
 
-function newSession(shell = profileShell.value, cwd = '') {
-  const safeShell = profileForShell(shell).id
+function newSession(shell = profileShell.value, cwd = '', options = {}) {
+  const safeShell = isSshShell(shell) ? shell : profileForShell(shell).id
   const id = `term-${Date.now()}-${nextCounter}`
   sessions.value.push({
     id,
-    title: makeSessionTitle(safeShell, cwd),
+    title: options.title || makeSessionTitle(safeShell, cwd),
     shell: safeShell,
     cwd,
     accent: profileForShell(safeShell).accent,
@@ -222,6 +233,7 @@ function profileLabel(shell) {
 }
 
 function labelForShell(shell) {
+  if (isSshShell(shell)) return 'SSH'
   return profileForShell(shell).label
 }
 

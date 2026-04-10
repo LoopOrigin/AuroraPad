@@ -55,6 +55,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
   findInFiles: (options) => ipcRenderer.invoke('search:findInFiles', options),
   replaceInFiles: (options) => ipcRenderer.invoke('search:replaceInFiles', options),
 
+  // Remote workspace
+  remoteListProfiles: () => ipcRenderer.invoke('remote:listProfiles'),
+  remoteSaveProfile: (profile) => ipcRenderer.invoke('remote:saveProfile', profile),
+  remoteDeleteProfile: (profileId) => ipcRenderer.invoke('remote:deleteProfile', profileId),
+  remoteConnect: (profileId, secretInput) => ipcRenderer.invoke('remote:connect', profileId, secretInput),
+  remoteDisconnect: (connectionId) => ipcRenderer.invoke('remote:disconnect', connectionId),
+  remoteReadDir: (connectionId, remotePath) => ipcRenderer.invoke('remote:readDir', connectionId, remotePath),
+  remoteReadFile: (connectionId, remotePath, encoding) => ipcRenderer.invoke('remote:readFile', connectionId, remotePath, encoding),
+  remoteWriteFile: (connectionId, remotePath, content, encoding, expectedVersion) =>
+    ipcRenderer.invoke('remote:writeFile', connectionId, remotePath, content, encoding, expectedVersion),
+  remoteMovePath: (connectionId, fromPath, toPath) => ipcRenderer.invoke('remote:movePath', connectionId, fromPath, toPath),
+  remoteMkdir: (connectionId, remotePath) => ipcRenderer.invoke('remote:mkdir', connectionId, remotePath),
+  remoteOpenSshTerminal: (connectionId, cwd) => ipcRenderer.invoke('remote:openSshTerminal', connectionId, cwd),
+
   // Tools / Run
   getHash: (algorithm, text) => ipcRenderer.invoke('tools:getHash', algorithm, text),
   runCommand: (command, cwd) => ipcRenderer.invoke('run:command', command, cwd),

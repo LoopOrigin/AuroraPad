@@ -49,6 +49,7 @@ const emit = defineEmits([
   'sort-tabs-name',
   'sort-tabs-path',
   'sort-tabs-type',
+  'connect-server',
 ])
 
 const settingsStore = useSettingsStore()
@@ -61,6 +62,7 @@ const commands = [
   { id: 'new', label: 'New File', icon: '📄', action: 'new' },
   { id: 'open-file', label: 'Open File...', icon: '📂', action: 'open-file' },
   { id: 'open-folder', label: 'Open Folder...', icon: '📁', action: 'open-folder' },
+  { id: 'connect-server', label: 'Connect Server...', icon: '🌐', action: 'connect-server' },
   { id: 'toggle-sidebar', label: 'Toggle Sidebar', icon: '🧭', action: 'toggle-sidebar' },
   { id: 'toggle-terminal', label: 'Toggle Terminal', icon: '⌨️', action: 'toggle-terminal' },
   { id: 'sort-tabs-name', label: 'Sort Tabs by Name', icon: '🔤', action: 'sort-tabs-name' },
@@ -130,7 +132,10 @@ function runItem(item) {
       if (window.electronAPI) {
         window.electronAPI.openFolderDialog().then(path => {
           if (path) {
-            fileTreeStore.setOpenFolder(path)
+            if (fileTreeStore.workspaceMode === 'remote' && fileTreeStore.remoteConnection?.connectionId) {
+              window.electronAPI.remoteDisconnect?.(fileTreeStore.remoteConnection.connectionId)
+            }
+            fileTreeStore.setLocalWorkspace(path)
             window.electronAPI.watchFolder(path)
           }
         })
@@ -140,6 +145,9 @@ function runItem(item) {
       break
     case 'run-command':
       emit('run-command')
+      break
+    case 'connect-server':
+      emit('connect-server')
       break
     case 'toggle-terminal':
       emit('toggle-terminal')

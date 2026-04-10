@@ -1,0 +1,514 @@
+const path = require('path')
+const fs = require('fs').promises
+const { Writable, Readable } = require('stream')
+const SftpClient = require('ssh2-sftp-client')
+const ftp = require('basic-ftp')
+
+function nowIso() {
+  return new Date().toISOString()
+}
+
+function ensurePosixPath(input, fallback = '/') {
+  if (!input) return fallback
+  let value = String(input).replace(/\\/g, '/')
+  if (!value.startsWith('/')) value = `/${value}`
+  value = value.replace(/\/{2,}/g, '/')
+  return value || fallback
+}
+
+function dirnamePosix(input) {
+  const normalized = ensurePosixPath(input, '/')
+  if (normalized === '/') return '/'
+  const idx = normalized.lastIndexOf('/')
+  if (idx <= 0) return '/'
+  return normalized.slice(0, idx)
+}
+
+function basenamePosix(input) {
+  const normalized = ensurePosixPath(input, '/')
+  if (normalized === '/') return '/'
+  const idx = normalized.lastIndexOf('/')
+  return idx >= 0 ? normalized.slice(idx + 1) : normalized
+}
+
+function makeVersion(stat = {}) {
+  const size = Number.isFinite(stat.size) ? stat.size : 0
+  const modifiedAt = Number.isFinite(stat.modifiedAt) ? stat.modifiedAt : 0
+  return `${size}:${modifiedAt}`
+}
+
+function sortEntries(entries) {
+  return entries.sort((a, b) => {
+    if (a.isDirectory === b.isDirectory) return a.name.localeCompare(b.name)
+    return a.isDirectory ? -1 : 1
+  })
+}
+
+class RemoteConnectionManager {
+  constructor(options = {}) {
+    this.connections = new Map()
+    this.nextConnectionId = 1
+    this.getProfiles = options.getProfiles || (() => [])
+    this.setProfiles = options.setProfiles || (() => {})
+    this.getSecret = options.getSecret || (async () => null)
+    this.setSecret = options.setSecret || (async () => {})
+    this.deleteSecret = options.deleteSecret || (async () => {})
+    this.ensureSecretStorage = options.ensureSecretStorage || (() => {})
+  }
+
+  listProfiles() {
+    const profiles = this.getProfiles() || []
+    return [...profiles].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+  }
+
+  async saveProfile(input) {
+    const profile = this.#sanitizeProfile(input)
+    if (!profile.id) {
+      profile.id = `remote-profile-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+      profile.createdAt = nowIso()
+    }
+
+    const profiles = this.getProfiles() || []
+    const existingIndex = profiles.findIndex(item => item.id === profile.id)
+    const existing = existingIndex >= 0 ? profiles[existingIndex] : null
+
+    const shouldSaveSecret = !!input?.saveSecret
+    const secretPayload = this.#sanitizeSecretPayload(input?.secret || {})
+
+    if (shouldSaveSecret) {
+      this.ensureSecretStorage()
+      await this.setSecret(profile.id, secretPayload)
+    } else if (input?.clearSavedSecret) {
+      await this.deleteSecret(profile.id)
+    }
+
+    const merged = {
+      ...(existing || {}),
+      ...profile,
+      updatedAt: nowIso(),
+    }
+
+    if (existingIndex >= 0) profiles.splice(existingIndex, 1, merged)
+    else profiles.push(merged)
+    this.setProfiles(profiles)
+    return merged
+  }
+
+  async deleteProfile(profileId) {
+    if (!profileId) return { ok: true }
+    const profiles = this.getProfiles() || []
+    const nextProfiles = profiles.filter(item => item.id !== profileId)
+    this.setProfiles(nextProfiles)
+    await this.deleteSecret(profileId).catch(() => {})
+
+    const activeConnectionIds = [...this.connections.entries()]
+      .filter(([, value]) => value.profile?.id === profileId)
+      .map(([connectionId]) => connectionId)
+
+    for (const connectionId of activeConnectionIds) {
+      await this.disconnect(connectionId).catch(() => {})
+    }
+
+    return { ok: true }
+  }
+
+  getConnection(connectionId) {
+    const connection = this.connections.get(connectionId)
+    if (!connection) {
+      const error = new Error('Remote connection not found')
+      error.code = 'CONNECTION_NOT_FOUND'
+      throw error
+    }
+    return connection
+  }
+
+  async connect(profileId, secretInput = {}) {
+    const profile = this.listProfiles().find(item => item.id === profileId)
+    if (!profile) {
+      const error = new Error('Remote profile not found')
+      error.code = 'PROFILE_NOT_FOUND'
+      throw error
+    }
+
+    const storedSecret = await this.getSecret(profile.id).catch(() => null)
+    const secret = {
+      ...(storedSecret || {}),
+      ...(secretInput || {}),
+    }
+
+    const connectionId = `remote-${this.nextConnectionId++}`
+    let instance
+
+    if (profile.protocol === 'sftp') {
+      instance = await this.#connectSftp(profile, secret)
+    } else {
+      instance = await this.#connectFtp(profile, secret)
+    }
+
+    this.connections.set(connectionId, {
+      connectionId,
+      protocol: profile.protocol,
+      profile,
+      instance,
+      connectedAt: nowIso(),
+    })
+
+    return {
+      connectionId,
+      protocol: profile.protocol,
+      profileId: profile.id,
+      name: profile.name,
+      host: profile.host,
+      port: profile.port,
+      username: profile.username,
+      rootPath: ensurePosixPath(profile.remoteRoot || '/'),
+      authType: profile.authType,
+      keyPath: profile.privateKeyPath || '',
+    }
+  }
+
+  async disconnect(connectionId) {
+    const connection = this.connections.get(connectionId)
+    if (!connection) return { ok: true }
+
+    try {
+      if (connection.protocol === 'sftp') {
+        await connection.instance.end().catch(() => {})
+      } else {
+        connection.instance.close()
+      }
+    } finally {
+      this.connections.delete(connectionId)
+    }
+
+    return { ok: true }
+  }
+
+  async disconnectAll() {
+    const ids = [...this.connections.keys()]
+    for (const id of ids) {
+      await this.disconnect(id).catch(() => {})
+    }
+  }
+
+  async list(connectionId, remotePath) {
+    const connection = this.getConnection(connectionId)
+    const targetPath = ensurePosixPath(remotePath || connection.profile.remoteRoot || '/')
+
+    let entries = []
+    if (connection.protocol === 'sftp') {
+      const list = await connection.instance.list(targetPath)
+      entries = list.map(item => {
+        const itemPath = ensurePosixPath(path.posix.join(targetPath, item.name))
+        const modifiedAt = Number.isFinite(item.modifyTime) ? item.modifyTime : null
+        const stat = {
+          size: Number.isFinite(item.size) ? item.size : 0,
+          modifiedAt: modifiedAt || 0,
+        }
+        return {
+          name: item.name,
+          isDirectory: item.type === 'd',
+          path: itemPath,
+          parentPath: dirnamePosix(itemPath),
+          size: stat.size,
+          modifiedAt,
+          version: makeVersion(stat),
+        }
+      })
+    } else {
+      const list = await connection.instance.list(targetPath)
+      entries = list.map(item => {
+        const itemPath = ensurePosixPath(path.posix.join(targetPath, item.name))
+        const modifiedAt = item.modifiedAt ? item.modifiedAt.getTime() : null
+        const stat = {
+          size: Number.isFinite(item.size) ? item.size : 0,
+          modifiedAt: modifiedAt || 0,
+        }
+        return {
+          name: item.name,
+          isDirectory: !!item.isDirectory,
+          path: itemPath,
+          parentPath: dirnamePosix(itemPath),
+          size: stat.size,
+          modifiedAt,
+          version: makeVersion(stat),
+        }
+      })
+    }
+
+    return sortEntries(entries)
+  }
+
+  async stat(connectionId, remotePath) {
+    const connection = this.getConnection(connectionId)
+    const targetPath = ensurePosixPath(remotePath)
+    if (connection.protocol === 'sftp') {
+      const stat = await connection.instance.stat(targetPath)
+      const modifiedAt = Number.isFinite(stat.modifyTime) ? stat.modifyTime : 0
+      const size = Number.isFinite(stat.size) ? stat.size : 0
+      return {
+        path: targetPath,
+        isDirectory: stat.isDirectory,
+        size,
+        modifiedAt,
+        version: makeVersion({ size, modifiedAt }),
+      }
+    }
+
+    let size = 0
+    let modifiedAt = 0
+    let isDirectory = false
+    try {
+      const parentPath = dirnamePosix(targetPath)
+      const name = basenamePosix(targetPath)
+      const siblings = await connection.instance.list(parentPath)
+      const match = siblings.find(item => item.name === name)
+      if (match) {
+        size = Number.isFinite(match.size) ? match.size : 0
+        modifiedAt = match.modifiedAt ? match.modifiedAt.getTime() : 0
+        isDirectory = !!match.isDirectory
+      }
+    } catch {
+      // Fallback through size/lastMod below
+    }
+
+    if (!isDirectory) {
+      try {
+        size = await connection.instance.size(targetPath)
+      } catch {}
+      try {
+        const lastMod = await connection.instance.lastMod(targetPath)
+        modifiedAt = lastMod ? lastMod.getTime() : modifiedAt
+      } catch {}
+    }
+
+    return {
+      path: targetPath,
+      isDirectory,
+      size,
+      modifiedAt,
+      version: makeVersion({ size, modifiedAt }),
+    }
+  }
+
+  async readFile(connectionId, remotePath) {
+    const connection = this.getConnection(connectionId)
+    const targetPath = ensurePosixPath(remotePath)
+
+    let buffer
+    if (connection.protocol === 'sftp') {
+      const data = await connection.instance.get(targetPath)
+      buffer = Buffer.isBuffer(data) ? data : Buffer.from(data || '')
+    } else {
+      const chunks = []
+      const writable = new Writable({
+        write(chunk, enc, cb) {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, enc))
+          cb()
+        },
+      })
+      await connection.instance.downloadTo(writable, targetPath)
+      buffer = Buffer.concat(chunks)
+    }
+
+    const stat = await this.stat(connectionId, targetPath)
+    return {
+      path: targetPath,
+      buffer,
+      version: stat.version,
+      modifiedAt: stat.modifiedAt,
+      size: stat.size,
+    }
+  }
+
+  async writeFile(connectionId, remotePath, contentBuffer, expectedVersion) {
+    const connection = this.getConnection(connectionId)
+    const targetPath = ensurePosixPath(remotePath)
+    const payload = Buffer.isBuffer(contentBuffer) ? contentBuffer : Buffer.from(contentBuffer || '')
+
+    if (expectedVersion) {
+      try {
+        const current = await this.stat(connectionId, targetPath)
+        if (current?.version && current.version !== expectedVersion) {
+          const error = new Error('Remote file was modified on the server')
+          error.code = 'VERSION_CONFLICT'
+          error.currentVersion = current.version
+          throw error
+        }
+      } catch (error) {
+        if (error?.code === 'VERSION_CONFLICT') throw error
+      }
+    }
+
+    if (connection.protocol === 'sftp') {
+      await connection.instance.put(payload, targetPath)
+    } else {
+      const readable = Readable.from(payload)
+      await connection.instance.uploadFrom(readable, targetPath)
+    }
+
+    const nextStat = await this.stat(connectionId, targetPath)
+    return {
+      ok: true,
+      path: targetPath,
+      version: nextStat.version,
+      modifiedAt: nextStat.modifiedAt,
+      size: nextStat.size,
+    }
+  }
+
+  async move(connectionId, fromPath, toPath) {
+    const connection = this.getConnection(connectionId)
+    const source = ensurePosixPath(fromPath)
+    const destination = ensurePosixPath(toPath)
+
+    if (connection.protocol === 'sftp') {
+      await connection.instance.rename(source, destination)
+    } else {
+      await connection.instance.rename(source, destination)
+    }
+
+    return { ok: true, fromPath: source, toPath: destination }
+  }
+
+  async mkdir(connectionId, remotePath) {
+    const connection = this.getConnection(connectionId)
+    const targetPath = ensurePosixPath(remotePath)
+
+    if (connection.protocol === 'sftp') {
+      await connection.instance.mkdir(targetPath, true)
+    } else {
+      await connection.instance.ensureDir(targetPath)
+    }
+
+    return { ok: true, path: targetPath }
+  }
+
+  getSshTerminalDescriptor(connectionId, cwd = '') {
+    const connection = this.getConnection(connectionId)
+    if (connection.protocol !== 'sftp') {
+      const error = new Error('SSH terminal is only available for SFTP/SSH connections')
+      error.code = 'SSH_NOT_SUPPORTED'
+      throw error
+    }
+
+    const shell = `ssh:${connectionId}`
+    const rootPath = ensurePosixPath(connection.profile.remoteRoot || '/')
+    return {
+      shell,
+      cwd: ensurePosixPath(cwd || rootPath),
+      title: `SSH • ${connection.profile.username || 'user'}@${connection.profile.host}`,
+    }
+  }
+
+  resolveSshLaunch(shellToken, cwd = '') {
+    const connectionId = String(shellToken || '').slice(4)
+    const connection = this.getConnection(connectionId)
+    const profile = connection.profile
+    if (connection.protocol !== 'sftp') {
+      const error = new Error('SSH launch is only available for SFTP/SSH connections')
+      error.code = 'SSH_NOT_SUPPORTED'
+      throw error
+    }
+
+    const args = []
+    if (profile.port) args.push('-p', String(profile.port))
+    if (profile.privateKeyPath) args.push('-i', profile.privateKeyPath)
+    const userHost = profile.username ? `${profile.username}@${profile.host}` : profile.host
+    args.push(userHost)
+
+    const remoteDir = ensurePosixPath(cwd || profile.remoteRoot || '/')
+    if (remoteDir && remoteDir !== '/') {
+      args.push(`cd ${this.#shellQuote(remoteDir)} && exec $SHELL -l`)
+    }
+
+    return {
+      file: 'ssh',
+      args,
+      shellKey: 'ssh',
+      connectionId,
+    }
+  }
+
+  async #connectSftp(profile, secret) {
+    const client = new SftpClient()
+    const options = {
+      host: profile.host,
+      port: profile.port || 22,
+      username: profile.username,
+      readyTimeout: 20000,
+      keepaliveInterval: 10000,
+    }
+
+    if (profile.authType === 'privateKey') {
+      if (!profile.privateKeyPath) {
+        const error = new Error('Private key path is required')
+        error.code = 'KEY_PATH_REQUIRED'
+        throw error
+      }
+      options.privateKey = await fs.readFile(profile.privateKeyPath)
+      if (secret.passphrase) options.passphrase = secret.passphrase
+    } else {
+      if (!secret.password) {
+        const error = new Error('Password is required for this profile')
+        error.code = 'SECRET_REQUIRED'
+        error.secretType = 'password'
+        throw error
+      }
+      options.password = secret.password
+    }
+
+    await client.connect(options)
+    return client
+  }
+
+  async #connectFtp(profile, secret) {
+    if (!secret.password) {
+      const error = new Error('Password is required for this profile')
+      error.code = 'SECRET_REQUIRED'
+      error.secretType = 'password'
+      throw error
+    }
+
+    const client = new ftp.Client(20000)
+    client.ftp.verbose = false
+    await client.access({
+      host: profile.host,
+      port: profile.port || (profile.protocol === 'ftps' ? 21 : 21),
+      user: profile.username,
+      password: secret.password,
+      secure: profile.protocol === 'ftps',
+    })
+    return client
+  }
+
+  #sanitizeSecretPayload(input = {}) {
+    return {
+      password: input.password ? String(input.password) : '',
+      passphrase: input.passphrase ? String(input.passphrase) : '',
+    }
+  }
+
+  #sanitizeProfile(input = {}) {
+    const protocol = ['sftp', 'ftp', 'ftps'].includes(input.protocol) ? input.protocol : 'sftp'
+    const authType = input.authType === 'privateKey' ? 'privateKey' : 'password'
+    return {
+      id: input.id ? String(input.id) : '',
+      name: String(input.name || `${(input.username || 'user')}@${(input.host || 'server')}`),
+      protocol,
+      host: String(input.host || '').trim(),
+      port: Number(input.port) || (protocol === 'sftp' ? 22 : 21),
+      username: String(input.username || '').trim(),
+      authType,
+      remoteRoot: ensurePosixPath(input.remoteRoot || '/'),
+      privateKeyPath: input.privateKeyPath ? path.resolve(String(input.privateKeyPath)) : '',
+      createdAt: input.createdAt || nowIso(),
+    }
+  }
+
+  #shellQuote(value) {
+    return `'${String(value).replace(/'/g, `'\\''`)}'`
+  }
+}
+
+module.exports = { RemoteConnectionManager }

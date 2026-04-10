@@ -105,6 +105,7 @@ export const useTabsStore = defineStore('tabs', () => {
     const tab = {
       id,
       path,
+      remote: options.remote ?? null,
       name,
       content: options.content ?? '',
       // Prefer caller-provided language, then our smarter inference helper

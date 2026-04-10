@@ -16,15 +16,67 @@ const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
 const pty = require('node-pty')
+const { RemoteConnectionManager } = require('./remote-manager')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 const shouldOpenDevTools = process.env.AURORAPAD_OPEN_DEVTOOLS === '1'
+const REMOTE_KEYCHAIN_SERVICE = 'AuroraPad.RemoteProfiles'
+let keytar = null
+
+try {
+  keytar = require('keytar')
+} catch {
+  keytar = null
+}
 
 let mainWindow = null
 let watchers = new Map()
 let terminals = new Map()
 let nextTerminalId = 1
+
+function hasKeychainSupport() {
+  return !!keytar && typeof keytar.getPassword === 'function'
+}
+
+function ensureKeychainSupport() {
+  if (!hasKeychainSupport()) {
+    const err = new Error('OS keychain is not available on this machine')
+    err.code = 'KEYCHAIN_UNAVAILABLE'
+    throw err
+  }
+}
+
+async function getRemoteSecret(profileId) {
+  if (!hasKeychainSupport()) return null
+  const raw = await keytar.getPassword(REMOTE_KEYCHAIN_SERVICE, `profile:${profileId}`)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+async function setRemoteSecret(profileId, secret) {
+  ensureKeychainSupport()
+  const payload = JSON.stringify(secret || {})
+  await keytar.setPassword(REMOTE_KEYCHAIN_SERVICE, `profile:${profileId}`, payload)
+}
+
+async function deleteRemoteSecret(profileId) {
+  if (!hasKeychainSupport()) return false
+  return keytar.deletePassword(REMOTE_KEYCHAIN_SERVICE, `profile:${profileId}`)
+}
+
+const remoteManager = new RemoteConnectionManager({
+  getProfiles: () => store.get('remoteProfiles', []),
+  setProfiles: (profiles) => store.set('remoteProfiles', profiles),
+  getSecret: getRemoteSecret,
+  setSecret: setRemoteSecret,
+  deleteSecret: deleteRemoteSecret,
+  ensureSecretStorage: ensureKeychainSupport,
+})
 
 function getPlatformInfo() {
   const isWindows = process.platform === 'win32'
@@ -74,7 +126,11 @@ function getPlatformInfo() {
   }
 }
 
-function resolveTerminalLaunch(shellType = 'default') {
+function resolveTerminalLaunch(shellType = 'default', cwd = '') {
+  if (String(shellType).startsWith('ssh:')) {
+    return remoteManager.resolveSshLaunch(shellType, cwd)
+  }
+
   const isWindows = process.platform === 'win32'
 
   if (isWindows) {
@@ -255,6 +311,19 @@ function buildMenu(pluginMenuItems = []) {
       ],
     },
     {
+      label: 'Remote',
+      submenu: [
+        { label: 'Remote Manager...', click: () => mainWindow?.webContents.send('menu:remote-manager') },
+        { label: 'Connect Server...', click: () => mainWindow?.webContents.send('menu:connect-server') },
+        { label: 'Disconnect Server', click: () => mainWindow?.webContents.send('menu:disconnect-server') },
+        { label: 'Open SSH Terminal', click: () => mainWindow?.webContents.send('menu:open-ssh-terminal') },
+        { type: 'separator' },
+        { label: 'New SFTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-sftp') },
+        { label: 'New FTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftp') },
+        { label: 'New FTPS Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftps') },
+      ],
+    },
+    {
       label: 'Edit',
       submenu: [
         { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => mainWindow?.webContents.send('menu:undo') },
@@ -424,50 +493,63 @@ function buildMenu(pluginMenuItems = []) {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
 
+async function isBinaryBuffer(buffer) {
+  try {
+    if (!buffer || !buffer.length) return false
+    if (buffer.length > 5 * 1024 * 1024) return false
+    const { fileTypeFromBuffer } = await import('file-type')
+    const type = await fileTypeFromBuffer(buffer)
+    if (!type) return false
+    return ![
+      'text/plain',
+      'application/json',
+      'application/javascript',
+      'text/html',
+      'text/css',
+      'text/xml',
+      'application/xml',
+    ].includes(type.mime)
+  } catch {
+    return false
+  }
+}
+
+function decodeTextBuffer(buffer, encoding = 'utf8') {
+  let detectedEncoding = encoding || 'utf8'
+  try {
+    const detection = jschardet.detect(buffer)
+    if (detection && detection.encoding && detection.confidence >= 0.6) {
+      detectedEncoding = detection.encoding.toLowerCase()
+    }
+  } catch {
+    // Best-effort detection; fall back to requested/default encoding
+  }
+
+  let content
+  if (detectedEncoding === 'utf-8' || detectedEncoding === 'utf8') {
+    content = buffer.toString('utf8')
+    detectedEncoding = 'utf8'
+  } else {
+    try {
+      content = iconv.decode(buffer, detectedEncoding)
+    } catch {
+      content = buffer.toString('utf8')
+      detectedEncoding = 'utf8'
+    }
+  }
+
+  return { content, encoding: detectedEncoding }
+}
+
 // IPC handlers
 ipcMain.handle('fs:readFile', async (_, filePath, encoding = 'utf8') => {
   try {
     const buffer = await fs.readFile(filePath)
-    let isBinary = false
-    try {
-      // Skip expensive MIME detection for very large files to keep open fast
-      const stat = await fs.stat(filePath)
-      if (stat.size <= 5 * 1024 * 1024) {
-        const { fileTypeFromBuffer } = await import('file-type')
-        const type = await fileTypeFromBuffer(buffer)
-        if (type && !['text/plain', 'application/json', 'application/javascript', 'text/html', 'text/css', 'text/xml', 'application/xml'].includes(type.mime)) {
-          isBinary = true
-        }
-      }
-    } catch {
-      // Best-effort detection; fall back to treating as text
-    }
+    const isBinary = await isBinaryBuffer(buffer)
     if (isBinary) {
       return { error: 'Binary file', binary: true }
     }
-
-    let detectedEncoding = encoding || 'utf8'
-    try {
-      const detection = jschardet.detect(buffer)
-      if (detection && detection.encoding && detection.confidence >= 0.6) {
-        detectedEncoding = detection.encoding.toLowerCase()
-      }
-    } catch {
-      // Best-effort detection; fall back to requested/default encoding
-    }
-
-    let content
-    if (detectedEncoding === 'utf-8' || detectedEncoding === 'utf8') {
-      content = buffer.toString('utf8')
-      detectedEncoding = 'utf8'
-    } else {
-      try {
-        content = iconv.decode(buffer, detectedEncoding)
-      } catch {
-        content = buffer.toString('utf8')
-        detectedEncoding = 'utf8'
-      }
-    }
+    const { content, encoding: detectedEncoding } = decodeTextBuffer(buffer, encoding)
 
     addRecentFile(filePath)
     return { content, encoding: detectedEncoding }
@@ -513,6 +595,126 @@ ipcMain.handle('dialog:openFolder', async () => {
 
 ipcMain.handle('store:getRecentFiles', () => getRecentFiles())
 ipcMain.handle('store:clearRecentFiles', () => store.set('recentFiles', []))
+
+ipcMain.handle('remote:listProfiles', async () => {
+  try {
+    return {
+      ok: true,
+      keychainAvailable: hasKeychainSupport(),
+      profiles: remoteManager.listProfiles(),
+    }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_LIST_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:saveProfile', async (_, profile) => {
+  try {
+    const saved = await remoteManager.saveProfile(profile || {})
+    return { ok: true, profile: saved, keychainAvailable: hasKeychainSupport() }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_SAVE_PROFILE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:deleteProfile', async (_, profileId) => {
+  try {
+    await remoteManager.deleteProfile(profileId)
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_DELETE_PROFILE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:connect', async (_, profileId, secretInput) => {
+  try {
+    const connection = await remoteManager.connect(profileId, secretInput || {})
+    return { ok: true, connection }
+  } catch (e) {
+    return {
+      error: e.message,
+      code: e.code || 'REMOTE_CONNECT_FAILED',
+      secretType: e.secretType || null,
+      currentVersion: e.currentVersion || null,
+    }
+  }
+})
+
+ipcMain.handle('remote:disconnect', async (_, connectionId) => {
+  try {
+    await remoteManager.disconnect(connectionId)
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_DISCONNECT_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:readDir', async (_, connectionId, remotePath) => {
+  try {
+    const entries = await remoteManager.list(connectionId, remotePath)
+    return entries
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_READ_DIR_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:readFile', async (_, connectionId, remotePath, encoding = 'utf8') => {
+  try {
+    const result = await remoteManager.readFile(connectionId, remotePath)
+    const isBinary = await isBinaryBuffer(result.buffer)
+    if (isBinary) return { error: 'Binary file', binary: true }
+    const decoded = decodeTextBuffer(result.buffer, encoding)
+    return {
+      content: decoded.content,
+      encoding: decoded.encoding,
+      version: result.version,
+      modifiedAt: result.modifiedAt,
+      size: result.size,
+      path: result.path,
+    }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_READ_FILE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:writeFile', async (_, connectionId, remotePath, content, encoding = 'utf8', expectedVersion = null) => {
+  try {
+    const buffer = encoding === 'utf8' ? Buffer.from(content || '', 'utf8') : iconv.encode(content || '', encoding)
+    const result = await remoteManager.writeFile(connectionId, remotePath, buffer, expectedVersion)
+    return result
+  } catch (e) {
+    return {
+      error: e.message,
+      code: e.code || 'REMOTE_WRITE_FILE_FAILED',
+      currentVersion: e.currentVersion || null,
+    }
+  }
+})
+
+ipcMain.handle('remote:movePath', async (_, connectionId, fromPath, toPath) => {
+  try {
+    return await remoteManager.move(connectionId, fromPath, toPath)
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_MOVE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:mkdir', async (_, connectionId, remotePath) => {
+  try {
+    return await remoteManager.mkdir(connectionId, remotePath)
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_MKDIR_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:openSshTerminal', async (_, connectionId, cwd = '') => {
+  try {
+    const descriptor = remoteManager.getSshTerminalDescriptor(connectionId, cwd)
+    return { ok: true, ...descriptor }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_SSH_TERMINAL_FAILED' }
+  }
+})
 
 ipcMain.handle('fs:renameFile', async (_, oldPath, newPath) => {
   try {
@@ -606,8 +808,10 @@ ipcMain.handle('run:command', async (_, command, cwd) => {
 ipcMain.handle('terminal:create', async (_, options = {}) => {
   try {
     const shellType = options.shell || 'default'
-    const cwd = options.cwd || process.cwd()
-    const terminalLaunch = resolveTerminalLaunch(shellType) || resolveTerminalLaunch('default')
+    const requestedCwd = options.cwd || ''
+    const isSshShell = String(shellType).startsWith('ssh:')
+    const cwd = isSshShell ? process.cwd() : (requestedCwd || process.cwd())
+    const terminalLaunch = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
     if (!terminalLaunch) {
       return { error: `The ${shellType} terminal profile is not available on this platform.` }
     }
@@ -968,5 +1172,10 @@ function buildMinimalMenu() {
 app.on('window-all-closed', () => {
   watchers.forEach(w => w.close())
   watchers.clear()
+  remoteManager.disconnectAll().catch(() => {})
   if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('before-quit', () => {
+  remoteManager.disconnectAll().catch(() => {})
 })
