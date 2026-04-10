@@ -857,6 +857,231 @@ select:focus-visible,
   font-weight: 700;
 }
 
+.remote-manager-dialog .v-toolbar-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.remote-dialog-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--npp-text-dim);
+}
+
+.remote-manager-grid {
+  align-items: stretch;
+}
+
+.remote-manager-panel {
+  height: 100%;
+  padding: 14px 14px 16px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--npp-tab-bg) 88%, transparent) 0%, color-mix(in srgb, var(--npp-tab-active-bg) 94%, transparent) 100%);
+}
+
+.remote-manager-profiles {
+  overflow: hidden;
+}
+
+.remote-manager-editor {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 12px;
+}
+
+.remote-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.remote-form-row {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.remote-manager-editor :is(.v-input, .v-selection-control) {
+  margin-bottom: 4px;
+}
+
+.remote-profile-list {
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.remote-profile-item {
+  border: 1px solid color-mix(in srgb, var(--npp-tab-border) 62%, transparent);
+  background: color-mix(in srgb, var(--npp-tab-active-bg) 66%, transparent);
+}
+
+.remote-profile-item.active {
+  border-color: color-mix(in srgb, var(--npp-accent) 38%, var(--npp-tab-border));
+  background: color-mix(in srgb, var(--npp-accent) 11%, transparent);
+}
+
+.remote-profile-item .v-list-item-subtitle {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.remote-profile-avatar {
+  border: 1px solid color-mix(in srgb, var(--npp-tab-border) 70%, transparent);
+}
+
+.remote-profile-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.remote-icon-btn {
+  min-width: 30px !important;
+  width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+}
+
+.remote-empty-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px dashed color-mix(in srgb, var(--npp-tab-border) 74%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--npp-toolbar-bg) 48%, transparent);
+}
+
+.remote-delete-dialog {
+  border-color: color-mix(in srgb, #ff4f70 24%, var(--npp-tab-border)) !important;
+}
+
+.remote-delete-callout {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, #ff4f70 30%, var(--npp-tab-border));
+  background: color-mix(in srgb, #ff4f70 9%, transparent);
+}
+
+.remote-delete-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.remote-delete-text {
+  color: var(--npp-text-dim);
+  line-height: 1.5;
+}
+
+.remote-dialog-close-btn {
+  min-width: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+  border: 1px solid color-mix(in srgb, var(--npp-tab-border) 84%, transparent) !important;
+  background: color-mix(in srgb, var(--npp-tab-active-bg) 85%, var(--npp-toolbar-hover)) !important;
+  color: var(--npp-text) !important;
+}
+
+.remote-close-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-1px);
+  color: currentColor;
+}
+
+.remote-dialog-close-btn:hover {
+  background: color-mix(in srgb, #ff4f70 12%, var(--npp-toolbar-hover)) !important;
+  color: color-mix(in srgb, #ff4f70 82%, var(--npp-text)) !important;
+}
+
+.remote-manager-dialog .v-btn .v-icon,
+.remote-delete-dialog .v-btn .v-icon {
+  opacity: 1 !important;
+  color: currentColor !important;
+}
+
+.remote-manager-actions,
+.remote-delete-actions {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.remote-actions-left,
+.remote-actions-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.remote-actions-right {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.remote-action-btn {
+  min-width: 112px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+}
+
+.remote-action-btn-primary {
+  min-width: 132px !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--npp-accent) 86%, #4fa2ff), color-mix(in srgb, var(--npp-accent-2) 72%, #3f8dff)) !important;
+  color: #f4f9ff !important;
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--npp-accent) 40%, transparent);
+}
+
+.remote-action-btn-primary:hover {
+  filter: brightness(1.07);
+}
+
+.remote-profile-actions .v-btn {
+  min-width: 66px !important;
+}
+
+.remote-profile-avatar .v-icon {
+  color: color-mix(in srgb, var(--npp-accent) 62%, var(--npp-text)) !important;
+}
+
+.remote-manager-dialog .v-card-actions {
+  border-top: 1px solid color-mix(in srgb, var(--npp-tab-border) 70%, transparent);
+}
+
+@media (max-width: 860px) {
+  .remote-manager-actions {
+    justify-content: stretch !important;
+  }
+
+  .remote-actions-left,
+  .remote-actions-right {
+    width: 100%;
+  }
+
+  .remote-actions-right {
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+}
+
 .find-root-row {
   display: flex;
   align-items: center;
@@ -998,6 +1223,30 @@ select:focus-visible,
 
   .status-bar-segment {
     min-height: 34px;
+  }
+}
+
+@media (max-width: 960px) {
+  .remote-profile-list {
+    max-height: 280px;
+  }
+
+  .remote-manager-editor {
+    max-height: none;
+    overflow: visible;
+    padding-right: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .remote-actions-left,
+  .remote-actions-right {
+    width: 100%;
+  }
+
+  .remote-actions-right {
+    justify-content: flex-start;
+    margin-left: 0;
   }
 }
 

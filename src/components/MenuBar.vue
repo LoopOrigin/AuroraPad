@@ -2,7 +2,7 @@
   <div class="menu-bar">
     <div class="menu-bar-left">
       <div
-        v-for="menu in menus"
+        v-for="menu in primaryMenus"
         :key="menu.id"
         ref="menuRefs"
         class="menu-bar-item"
@@ -13,6 +13,17 @@
       </div>
     </div>
     <div class="menu-bar-right">
+      <button
+        v-if="secondaryMenus.length"
+        ref="overflowMenuRef"
+        type="button"
+        class="menu-bar-icon menu-bar-overflow"
+        :class="{ open: openMenuId === OVERFLOW_MENU_ID }"
+        title="More Menus"
+        @click.stop="toggleMenu(OVERFLOW_MENU_ID)"
+      >
+        <span class="menu-overflow-glyph" aria-hidden="true">⋯</span>
+      </button>
       <button type="button" class="menu-bar-icon" title="Minimize" @click="windowMinimize">
         <i class="fa-solid fa-minus window-control-inner"></i>
       </button>
@@ -40,6 +51,12 @@
             v-if="item.type === 'separator'"
             class="menu-dropdown-sep"
           />
+          <div
+            v-else-if="item.type === 'header'"
+            class="menu-dropdown-section-title"
+          >
+            {{ item.label }}
+          </div>
           <button
             v-else
             type="button"
@@ -72,8 +89,14 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
+const OVERFLOW_MENU_ID = '__overflow__'
+
 const props = defineProps({
   menus: { type: Array, required: true },
+  primaryMenuIds: {
+    type: Array,
+    default: () => ['file', 'remote', 'edit', 'search', 'view', 'terminal'],
+  },
 })
 
 const emit = defineEmits(['new', 'open', 'close-tab', 'action'])
@@ -81,10 +104,30 @@ const emit = defineEmits(['new', 'open', 'close-tab', 'action'])
 const openMenuId = ref(null)
 const menuStyle = ref(null)
 const menuRefs = ref([])
+const overflowMenuRef = ref(null)
+
+const primaryMenus = computed(() => {
+  const preferred = new Set(props.primaryMenuIds || [])
+  return (props.menus || []).filter(menu => preferred.has(menu.id))
+})
+
+const secondaryMenus = computed(() => {
+  const preferred = new Set(props.primaryMenuIds || [])
+  return (props.menus || []).filter(menu => !preferred.has(menu.id))
+})
 
 const currentMenuItems = computed(() => {
   if (!openMenuId.value) return []
-  const menu = props.menus.find(m => m.id === openMenuId.value)
+  if (openMenuId.value === OVERFLOW_MENU_ID) {
+    const merged = []
+    secondaryMenus.value.forEach((menu, idx) => {
+      merged.push({ type: 'header', label: menu.label })
+      ;(menu.items || []).forEach(item => merged.push(item))
+      if (idx < secondaryMenus.value.length - 1) merged.push({ type: 'separator' })
+    })
+    return merged
+  }
+  const menu = primaryMenus.value.find(m => m.id === openMenuId.value) || props.menus.find(m => m.id === openMenuId.value)
   return menu?.items ?? []
 })
 
@@ -98,17 +141,22 @@ function toggleMenu(id) {
 }
 
 function positionDropdown() {
-  if (!openMenuId.value || !menuRefs.value.length) return
-  const menu = props.menus.find(m => m.id === openMenuId.value)
-  const idx = props.menus.indexOf(menu)
-  const el = Array.isArray(menuRefs.value) ? menuRefs.value[idx] : menuRefs.value
+  if (!openMenuId.value) return
+  let el = null
+  if (openMenuId.value === OVERFLOW_MENU_ID) {
+    el = overflowMenuRef.value
+  } else {
+    const menu = primaryMenus.value.find(m => m.id === openMenuId.value)
+    const idx = primaryMenus.value.indexOf(menu)
+    el = Array.isArray(menuRefs.value) ? menuRefs.value[idx] : menuRefs.value
+  }
   if (!el) return
   const rect = el.getBoundingClientRect()
   menuStyle.value = {
     position: 'fixed',
-    left: `${rect.left}px`,
+    left: openMenuId.value === OVERFLOW_MENU_ID ? `${Math.max(8, rect.right - 320)}px` : `${rect.left}px`,
     top: `${rect.bottom}px`,
-    minWidth: `${Math.max(rect.width, 200)}px`,
+    minWidth: `${Math.max(rect.width, openMenuId.value === OVERFLOW_MENU_ID ? 280 : 200)}px`,
   }
 }
 
@@ -215,6 +263,26 @@ onBeforeUnmount(() => {
   background: var(--npp-menubar-hover, rgba(0, 0, 0, 0.1));
 }
 
+.menu-bar-overflow {
+  width: 36px;
+}
+
+.menu-bar-overflow.open {
+  background: var(--npp-menubar-hover, rgba(0, 0, 0, 0.1));
+}
+
+.menu-overflow-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
 .menu-bar-icon.close-btn:hover {
   background: #e81123;
   color: white;
@@ -289,5 +357,14 @@ onBeforeUnmount(() => {
   height: 1px;
   margin: 6px 6px;
   background: color-mix(in srgb, var(--npp-toolbar-border) 88%, transparent);
+}
+
+.menu-dropdown-section-title {
+  padding: 8px 10px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--npp-text-dim);
 }
 </style>

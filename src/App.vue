@@ -4,6 +4,7 @@
       <MenuBar
         v-if="!isMacPlatform"
         :menus="menuBarMenus"
+        :primary-menu-ids="topMenuPrimaryIds"
         @new="menuNew"
         @open="menuOpenFile"
         @close-tab="menuCloseTab"
@@ -183,46 +184,68 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="showRemoteManager" max-width="980">
-      <v-card class="aurora-dialog">
+    <v-dialog v-model="showRemoteManager" max-width="1020">
+      <v-card class="aurora-dialog remote-manager-dialog">
         <v-toolbar color="transparent" density="comfortable">
-          <v-toolbar-title>Remote Servers</v-toolbar-title>
+          <v-toolbar-title>
+            Remote Servers
+            <div class="remote-dialog-subtitle">Manage SSH/SFTP/FTP profiles and connect quickly.</div>
+          </v-toolbar-title>
           <v-spacer />
           <v-chip size="small" variant="tonal" :color="keychainAvailable ? 'success' : 'warning'">
             {{ keychainAvailable ? 'Keychain Ready' : 'Keychain Unavailable' }}
           </v-chip>
-          <v-btn icon="mdi-close" variant="text" @click="showRemoteManager = false" />
+          <v-btn
+            variant="flat"
+            size="small"
+            class="remote-dialog-close-btn"
+            title="Close"
+            @click="showRemoteManager = false"
+          >
+            <span class="remote-close-mark" aria-hidden="true">×</span>
+          </v-btn>
         </v-toolbar>
         <v-card-text class="dialog-body">
-          <v-row dense>
+          <v-row dense class="remote-manager-grid">
             <v-col cols="12" md="5">
-              <div class="settings-group">
+              <div class="settings-group remote-manager-panel remote-manager-profiles">
                 <div class="settings-group-title">Saved Profiles</div>
-                <v-list class="dialog-list" bg-color="transparent">
+                <v-list class="dialog-list remote-profile-list" bg-color="transparent">
                   <v-list-item
                     v-for="profile in remoteProfiles"
                     :key="profile.id"
-                    class="dialog-list-item"
+                    class="dialog-list-item remote-profile-item"
+                    :class="{ active: remoteForm.id === profile.id }"
+                    @click="editRemoteProfile(profile)"
                   >
+                    <template #prepend>
+                      <v-avatar size="28" variant="tonal" class="remote-profile-avatar">
+                        <v-icon :icon="profile.protocol === 'sftp' ? 'mdi-ssh' : (profile.protocol === 'ftps' ? 'mdi-lock' : 'mdi-lan-connect')" size="15" />
+                      </v-avatar>
+                    </template>
                     <v-list-item-title>{{ profile.name }}</v-list-item-title>
                     <v-list-item-subtitle>{{ profile.protocol.toUpperCase() }} • {{ profile.username }}@{{ profile.host }}:{{ profile.port }}</v-list-item-subtitle>
                     <template #append>
                       <div class="remote-profile-actions">
-                        <v-btn size="x-small" variant="tonal" color="primary" @click="connectRemoteProfile(profile)">Connect</v-btn>
-                        <v-btn size="x-small" variant="text" @click="editRemoteProfile(profile)">Edit</v-btn>
-                        <v-btn size="x-small" variant="text" color="error" @click="deleteRemoteProfile(profile)">Delete</v-btn>
+                        <v-btn size="x-small" variant="tonal" color="primary" @click.stop="connectRemoteProfile(profile)">Connect</v-btn>
+                        <v-btn size="x-small" variant="text" @click.stop="editRemoteProfile(profile)">Edit</v-btn>
+                        <v-btn size="x-small" variant="text" color="error" @click.stop="requestDeleteRemoteProfile(profile)">Remove</v-btn>
                       </div>
                     </template>
                   </v-list-item>
                 </v-list>
-                <div v-if="!remoteProfiles.length" class="dialog-intro">No server profiles yet. Create one on the right.</div>
+                <div v-if="!remoteProfiles.length" class="dialog-intro remote-empty-state">
+                  <v-icon icon="mdi-server-network-off" size="18" />
+                  <span>No profiles yet. Create one on the right.</span>
+                </div>
               </div>
             </v-col>
             <v-col cols="12" md="7">
-              <div class="settings-group">
+              <div class="settings-group remote-manager-panel remote-manager-editor">
                 <div class="settings-group-title">Profile Editor</div>
+                <div class="remote-form-fields">
                 <v-text-field v-model="remoteForm.name" label="Profile Name" placeholder="Production Server" />
-                <v-row dense>
+                <v-row dense class="remote-form-row">
                   <v-col cols="12" sm="6">
                     <v-select
                       v-model="remoteForm.protocol"
@@ -239,7 +262,7 @@
                     />
                   </v-col>
                 </v-row>
-                <v-row dense>
+                <v-row dense class="remote-form-row">
                   <v-col cols="12" sm="8"><v-text-field v-model="remoteForm.host" label="Host" placeholder="example.com" /></v-col>
                   <v-col cols="12" sm="4"><v-text-field v-model="remoteForm.port" type="number" label="Port" /></v-col>
                 </v-row>
@@ -269,15 +292,49 @@
                   label="Save secret to OS keychain"
                   @update:model-value="remoteForm.saveSecret = !!$event"
                 />
+                </div>
               </div>
             </v-col>
           </v-row>
         </v-card-text>
-        <v-card-actions class="dialog-actions">
-          <v-btn variant="tonal" @click="resetRemoteForm">New Profile</v-btn>
+        <v-card-actions class="dialog-actions remote-manager-actions">
+          <div class="remote-actions-left">
+            <v-btn variant="tonal" class="remote-action-btn" @click="resetRemoteForm">New Profile</v-btn>
+          </div>
+          <div class="remote-actions-right">
+            <v-btn variant="tonal" class="remote-action-btn" @click="showRemoteManager = false">Close</v-btn>
+            <v-btn color="secondary" variant="tonal" class="remote-action-btn" @click="loadRemoteProfiles">Refresh</v-btn>
+            <v-btn color="primary" variant="flat" class="remote-action-btn remote-action-btn-primary" @click="saveRemoteProfile">Save Profile</v-btn>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showDeleteRemoteProfileDialog" max-width="520">
+      <v-card class="aurora-dialog remote-delete-dialog">
+        <v-toolbar color="transparent" density="comfortable">
+          <v-toolbar-title>Remove Profile</v-toolbar-title>
           <v-spacer />
-          <v-btn color="secondary" variant="tonal" @click="loadRemoteProfiles">Refresh</v-btn>
-          <v-btn color="primary" @click="saveRemoteProfile">Save Profile</v-btn>
+          <v-btn variant="flat" size="small" class="remote-dialog-close-btn" @click="cancelDeleteRemoteProfile">
+            <span class="remote-close-mark" aria-hidden="true">×</span>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text class="dialog-body">
+          <div class="remote-delete-callout">
+            <v-icon icon="mdi-alert-circle-outline" color="error" size="22" />
+            <div>
+              <div class="remote-delete-title">Delete this server profile?</div>
+              <div class="remote-delete-text">
+                <strong>{{ pendingDeleteRemoteProfile?.name || 'Selected profile' }}</strong> will be removed from AuroraPad.
+                Saved keychain secret will also be deleted.
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="dialog-actions remote-delete-actions">
+          <div class="remote-actions-right">
+            <v-btn variant="tonal" class="remote-action-btn" @click="cancelDeleteRemoteProfile">Cancel</v-btn>
+            <v-btn color="error" variant="flat" class="remote-action-btn" @click="confirmDeleteRemoteProfile">Remove</v-btn>
+          </div>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -414,6 +471,7 @@ const showCommandPalette = ref(false)
 const commandPaletteRecentOnly = ref(false)
 const showPluginManager = ref(false)
 const showRemoteManager = ref(false)
+const showDeleteRemoteProfileDialog = ref(false)
 const showFindInFiles = ref(false)
 const showTerminal = ref(false)
 const terminalDockRef = ref(null)
@@ -433,6 +491,7 @@ const remoteAuthOptions = [
   { title: 'Private Key', value: 'privateKey' },
 ]
 const remoteForm = ref(createRemoteProfileForm())
+const pendingDeleteRemoteProfile = ref(null)
 let autoSaveInterval = null
 
 const primaryTab = computed(() => tabsStore.activeTab)
@@ -616,14 +675,25 @@ async function saveRemoteProfile() {
   editRemoteProfile(result.profile)
 }
 
-async function deleteRemoteProfile(profile) {
-  if (!window.electronAPI?.remoteDeleteProfile) return
-  if (!confirm(`Delete profile "${profile.name}"?`)) return
+function requestDeleteRemoteProfile(profile) {
+  pendingDeleteRemoteProfile.value = profile
+  showDeleteRemoteProfileDialog.value = true
+}
+
+function cancelDeleteRemoteProfile() {
+  showDeleteRemoteProfileDialog.value = false
+  pendingDeleteRemoteProfile.value = null
+}
+
+async function confirmDeleteRemoteProfile() {
+  const profile = pendingDeleteRemoteProfile.value
+  if (!profile || !window.electronAPI?.remoteDeleteProfile) return
   const result = await window.electronAPI.remoteDeleteProfile(profile.id)
   if (result?.error) {
     alert(`Failed to delete profile: ${result.error}`)
     return
   }
+  cancelDeleteRemoteProfile()
   await loadRemoteProfiles()
   if (remoteForm.value.id === profile.id) resetRemoteForm()
 }
@@ -718,6 +788,8 @@ async function moveRemoteEntry(payload) {
 }
 
 // Notepad++ menu order: File, Edit, Search, View, Encoding, Language, Settings, Plugins, Window, Help
+const topMenuPrimaryIds = ['file', 'remote', 'edit', 'search', 'terminal']
+
 const menuBarMenus = computed(() => [
   {
     id: 'file',
