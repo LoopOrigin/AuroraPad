@@ -4,29 +4,17 @@ Date: 2026-04-11
 
 ## Executive Summary
 
-AuroraPad is in a materially stronger state after the latest hardening and upgrade passes: local secret hygiene is enforced in CI, Electron window policy is tighter, remote profile import/export is bounded, and dangerous local capabilities now require native confirmation in the main process rather than renderer-only prompts. The dependency audit state also improved significantly: Electron, `electron-builder`, root Vite, and the previous critical `axios` issue have been removed from the live audit results.
+AuroraPad is in a materially stronger state after the latest hardening and upgrade passes: local secret hygiene is enforced in CI, Electron window policy is tighter, remote profile import/export is bounded, dangerous local capabilities now require native confirmation in the main process rather than renderer-only prompts, and the dependency tree is now clean in live audit checks.
 
-The two most important remaining risks are:
+The most important remaining security consideration is architectural rather than package-age related: trusted local plugins still execute arbitrary JavaScript by design. That is now clearly documented and gated, but it remains a deliberate trust boundary.
 
-- one residual high advisory from Nuxt’s bundled Vite `7.3.1` subtree, which is not directly controlled by AuroraPad’s root Vite dependency today
-- trusted local plugins still executing arbitrary JavaScript by design
-
-This report separates remaining findings from work already remediated so the next phase can focus on the last dependency exception and deeper capability reduction.
+This report separates the remaining architectural risk from the work already remediated so future security work can focus on capability reduction and product policy rather than dependency firefighting.
 
 ## Critical
 
 ## High
 
-### SEC-001: Nuxt’s bundled Vite subtree still carries one high advisory
-
-- Severity: High
-- Location: [package.json](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/package.json#L54), live `npm audit --json` result from 2026-04-11 after upgrades
-- Evidence: the remaining audit finding is limited to Vite `7.0.0 - 7.3.1` under `node_modules/@nuxt/vite-builder/node_modules/vite`, `node_modules/nuxt/node_modules/vite`, and `node_modules/vite-node/node_modules/vite`.
-- Impact: the app no longer carries the previous root Vite/Electron/axios findings, but Nuxt’s transitive toolchain still blocks a fully clean audit.
-- Fix: watch for the next Nuxt release that upgrades its Vite subtree past `7.3.1`, or patch/override that subtree only after validating Nuxt compatibility carefully.
-- Mitigation: AuroraPad’s desktop app build now uses root Vite `8.0.8`, so the remaining issue is limited to the website/Nuxt toolchain rather than the main editor build path.
-
-### SEC-002: Trusted local plugins still execute arbitrary JavaScript by design
+### SEC-001: Trusted local plugins still execute arbitrary JavaScript by design
 
 - Severity: High
 - Location: [src/stores/plugins.js](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/src/stores/plugins.js#L20)
@@ -37,7 +25,7 @@ This report separates remaining findings from work already remediated so the nex
 
 ## Medium
 
-### SEC-003: Command execution is still intentionally powerful desktop functionality
+### SEC-002: Command execution is still intentionally powerful desktop functionality
 
 - Severity: Medium
 - Location: [electron/main/index.js](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/electron/main/index.js#L1006), [src/App.vue](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/src/App.vue#L2402)
@@ -103,6 +91,20 @@ This report separates remaining findings from work already remediated so the nex
   - [package-lock.json](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/package-lock.json)
 - Outcome: AuroraPad now uses `electron` `^41.2.0`, `electron-builder` `^26.8.1`, root `vite` `^8.0.8`, `@vitejs/plugin-vue` `^6.0.5`, and `esbuild` `^0.28.0`. This cleared the previous Electron, packaging, root Vite, and `axios` findings from the live audit.
 
+### FIX-007: Final transitive Nuxt/Vite advisory removed
+
+- Evidence:
+  - [package-lock.json](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/package-lock.json)
+  - final `npm audit --json` run on 2026-04-11 reported `0` vulnerabilities
+- Outcome: the last remaining Nuxt-nested Vite advisory was resolved by updating the nested Vite copies from `7.3.1` to `7.3.2` through `npm audit fix`, leaving the dependency tree fully clean.
+
+### FIX-008: macOS packaging verified on upgraded Electron stack
+
+- Evidence:
+  - [package.json](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/package.json#L59)
+  - generated artifacts in [release](/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/release)
+- Outcome: `npm run electron:build:mac` now completes successfully on the upgraded Electron and `electron-builder` versions, producing arm64 `.zip` and `.dmg` artifacts. A packaging schema regression caused by `build.win.publisherName` was fixed during this pass.
+
 ## Verification Performed
 
 - `node -c electron/main/index.js`
@@ -110,9 +112,10 @@ This report separates remaining findings from work already remediated so the nex
 - `npm run security:scan`
 - `npm run build`
 - `npm audit --json` with network access on 2026-04-11
+- `npm run electron:build:mac`
 
 ## Recommended Next Steps
 
-1. Track the next Nuxt release and clear the remaining transitive Vite advisory once Nuxt updates its internal builder stack.
-2. Continue narrowing the preload surface so renderer code uses narrower capability objects instead of broad desktop verbs.
+1. Continue narrowing the preload surface so renderer code uses narrower capability objects instead of broad desktop verbs.
+2. Verify Windows and Linux packaging on the upgraded release toolchain.
 3. Decide whether trusted local plugins remain a deliberate product feature or move toward signing/sandboxing in a later paid tier or enterprise mode.

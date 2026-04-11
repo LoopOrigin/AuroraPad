@@ -16,6 +16,10 @@ const ignoredExtensions = new Set([
   '.blockmap',
 ])
 
+const ignoredFiles = new Set([
+  'scripts/security-scan.js',
+])
+
 const patterns = [
   {
     label: 'Private key block',
@@ -42,6 +46,7 @@ const patterns = [
 const findings = []
 
 for (const relativePath of trackedFiles) {
+  if (ignoredFiles.has(relativePath)) continue
   const ext = path.extname(relativePath).toLowerCase()
   if (ignoredExtensions.has(ext)) continue
 
