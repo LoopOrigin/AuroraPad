@@ -203,6 +203,42 @@ class RemoteConnectionManager {
     }
   }
 
+  async testConnection(input = {}) {
+    const profile = this.#sanitizeProfile(input)
+    const secret = this.#sanitizeSecretPayload(input?.secret || {})
+
+    let instance
+    let rootPath = ensurePosixPath(profile.remoteRoot || '/')
+
+    try {
+      if (profile.protocol === 'sftp') {
+        instance = await this.#connectSftp(profile, secret)
+        await this.#validateSftpRoot(profile, instance)
+      } else {
+        instance = await this.#connectFtp(profile, secret)
+        rootPath = await this.#resolveFtpRoot(profile, instance)
+        await instance.list(rootPath)
+      }
+
+      return {
+        ok: true,
+        protocol: profile.protocol,
+        host: profile.host,
+        port: profile.port,
+        username: profile.username,
+        rootPath,
+      }
+    } finally {
+      if (instance) {
+        if (profile.protocol === 'sftp') {
+          await instance.end().catch(() => {})
+        } else {
+          instance.close()
+        }
+      }
+    }
+  }
+
   async disconnect(connectionId) {
     const connection = this.connections.get(connectionId)
     if (!connection) return { ok: true }
@@ -496,6 +532,7 @@ class RemoteConnectionManager {
 
     try {
       await client.connect(options)
+      await this.#validateSftpRoot(profile, client)
       return client
     } catch (error) {
       throw normalizeRemoteError(error, profile)
@@ -539,6 +576,12 @@ class RemoteConnectionManager {
 
     const serverRoot = await client.pwd().catch(() => '/')
     return ensurePosixPath(serverRoot || '/')
+  }
+
+  async #validateSftpRoot(profile, client) {
+    const targetRoot = ensurePosixPath(profile.remoteRoot || '/')
+    await client.list(targetRoot)
+    return targetRoot
   }
 
   #sanitizeSecretPayload(input = {}) {

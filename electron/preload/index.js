@@ -22,6 +22,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openInDefaultViewer: (filePath) => ipcRenderer.invoke('shell:openInDefaultViewer', filePath),
   revealInFolder: (filePath) => ipcRenderer.invoke('shell:revealInFolder', filePath),
   getPlatformInfo: () => ipcRenderer.invoke('platform:getInfo'),
+  readClipboardText: () => ipcRenderer.invoke('clipboard:readText'),
+  writeClipboardText: (text) => ipcRenderer.invoke('clipboard:writeText', text),
 
   // Window controls
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
@@ -62,6 +64,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   remoteExportProfiles: () => ipcRenderer.invoke('remote:exportProfiles'),
   remoteImportProfiles: () => ipcRenderer.invoke('remote:importProfiles'),
   remoteConnect: (profileId, secretInput) => ipcRenderer.invoke('remote:connect', profileId, secretInput),
+  remoteTestConnection: (profile) => ipcRenderer.invoke('remote:testConnection', profile),
   remoteDisconnect: (connectionId) => ipcRenderer.invoke('remote:disconnect', connectionId),
   remoteReadDir: (connectionId, remotePath) => ipcRenderer.invoke('remote:readDir', connectionId, remotePath),
   remoteReadFile: (connectionId, remotePath, encoding) => ipcRenderer.invoke('remote:readFile', connectionId, remotePath, encoding),

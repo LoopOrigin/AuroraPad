@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, clipboard } = require('electron')
 
 // Ensure the app consistently identifies as AuroraPad across platforms
 // Setting this early helps with macOS dock name and app menu
@@ -868,6 +868,19 @@ ipcMain.handle('remote:connect', async (_, profileId, secretInput) => {
   }
 })
 
+ipcMain.handle('remote:testConnection', async (_, profileDraft) => {
+  try {
+    const result = await remoteManager.testConnection(profileDraft || {})
+    return result
+  } catch (e) {
+    return {
+      error: e.message,
+      code: e.code || 'REMOTE_TEST_CONNECTION_FAILED',
+      secretType: e.secretType || null,
+    }
+  }
+})
+
 ipcMain.handle('remote:disconnect', async (_, connectionId) => {
   try {
     await remoteManager.disconnect(connectionId)
@@ -1003,6 +1016,11 @@ ipcMain.handle('shell:revealInFolder', async (_, filePath) => {
 })
 
 ipcMain.handle('platform:getInfo', () => getPlatformInfo())
+ipcMain.handle('clipboard:readText', () => clipboard.readText())
+ipcMain.handle('clipboard:writeText', async (_, text) => {
+  clipboard.writeText(String(text || ''))
+  return { ok: true }
+})
 
 function getSession() {
   return store.get('session', null)

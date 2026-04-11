@@ -188,7 +188,11 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="showRemoteManager" max-width="1020">
-      <v-card class="aurora-dialog remote-manager-dialog" @keydown.capture="handleRemoteManagerClipboardShortcut">
+      <v-card
+        class="aurora-dialog remote-manager-dialog"
+        @keydown.capture="handleRemoteManagerClipboardShortcut"
+        @focusin.capture="trackRemoteManagerFocus"
+      >
         <v-toolbar color="transparent" density="comfortable">
           <v-toolbar-title>
             Remote Servers
@@ -309,6 +313,7 @@
           <div class="remote-actions-right">
             <v-btn variant="tonal" class="remote-action-btn" @click="showRemoteManager = false">Close</v-btn>
             <v-btn color="secondary" variant="tonal" class="remote-action-btn" @click="loadRemoteProfiles">Refresh</v-btn>
+            <v-btn color="info" variant="tonal" class="remote-action-btn" @click="testRemoteConnection">Test Connection</v-btn>
             <v-btn color="primary" variant="flat" class="remote-action-btn remote-action-btn-primary" @click="saveRemoteProfile">Save Profile</v-btn>
           </div>
         </v-card-actions>
@@ -486,6 +491,7 @@ const lastRunCommand = ref('')
 const platformInfo = ref(createFallbackPlatformInfo())
 const keychainAvailable = ref(false)
 const remoteProfiles = ref([])
+const remoteManagerLastEditable = ref(null)
 const remoteProtocolOptions = [
   { title: 'SFTP (SSH)', value: 'sftp' },
   { title: 'FTP', value: 'ftp' },
@@ -497,6 +503,7 @@ const remoteAuthOptions = [
 ]
 const remoteForm = ref(createRemoteProfileForm())
 const pendingDeleteRemoteProfile = ref(null)
+const remoteConnectionTestBusy = ref(false)
 let autoSaveInterval = null
 
 const primaryTab = computed(() => tabsStore.activeTab)
@@ -645,22 +652,16 @@ function editRemoteProfile(profile) {
   }
 }
 
-async function saveRemoteProfile() {
-  if (!window.electronAPI?.remoteSaveProfile) return
+function buildRemoteProfilePayload() {
   const f = remoteForm.value
-  if (!f.host || !f.username) {
-    alert('Host and username are required.')
-    return
-  }
-
-  const payload = {
+  return {
     id: f.id || undefined,
-    name: f.name || `${f.username}@${f.host}`,
+    name: f.name || `${String(f.username || '').trim()}@${String(f.host || '').trim()}`,
     protocol: f.protocol,
     authType: f.protocol === 'sftp' ? f.authType : 'password',
-    host: f.host.trim(),
+    host: String(f.host || '').trim(),
     port: Number(f.port) || (f.protocol === 'sftp' ? 22 : 21),
-    username: f.username.trim(),
+    username: String(f.username || '').trim(),
     remoteRoot: f.remoteRoot || '/',
     privateKeyPath: f.privateKeyPath || '',
     saveSecret: !!f.saveSecret && keychainAvailable.value,
@@ -670,6 +671,15 @@ async function saveRemoteProfile() {
       passphrase: f.secretPassphrase || '',
     },
   }
+}
+
+async function saveRemoteProfile() {
+  if (!window.electronAPI?.remoteSaveProfile) return
+  const payload = buildRemoteProfilePayload()
+  if (!payload.host || !payload.username) {
+    alert('Host and username are required.')
+    return
+  }
 
   const result = await window.electronAPI.remoteSaveProfile(payload)
   if (result?.error) {
@@ -678,6 +688,40 @@ async function saveRemoteProfile() {
   }
   await loadRemoteProfiles()
   editRemoteProfile(result.profile)
+}
+
+async function testRemoteConnection() {
+  if (!window.electronAPI?.remoteTestConnection || remoteConnectionTestBusy.value) return
+  const payload = buildRemoteProfilePayload()
+  if (!payload.host || !payload.username) {
+    alert('Host and username are required.')
+    return
+  }
+
+  remoteConnectionTestBusy.value = true
+  try {
+    let result = await window.electronAPI.remoteTestConnection(payload)
+    if (result?.code === 'SECRET_REQUIRED') {
+      const promptLabel = result.secretType === 'passphrase' ? 'passphrase' : 'password'
+      const secretValue = prompt(`Enter ${promptLabel} for ${payload.name}:`, '')
+      if (!secretValue) return
+      result = await window.electronAPI.remoteTestConnection({
+        ...payload,
+        secret: result.secretType === 'passphrase'
+          ? { ...payload.secret, passphrase: secretValue }
+          : { ...payload.secret, password: secretValue, passphrase: payload.secret.passphrase || secretValue },
+      })
+    }
+
+    if (result?.error) {
+      alert(`Connection test failed: ${result.error}`)
+      return
+    }
+
+    alert(`Connection successful.\n\nProtocol: ${String(result.protocol || '').toUpperCase()}\nHost: ${result.username}@${result.host}:${result.port}\nRemote root: ${result.rootPath || '/'}`)
+  } finally {
+    remoteConnectionTestBusy.value = false
+  }
 }
 
 async function exportRemoteProfiles() {
@@ -1274,15 +1318,96 @@ function getFocusedEditableElement() {
   const nested = active.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]')
   if (nested) return nested
   if (active.closest?.('.v-input, .v-field, .v-overlay')) {
-    return active.closest('.v-input, .v-field, .v-overlay')?.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]') || null
+    return active.closest('.v-input, .v-field, .v-overlay')?.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]') || remoteManagerLastEditable.value || null
   }
-  return null
+  return remoteManagerLastEditable.value || null
 }
 
-function runClipboardActionOnFocusedInput(action) {
-  const editable = getFocusedEditableElement()
+function trackRemoteManagerFocus(event) {
+  const target = event?.target
+  if (
+    target instanceof HTMLInputElement
+    || target instanceof HTMLTextAreaElement
+    || target?.isContentEditable
+    || target?.matches?.('[role="textbox"]')
+  ) {
+    remoteManagerLastEditable.value = target
+    return
+  }
+
+  const nested = target?.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]')
+  if (nested) remoteManagerLastEditable.value = nested
+}
+
+function insertTextIntoEditable(editable, text) {
+  if (
+    editable instanceof HTMLInputElement
+    || editable instanceof HTMLTextAreaElement
+  ) {
+    const start = editable.selectionStart ?? editable.value.length
+    const end = editable.selectionEnd ?? editable.value.length
+    const nextValue = `${editable.value.slice(0, start)}${text}${editable.value.slice(end)}`
+    editable.value = nextValue
+    const caret = start + text.length
+    editable.setSelectionRange?.(caret, caret)
+    editable.dispatchEvent(new Event('input', { bubbles: true }))
+    editable.dispatchEvent(new Event('change', { bubbles: true }))
+    return true
+  }
+
+  if (editable?.isContentEditable) {
+    try {
+      document.execCommand('insertText', false, text)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  return false
+}
+
+async function runClipboardActionOnFocusedInput(action, preferredEditable = null) {
+  const editable = preferredEditable || getFocusedEditableElement()
   if (!editable) return false
   editable.focus?.()
+
+  if (
+    editable instanceof HTMLInputElement
+    || editable instanceof HTMLTextAreaElement
+  ) {
+    const start = editable.selectionStart ?? 0
+    const end = editable.selectionEnd ?? 0
+    const selectedText = editable.value.slice(start, end)
+
+    if (action === 'copy') {
+      await window.electronAPI?.writeClipboardText?.(selectedText)
+      return true
+    }
+
+    if (action === 'cut') {
+      await window.electronAPI?.writeClipboardText?.(selectedText)
+      const nextValue = `${editable.value.slice(0, start)}${editable.value.slice(end)}`
+      editable.value = nextValue
+      editable.setSelectionRange?.(start, start)
+      editable.dispatchEvent(new Event('input', { bubbles: true }))
+      editable.dispatchEvent(new Event('change', { bubbles: true }))
+      return true
+    }
+
+    if (action === 'paste') {
+      const text = await window.electronAPI?.readClipboardText?.()
+      return insertTextIntoEditable(editable, text || '')
+    }
+  }
+
+  if (action === 'paste') {
+    const text = await window.electronAPI?.readClipboardText?.()
+    if (typeof text === 'string') {
+      return insertTextIntoEditable(editable, text)
+    }
+  }
+
   try {
     return document.execCommand(action)
   } catch {
@@ -1290,7 +1415,7 @@ function runClipboardActionOnFocusedInput(action) {
   }
 }
 
-function handleRemoteManagerClipboardShortcut(event) {
+async function handleRemoteManagerClipboardShortcut(event) {
   if (!showRemoteManager.value) return
   const mod = isMacPlatform ? event.metaKey : event.ctrlKey
   if (!mod || event.altKey) return
@@ -1303,7 +1428,8 @@ function handleRemoteManagerClipboardShortcut(event) {
   }
 
   if (actions[key]) {
-    if (runClipboardActionOnFocusedInput(actions[key])) {
+    event.preventDefault()
+    if (await runClipboardActionOnFocusedInput(actions[key])) {
       event.stopPropagation()
     }
     return
@@ -1795,7 +1921,7 @@ function menuCloseAllUnchanged() {
   tabsStore.closeAllUnchanged()
 }
 
-function handleMenu(channel, ...args) {
+async function handleMenu(channel, ...args) {
   // Try to let onMenuBarAction handle it first for unified logic
   if (onMenuBarAction(channel, args[0])) return
 
@@ -1872,17 +1998,17 @@ function handleMenu(channel, ...args) {
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'redo')
       break
     case 'menu:cut':
-      if (!runClipboardActionOnFocusedInput('cut')) {
+      if (!await runClipboardActionOnFocusedInput('cut')) {
         monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCutAction')
       }
       break
     case 'menu:copy':
-      if (!runClipboardActionOnFocusedInput('copy')) {
+      if (!await runClipboardActionOnFocusedInput('copy')) {
         monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCopyAction')
       }
       break
     case 'menu:paste':
-      if (!runClipboardActionOnFocusedInput('paste')) {
+      if (!await runClipboardActionOnFocusedInput('paste')) {
         monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardPasteAction')
       }
       break
