@@ -78,6 +78,33 @@ const remoteManager = new RemoteConnectionManager({
   ensureSecretStorage: ensureKeychainSupport,
 })
 
+function buildRemoteExportPayload() {
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    app: 'AuroraPad',
+    profiles: remoteManager.listProfiles().map(profile => ({
+      id: profile.id,
+      name: profile.name,
+      protocol: profile.protocol,
+      authType: profile.authType,
+      host: profile.host,
+      port: profile.port,
+      username: profile.username,
+      remoteRoot: profile.remoteRoot,
+      privateKeyPath: profile.privateKeyPath,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    })),
+  }
+}
+
+function normalizeImportedProfiles(payload) {
+  if (Array.isArray(payload)) return payload
+  if (payload && Array.isArray(payload.profiles)) return payload.profiles
+  return []
+}
+
 function getPlatformInfo() {
   const isWindows = process.platform === 'win32'
   const isMac = process.platform === 'darwin'
@@ -236,127 +263,7 @@ function buildMenu(pluginMenuItems = []) {
   app.name = appName // Reinforce app name before template building
   app.setName(appName)
 
-  const template = [
-    ...(process.platform === 'darwin'
-      ? [
-          {
-            label: appName,
-            submenu: [
-              { role: 'about' },
-              { type: 'separator' },
-              { label: 'Preferences...', accelerator: 'Cmd+,', click: () => mainWindow?.webContents.send('menu:preferences') },
-              { type: 'separator' },
-              { role: 'services' },
-              { type: 'separator' },
-              { role: 'hide' },
-              { role: 'hideOthers' },
-              { role: 'unhide' },
-              { type: 'separator' },
-              { role: 'quit' },
-            ],
-          },
-        ]
-      : []),
-    {
-      label: 'File',
-      submenu: [
-        { label: 'New', accelerator: 'CmdOrCtrl+N', click: () => mainWindow?.webContents.send('menu:new') },
-        { type: 'separator' },
-        { label: 'Open File...', accelerator: 'CmdOrCtrl+O', click: () => mainWindow?.webContents.send('menu:open-file') },
-        { label: 'Open Folder...', accelerator: 'CmdOrCtrl+Shift+O', click: () => mainWindow?.webContents.send('menu:open-folder') },
-        { type: 'separator' },
-        { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow?.webContents.send('menu:save') },
-        { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-all') },
-        { label: 'Save As...', accelerator: 'F12', click: () => mainWindow?.webContents.send('menu:save-as') },
-        { label: 'Save a Copy As...', click: () => mainWindow?.webContents.send('menu:save-copy-as') },
-        { label: 'Rename...', click: () => mainWindow?.webContents.send('menu:rename') },
-        { type: 'separator' },
-        { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
-        { label: 'Close All', click: () => mainWindow?.webContents.send('menu:close-all') },
-        { label: 'Close All But Active', click: () => mainWindow?.webContents.send('menu:close-others') },
-        { type: 'separator' },
-        {
-          label: 'Recent Files',
-          submenu: [
-            ...(getRecentFiles().map(p => ({
-              label: p,
-              click: () => mainWindow?.webContents.send('menu:open-recent', p),
-            })) || []),
-            { type: 'separator' },
-            { label: 'Open All Recent Files', click: () => mainWindow?.webContents.send('menu:open-all-recent') },
-            { label: 'Restore Recently Closed File', click: () => mainWindow?.webContents.send('menu:restore-recent') },
-            { label: 'Empty Recent Files List', click: () => mainWindow?.webContents.send('menu:clear-recent') },
-          ],
-        },
-        { type: 'separator' },
-        {
-          label: 'Open Containing Folder',
-          submenu: [
-            {
-              label: `in ${platformInfo.revealInFolderLabel}`,
-              click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer'),
-            },
-            {
-              label: `in ${platformInfo.terminalAppLabel}`,
-              click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd'),
-            },
-            { label: 'as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
-          ],
-        },
-        { label: 'Open in Default Viewer', click: () => mainWindow?.webContents.send('menu:open-in-default-viewer') },
-        { type: 'separator' },
-        { label: 'Reload from Disk', click: () => mainWindow?.webContents.send('menu:reload-from-disk') },
-        { type: 'separator' },
-        { label: 'Exit', accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4', click: () => app.quit() },
-      ],
-    },
-    {
-      label: 'Remote',
-      submenu: [
-        { label: 'Remote Manager...', click: () => mainWindow?.webContents.send('menu:remote-manager') },
-        { label: 'Connect Server...', click: () => mainWindow?.webContents.send('menu:connect-server') },
-        { label: 'Disconnect Server', click: () => mainWindow?.webContents.send('menu:disconnect-server') },
-        { label: 'Open SSH Terminal', click: () => mainWindow?.webContents.send('menu:open-ssh-terminal') },
-        { type: 'separator' },
-        { label: 'New SFTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-sftp') },
-        { label: 'New FTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftp') },
-        { label: 'New FTPS Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftps') },
-      ],
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => mainWindow?.webContents.send('menu:undo') },
-        { label: 'Redo', accelerator: 'CmdOrCtrl+Y', click: () => mainWindow?.webContents.send('menu:redo') },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'CmdOrCtrl+X', click: () => mainWindow?.webContents.send('menu:cut') },
-        { label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => mainWindow?.webContents.send('menu:copy') },
-        { label: 'Paste', accelerator: 'CmdOrCtrl+V', click: () => mainWindow?.webContents.send('menu:paste') },
-        { type: 'separator' },
-        { label: 'Duplicate Line', accelerator: 'CmdOrCtrl+D', click: () => mainWindow?.webContents.send('menu:duplicate-line') },
-        { label: 'Delete Line', accelerator: 'CmdOrCtrl+L', click: () => mainWindow?.webContents.send('menu:delete-line') },
-        { label: 'Move Line Up', accelerator: 'CmdOrCtrl+Shift+Up', click: () => mainWindow?.webContents.send('menu:move-line-up') },
-        { label: 'Move Line Down', accelerator: 'CmdOrCtrl+Shift+Down', click: () => mainWindow?.webContents.send('menu:move-line-down') },
-        { label: 'Join Lines', accelerator: 'CmdOrCtrl+J', click: () => mainWindow?.webContents.send('menu:join-lines') },
-        { type: 'separator' },
-        { label: 'Toggle Comment', accelerator: 'CmdOrCtrl+Q', click: () => mainWindow?.webContents.send('menu:toggle-comment') },
-        { type: 'separator' },
-        { label: 'Lowercase', accelerator: 'CmdOrCtrl+U', click: () => mainWindow?.webContents.send('menu:lowercase') },
-        { label: 'UPPERCASE', accelerator: 'CmdOrCtrl+Shift+U', click: () => mainWindow?.webContents.send('menu:uppercase') },
-      ],
-    },
-    {
-      label: 'Search',
-      submenu: [
-        { label: 'Find', accelerator: 'CmdOrCtrl+F', click: () => mainWindow?.webContents.send('menu:find') },
-        { label: 'Replace', accelerator: 'CmdOrCtrl+H', click: () => mainWindow?.webContents.send('menu:replace') },
-        { label: 'Find Next', accelerator: 'F3', click: () => mainWindow?.webContents.send('menu:find-next') },
-        { label: 'Find Previous', accelerator: 'Shift+F3', click: () => mainWindow?.webContents.send('menu:find-prev') },
-        { label: 'Go to Line...', accelerator: 'CmdOrCtrl+G', click: () => mainWindow?.webContents.send('menu:go-to-line') },
-        { type: 'separator' },
-        { label: 'Find in Files…', accelerator: 'CmdOrCtrl+Shift+F', click: () => mainWindow?.webContents.send('menu:find-in-files') },
-      ],
-    },
+  const secondaryNativeMenus = [
     {
       label: 'View',
       submenu: [
@@ -462,6 +369,132 @@ function buildMenu(pluginMenuItems = []) {
       label: 'Plugins',
       submenu: pluginsSubmenu,
     },
+  ]
+
+  const template = [
+    ...(process.platform === 'darwin'
+      ? [
+          {
+            label: appName,
+            submenu: [
+              { role: 'about' },
+              { type: 'separator' },
+              { label: 'Preferences...', accelerator: 'Cmd+,', click: () => mainWindow?.webContents.send('menu:preferences') },
+              { type: 'separator' },
+              { role: 'services' },
+              { type: 'separator' },
+              { role: 'hide' },
+              { role: 'hideOthers' },
+              { role: 'unhide' },
+              { type: 'separator' },
+              { role: 'quit' },
+            ],
+          },
+        ]
+      : []),
+    {
+      label: 'File',
+      submenu: [
+        { label: 'New', accelerator: 'CmdOrCtrl+N', click: () => mainWindow?.webContents.send('menu:new') },
+        { type: 'separator' },
+        { label: 'Open File...', accelerator: 'CmdOrCtrl+O', click: () => mainWindow?.webContents.send('menu:open-file') },
+        { label: 'Open Folder...', accelerator: 'CmdOrCtrl+Shift+O', click: () => mainWindow?.webContents.send('menu:open-folder') },
+        { type: 'separator' },
+        { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow?.webContents.send('menu:save') },
+        { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-all') },
+        { label: 'Save As...', accelerator: 'F12', click: () => mainWindow?.webContents.send('menu:save-as') },
+        { label: 'Save a Copy As...', click: () => mainWindow?.webContents.send('menu:save-copy-as') },
+        { label: 'Rename...', click: () => mainWindow?.webContents.send('menu:rename') },
+        { type: 'separator' },
+        { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
+        { label: 'Close All', click: () => mainWindow?.webContents.send('menu:close-all') },
+        { label: 'Close All But Active', click: () => mainWindow?.webContents.send('menu:close-others') },
+        { type: 'separator' },
+        {
+          label: 'Recent Files',
+          submenu: [
+            ...(getRecentFiles().map(p => ({
+              label: p,
+              click: () => mainWindow?.webContents.send('menu:open-recent', p),
+            })) || []),
+            { type: 'separator' },
+            { label: 'Open All Recent Files', click: () => mainWindow?.webContents.send('menu:open-all-recent') },
+            { label: 'Restore Recently Closed File', click: () => mainWindow?.webContents.send('menu:restore-recent') },
+            { label: 'Empty Recent Files List', click: () => mainWindow?.webContents.send('menu:clear-recent') },
+          ],
+        },
+        { type: 'separator' },
+        {
+          label: 'Open Containing Folder',
+          submenu: [
+            {
+              label: `in ${platformInfo.revealInFolderLabel}`,
+              click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer'),
+            },
+            {
+              label: `in ${platformInfo.terminalAppLabel}`,
+              click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd'),
+            },
+            { label: 'as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
+          ],
+        },
+        { label: 'Open in Default Viewer', click: () => mainWindow?.webContents.send('menu:open-in-default-viewer') },
+        { type: 'separator' },
+        { label: 'Reload from Disk', click: () => mainWindow?.webContents.send('menu:reload-from-disk') },
+        { type: 'separator' },
+        { label: 'Exit', accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4', click: () => app.quit() },
+      ],
+    },
+    {
+      label: 'Remote',
+      submenu: [
+        { label: 'Remote Manager...', click: () => mainWindow?.webContents.send('menu:remote-manager') },
+        { label: 'Connect Server...', click: () => mainWindow?.webContents.send('menu:connect-server') },
+        { label: 'Disconnect Server', click: () => mainWindow?.webContents.send('menu:disconnect-server') },
+        { label: 'Open SSH Terminal', click: () => mainWindow?.webContents.send('menu:open-ssh-terminal') },
+        { type: 'separator' },
+        { label: 'Import Profiles...', click: () => mainWindow?.webContents.send('menu:remote-import') },
+        { label: 'Export Profiles...', click: () => mainWindow?.webContents.send('menu:remote-export') },
+        { type: 'separator' },
+        { label: 'New SFTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-sftp') },
+        { label: 'New FTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftp') },
+        { label: 'New FTPS Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftps') },
+      ],
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => mainWindow?.webContents.send('menu:undo') },
+        { label: 'Redo', accelerator: 'CmdOrCtrl+Y', click: () => mainWindow?.webContents.send('menu:redo') },
+        { type: 'separator' },
+        { label: 'Cut', accelerator: 'CmdOrCtrl+X', click: () => mainWindow?.webContents.send('menu:cut') },
+        { label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => mainWindow?.webContents.send('menu:copy') },
+        { label: 'Paste', accelerator: 'CmdOrCtrl+V', click: () => mainWindow?.webContents.send('menu:paste') },
+        { type: 'separator' },
+        { label: 'Duplicate Line', accelerator: 'CmdOrCtrl+D', click: () => mainWindow?.webContents.send('menu:duplicate-line') },
+        { label: 'Delete Line', accelerator: 'CmdOrCtrl+L', click: () => mainWindow?.webContents.send('menu:delete-line') },
+        { label: 'Move Line Up', accelerator: 'CmdOrCtrl+Shift+Up', click: () => mainWindow?.webContents.send('menu:move-line-up') },
+        { label: 'Move Line Down', accelerator: 'CmdOrCtrl+Shift+Down', click: () => mainWindow?.webContents.send('menu:move-line-down') },
+        { label: 'Join Lines', accelerator: 'CmdOrCtrl+J', click: () => mainWindow?.webContents.send('menu:join-lines') },
+        { type: 'separator' },
+        { label: 'Toggle Comment', accelerator: 'CmdOrCtrl+Q', click: () => mainWindow?.webContents.send('menu:toggle-comment') },
+        { type: 'separator' },
+        { label: 'Lowercase', accelerator: 'CmdOrCtrl+U', click: () => mainWindow?.webContents.send('menu:lowercase') },
+        { label: 'UPPERCASE', accelerator: 'CmdOrCtrl+Shift+U', click: () => mainWindow?.webContents.send('menu:uppercase') },
+      ],
+    },
+    {
+      label: 'Search',
+      submenu: [
+        { label: 'Find', accelerator: 'CmdOrCtrl+F', click: () => mainWindow?.webContents.send('menu:find') },
+        { label: 'Replace', accelerator: 'CmdOrCtrl+H', click: () => mainWindow?.webContents.send('menu:replace') },
+        { label: 'Find Next', accelerator: 'F3', click: () => mainWindow?.webContents.send('menu:find-next') },
+        { label: 'Find Previous', accelerator: 'Shift+F3', click: () => mainWindow?.webContents.send('menu:find-prev') },
+        { label: 'Go to Line...', accelerator: 'CmdOrCtrl+G', click: () => mainWindow?.webContents.send('menu:go-to-line') },
+        { type: 'separator' },
+        { label: 'Find in Files…', accelerator: 'CmdOrCtrl+Shift+F', click: () => mainWindow?.webContents.send('menu:find-in-files') },
+      ],
+    },
     {
       label: 'Window',
       submenu: [
@@ -488,6 +521,10 @@ function buildMenu(pluginMenuItems = []) {
         { type: 'separator' },
         { label: 'About AuroraPad', click: () => mainWindow?.webContents.send('menu:about') },
       ],
+    },
+    {
+      label: 'More',
+      submenu: secondaryNativeMenus,
     },
   ]
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
@@ -623,6 +660,66 @@ ipcMain.handle('remote:deleteProfile', async (_, profileId) => {
     return { ok: true }
   } catch (e) {
     return { error: e.message, code: e.code || 'REMOTE_DELETE_PROFILE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:exportProfiles', async () => {
+  try {
+    const payload = buildRemoteExportPayload()
+    const dateTag = new Date().toISOString().slice(0, 10)
+    const defaultPath = path.join(app.getPath('documents'), `aurorapad-remote-profiles-${dateTag}.json`)
+    const result = await dialog.showSaveDialog({
+      defaultPath,
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    })
+    if (result.canceled || !result.filePath) return { canceled: true }
+    await fs.writeFile(result.filePath, JSON.stringify(payload, null, 2), 'utf8')
+    return { ok: true, path: result.filePath, count: payload.profiles.length }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_EXPORT_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:importProfiles', async () => {
+  try {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    })
+    if (result.canceled || !result.filePaths?.[0]) return { canceled: true }
+    const raw = await fs.readFile(result.filePaths[0], 'utf8')
+    const parsed = JSON.parse(raw)
+    const profiles = normalizeImportedProfiles(parsed)
+    if (!profiles.length) {
+      return { error: 'No remote profiles found in selected file.', code: 'REMOTE_IMPORT_EMPTY' }
+    }
+
+    const imported = []
+    for (const profile of profiles) {
+      const saved = await remoteManager.saveProfile({
+        id: profile.id,
+        name: profile.name,
+        protocol: profile.protocol,
+        authType: profile.authType,
+        host: profile.host,
+        port: profile.port,
+        username: profile.username,
+        remoteRoot: profile.remoteRoot,
+        privateKeyPath: profile.privateKeyPath,
+        saveSecret: false,
+      })
+      imported.push(saved)
+    }
+
+    return {
+      ok: true,
+      path: result.filePaths[0],
+      count: imported.length,
+      keychainAvailable: hasKeychainSupport(),
+      profiles: remoteManager.listProfiles(),
+    }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_IMPORT_FAILED' }
   }
 })
 

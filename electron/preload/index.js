@@ -59,6 +59,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   remoteListProfiles: () => ipcRenderer.invoke('remote:listProfiles'),
   remoteSaveProfile: (profile) => ipcRenderer.invoke('remote:saveProfile', profile),
   remoteDeleteProfile: (profileId) => ipcRenderer.invoke('remote:deleteProfile', profileId),
+  remoteExportProfiles: () => ipcRenderer.invoke('remote:exportProfiles'),
+  remoteImportProfiles: () => ipcRenderer.invoke('remote:importProfiles'),
   remoteConnect: (profileId, secretInput) => ipcRenderer.invoke('remote:connect', profileId, secretInput),
   remoteDisconnect: (connectionId) => ipcRenderer.invoke('remote:disconnect', connectionId),
   remoteReadDir: (connectionId, remotePath) => ipcRenderer.invoke('remote:readDir', connectionId, remotePath),

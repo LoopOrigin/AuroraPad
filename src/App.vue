@@ -300,6 +300,8 @@
         <v-card-actions class="dialog-actions remote-manager-actions">
           <div class="remote-actions-left">
             <v-btn variant="tonal" class="remote-action-btn" @click="resetRemoteForm">New Profile</v-btn>
+            <v-btn variant="tonal" class="remote-action-btn" @click="importRemoteProfiles">Import</v-btn>
+            <v-btn variant="tonal" class="remote-action-btn" @click="exportRemoteProfiles">Export</v-btn>
           </div>
           <div class="remote-actions-right">
             <v-btn variant="tonal" class="remote-action-btn" @click="showRemoteManager = false">Close</v-btn>
@@ -675,6 +677,33 @@ async function saveRemoteProfile() {
   editRemoteProfile(result.profile)
 }
 
+async function exportRemoteProfiles() {
+  if (!window.electronAPI?.remoteExportProfiles) return
+  const result = await window.electronAPI.remoteExportProfiles()
+  if (result?.canceled) return
+  if (result?.error) {
+    alert(`Failed to export remote profiles: ${result.error}`)
+    return
+  }
+  alert(`Exported ${result.count} profile(s) to:\n${result.path}\n\nSecrets stored in the OS keychain are not included in exports.`)
+}
+
+async function importRemoteProfiles() {
+  if (!window.electronAPI?.remoteImportProfiles) return
+  const result = await window.electronAPI.remoteImportProfiles()
+  if (result?.canceled) return
+  if (result?.error) {
+    alert(`Failed to import remote profiles: ${result.error}`)
+    return
+  }
+  keychainAvailable.value = !!result?.keychainAvailable
+  remoteProfiles.value = Array.isArray(result?.profiles) ? result.profiles : remoteProfiles.value
+  if (!remoteForm.value.id && remoteProfiles.value.length) {
+    editRemoteProfile(remoteProfiles.value[0])
+  }
+  alert(`Imported ${result.count} profile(s) from:\n${result.path}\n\nPasswords and passphrases are not imported automatically.`)
+}
+
 function requestDeleteRemoteProfile(profile) {
   pendingDeleteRemoteProfile.value = profile
   showDeleteRemoteProfileDialog.value = true
@@ -788,7 +817,7 @@ async function moveRemoteEntry(payload) {
 }
 
 // Notepad++ menu order: File, Edit, Search, View, Encoding, Language, Settings, Plugins, Window, Help
-const topMenuPrimaryIds = ['file', 'remote', 'edit', 'search', 'terminal']
+const topMenuPrimaryIds = ['file', 'remote', 'edit', 'search', 'window', 'settings', 'help']
 
 const menuBarMenus = computed(() => [
   {
@@ -830,6 +859,9 @@ const menuBarMenus = computed(() => [
       { label: 'Connect Server...', action: 'menu:connect-server' },
       { label: 'Disconnect Server', action: 'menu:disconnect-server', enabled: fileTreeStore.workspaceMode === 'remote' },
       { label: 'Open SSH Terminal', action: 'menu:open-ssh-terminal', enabled: fileTreeStore.workspaceMode === 'remote' && fileTreeStore.remoteConnection?.protocol === 'sftp' },
+      { type: 'separator' },
+      { label: 'Import Profiles...', action: 'menu:remote-import' },
+      { label: 'Export Profiles...', action: 'menu:remote-export', enabled: remoteProfiles.value.length > 0 },
       { type: 'separator' },
       { label: 'New SFTP Profile', action: 'menu:remote-new-sftp' },
       { label: 'New FTP Profile', action: 'menu:remote-new-ftp' },
@@ -1090,7 +1122,8 @@ function setupKeyboardShortcuts() {
       (target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
         target.isContentEditable ||
-        target.closest?.('.monaco-editor'))
+        target.getAttribute?.('role') === 'textbox' ||
+        target.closest?.('.monaco-editor, .v-input, .v-field, .v-overlay'))
     ) {
       // Let focused text inputs/editors handle typing and shortcuts
       return
@@ -1222,6 +1255,29 @@ function setupKeyboardShortcuts() {
   }
   window.addEventListener('keydown', keydown)
   onBeforeUnmount(() => window.removeEventListener('keydown', keydown))
+}
+
+function getFocusedEditableElement() {
+  const active = document.activeElement
+  if (!active) return null
+  if (active.matches?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]')) return active
+  const nested = active.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]')
+  if (nested) return nested
+  if (active.closest?.('.v-input, .v-field, .v-overlay')) {
+    return active.closest('.v-input, .v-field, .v-overlay')?.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]') || null
+  }
+  return null
+}
+
+function runClipboardActionOnFocusedInput(action) {
+  const editable = getFocusedEditableElement()
+  if (!editable) return false
+  editable.focus?.()
+  try {
+    return document.execCommand(action)
+  } catch {
+    return false
+  }
 }
 
 function cycleTab(direction) {
@@ -1485,6 +1541,7 @@ function setupMenuListeners() {
   // Add explicit IPC-only channels and variants
   const explicit = [
     'menu:new', 'menu:open-file', 'menu:open-folder', 'menu:connect-server', 'menu:disconnect-server', 'menu:open-ssh-terminal', 'menu:remote-manager', 'menu:remote-new-sftp', 'menu:remote-new-ftp', 'menu:remote-new-ftps', 'menu:save', 'menu:save-all', 'menu:save-as',
+    'menu:remote-import', 'menu:remote-export',
     'menu:close-tab', 'menu:close-all', 'menu:close-others', 'menu:close-all-unchanged',
     'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
     'menu:find', 'menu:replace', 'menu:find-next', 'menu:find-prev', 'menu:go-to-line',
@@ -1709,6 +1766,13 @@ function handleMenu(channel, ...args) {
     case 'menu:remote-new-ftps':
       openRemoteManager('ftps')
       break
+    case 'menu:remote-import':
+      showRemoteManager.value = true
+      importRemoteProfiles()
+      break
+    case 'menu:remote-export':
+      exportRemoteProfiles()
+      break
     case 'menu:disconnect-server':
       disconnectRemoteWorkspace()
       break
@@ -1750,13 +1814,19 @@ function handleMenu(channel, ...args) {
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'redo')
       break
     case 'menu:cut':
-      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCutAction')
+      if (!runClipboardActionOnFocusedInput('cut')) {
+        monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCutAction')
+      }
       break
     case 'menu:copy':
-      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCopyAction')
+      if (!runClipboardActionOnFocusedInput('copy')) {
+        monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCopyAction')
+      }
       break
     case 'menu:paste':
-      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardPasteAction')
+      if (!runClipboardActionOnFocusedInput('paste')) {
+        monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardPasteAction')
+      }
       break
     case 'menu:find':
       setTimeout(() => monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'actions.find'), 100)
