@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run security scan
+        run: npm run security:scan
+
       - name: Apply build version
         run: npm run version:set -- ${{ needs.metadata.outputs.version }}
 
@@ -78,6 +81,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run security scan
+        run: npm run security:scan
+
       - name: Apply build version
         run: npm run version:set -- ${{ needs.metadata.outputs.version }}
 
@@ -118,6 +124,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run security scan
+        run: npm run security:scan
 
       - name: Apply build version
         run: npm run version:set -- ${{ needs.metadata.outputs.version }}

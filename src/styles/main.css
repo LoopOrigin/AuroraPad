@@ -814,6 +814,16 @@ select:focus-visible,
   line-height: 1.6;
 }
 
+.dialog-security-note {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--npp-tab-border) 72%, var(--npp-accent) 28%);
+  background: color-mix(in srgb, var(--npp-accent) 10%, var(--npp-toolbar-bg) 90%);
+  color: var(--npp-text);
+  line-height: 1.55;
+}
+
 .dialog-actions {
   padding: 14px 20px 18px !important;
 }

@@ -22,6 +22,7 @@ const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 const shouldOpenDevTools = process.env.AURORAPAD_OPEN_DEVTOOLS === '1'
 const REMOTE_KEYCHAIN_SERVICE = 'AuroraPad.RemoteProfiles'
+const SECURITY_LOG_FILE = 'security-events.log'
 let keytar = null
 
 try {
@@ -103,6 +104,98 @@ function normalizeImportedProfiles(payload) {
   if (Array.isArray(payload)) return payload
   if (payload && Array.isArray(payload.profiles)) return payload.profiles
   return []
+}
+
+function logSecurityEvent(type, details = {}) {
+  try {
+    const entry = JSON.stringify({
+      timestamp: new Date().toISOString(),
+      type,
+      ...details,
+    })
+    const logPath = path.join(app.getPath('userData'), SECURITY_LOG_FILE)
+    fsSync.appendFileSync(logPath, `${entry}\n`, 'utf8')
+  } catch {}
+}
+
+function isAllowedAppUrl(targetUrl) {
+  try {
+    const parsed = new URL(targetUrl)
+    if (parsed.protocol === 'file:') return true
+    if (isDev) {
+      return ['127.0.0.1:5173', 'localhost:5173'].includes(parsed.host)
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+function validateLocalDirectory(inputPath) {
+  const resolved = path.resolve(String(inputPath || process.cwd()))
+  if (!fsSync.existsSync(resolved) || !fsSync.statSync(resolved).isDirectory()) {
+    const err = new Error('Working directory is not available')
+    err.code = 'INVALID_CWD'
+    throw err
+  }
+  return resolved
+}
+
+function validateImportedRemoteProfilesPayload(profiles) {
+  if (!profiles.length) {
+    const error = new Error('No remote profiles found in selected file.')
+    error.code = 'REMOTE_IMPORT_EMPTY'
+    throw error
+  }
+  if (profiles.length > 200) {
+    const error = new Error('Import file contains too many remote profiles.')
+    error.code = 'REMOTE_IMPORT_TOO_LARGE'
+    throw error
+  }
+}
+
+function validateCommandInput(command) {
+  const normalized = String(command || '').trim()
+  if (!normalized) {
+    const error = new Error('Command is required')
+    error.code = 'COMMAND_REQUIRED'
+    throw error
+  }
+  if (normalized.length > 2000) {
+    const error = new Error('Command is too long')
+    error.code = 'COMMAND_TOO_LONG'
+    throw error
+  }
+  return normalized
+}
+
+function sanitizePluginFilename(filename) {
+  const normalized = path.basename(String(filename || ''))
+  if (!normalized || normalized !== filename || !normalized.endsWith('.js')) {
+    const error = new Error('Plugin filename is invalid')
+    error.code = 'INVALID_PLUGIN_FILENAME'
+    throw error
+  }
+  return normalized
+}
+
+async function confirmSensitiveAction({
+  title,
+  message,
+  detail = '',
+  confirmLabel = 'Continue',
+}) {
+  const result = await dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    buttons: ['Cancel', confirmLabel],
+    defaultId: 1,
+    cancelId: 0,
+    noLink: true,
+    title,
+    message,
+    detail,
+  })
+  return result.response === 1
 }
 
 function getPlatformInfo() {
@@ -223,10 +316,42 @@ function createWindow() {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
       backgroundThrottling: false,
     },
     show: false,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
+  })
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    logSecurityEvent('window-open-blocked', { url })
+    return { action: 'deny' }
+  })
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!isAllowedAppUrl(url)) {
+      event.preventDefault()
+      logSecurityEvent('navigation-blocked', { url })
+    }
+  })
+
+  const ses = mainWindow.webContents.session
+  ses.setPermissionRequestHandler((_, permission, callback) => {
+    logSecurityEvent('permission-request-denied', { permission })
+    callback(false)
+  })
+  ses.setPermissionCheckHandler(() => false)
+  ses.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = {
+      ...details.responseHeaders,
+      'Permissions-Policy': [
+        'camera=(), microphone=(), geolocation=(), fullscreen=(self), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), clipboard-read=(self), clipboard-write=(self)',
+      ],
+      'X-Content-Type-Options': ['nosniff'],
+      'Referrer-Policy': ['no-referrer'],
+      'Cross-Origin-Opener-Policy': ['same-origin'],
+    }
+    callback({ responseHeaders })
   })
 
   if (isDev) {
@@ -674,6 +799,7 @@ ipcMain.handle('remote:exportProfiles', async () => {
     })
     if (result.canceled || !result.filePath) return { canceled: true }
     await fs.writeFile(result.filePath, JSON.stringify(payload, null, 2), 'utf8')
+    logSecurityEvent('remote-profiles-exported', { path: result.filePath, count: payload.profiles.length })
     return { ok: true, path: result.filePath, count: payload.profiles.length }
   } catch (e) {
     return { error: e.message, code: e.code || 'REMOTE_EXPORT_FAILED' }
@@ -687,12 +813,15 @@ ipcMain.handle('remote:importProfiles', async () => {
       filters: [{ name: 'JSON', extensions: ['json'] }],
     })
     if (result.canceled || !result.filePaths?.[0]) return { canceled: true }
-    const raw = await fs.readFile(result.filePaths[0], 'utf8')
+    const importPath = result.filePaths[0]
+    const stat = await fs.stat(importPath)
+    if (stat.size > 1024 * 1024) {
+      return { error: 'Import file is too large.', code: 'REMOTE_IMPORT_TOO_LARGE' }
+    }
+    const raw = await fs.readFile(importPath, 'utf8')
     const parsed = JSON.parse(raw)
     const profiles = normalizeImportedProfiles(parsed)
-    if (!profiles.length) {
-      return { error: 'No remote profiles found in selected file.', code: 'REMOTE_IMPORT_EMPTY' }
-    }
+    validateImportedRemoteProfilesPayload(profiles)
 
     const imported = []
     for (const profile of profiles) {
@@ -711,9 +840,11 @@ ipcMain.handle('remote:importProfiles', async () => {
       imported.push(saved)
     }
 
+    logSecurityEvent('remote-profiles-imported', { path: importPath, count: imported.length })
+
     return {
       ok: true,
-      path: result.filePaths[0],
+      path: importPath,
       count: imported.length,
       keychainAvailable: hasKeychainSupport(),
       profiles: remoteManager.listProfiles(),
@@ -807,6 +938,7 @@ ipcMain.handle('remote:mkdir', async (_, connectionId, remotePath) => {
 ipcMain.handle('remote:openSshTerminal', async (_, connectionId, cwd = '') => {
   try {
     const descriptor = remoteManager.getSshTerminalDescriptor(connectionId, cwd)
+    logSecurityEvent('remote-ssh-terminal-opened', { connectionId, cwd: descriptor.cwd })
     return { ok: true, ...descriptor }
   } catch (e) {
     return { error: e.message, code: e.code || 'REMOTE_SSH_TERMINAL_FAILED' }
@@ -826,8 +958,17 @@ ipcMain.handle('fs:renameFile', async (_, oldPath, newPath) => {
 ipcMain.handle('shell:openInDefaultViewer', async (_, filePath) => {
   if (!filePath) return { error: 'No file path provided' }
   try {
-    const res = await shell.openPath(filePath)
+    const resolvedPath = path.resolve(String(filePath))
+    const approved = await confirmSensitiveAction({
+      title: 'Open In Default Viewer',
+      message: 'Open this file in another application?',
+      detail: resolvedPath,
+      confirmLabel: 'Open File',
+    })
+    if (!approved) return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+    const res = await shell.openPath(resolvedPath)
     if (res) return { error: res }
+    logSecurityEvent('open-in-default-viewer', { path: resolvedPath })
     return { ok: true }
   } catch (e) {
     return { error: e.message }
@@ -837,14 +978,24 @@ ipcMain.handle('shell:openInDefaultViewer', async (_, filePath) => {
 ipcMain.handle('shell:revealInFolder', async (_, filePath) => {
   if (!filePath) return { error: 'No file path provided' }
   try {
-    if (fsSync.existsSync(filePath)) {
-      shell.showItemInFolder(filePath)
+    const resolvedPath = path.resolve(String(filePath))
+    const approved = await confirmSensitiveAction({
+      title: 'Reveal In Folder',
+      message: 'Open the system file manager for this path?',
+      detail: resolvedPath,
+      confirmLabel: 'Reveal',
+    })
+    if (!approved) return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+    if (fsSync.existsSync(resolvedPath)) {
+      shell.showItemInFolder(resolvedPath)
+      logSecurityEvent('reveal-in-folder', { path: resolvedPath })
       return { ok: true }
     }
 
-    const fallbackDir = path.dirname(filePath)
+    const fallbackDir = path.dirname(resolvedPath)
     const res = await shell.openPath(fallbackDir)
     if (res) return { error: res }
+    logSecurityEvent('reveal-in-folder-fallback', { path: fallbackDir })
     return { ok: true }
   } catch (e) {
     return { error: e.message }
@@ -888,11 +1039,31 @@ ipcMain.handle('tools:getHash', async (_, algorithm, text) => {
 ipcMain.handle('run:command', async (_, command, cwd) => {
   try {
     const { exec } = require('child_process')
+    const safeCommand = validateCommandInput(command)
+    const safeCwd = validateLocalDirectory(cwd)
+    const approved = await confirmSensitiveAction({
+      title: 'Run Local Command',
+      message: 'AuroraPad wants to execute a command on this machine.',
+      detail: `Command:\n${safeCommand}\n\nWorking directory:\n${safeCwd}`,
+      confirmLabel: 'Run Command',
+    })
+    if (!approved) {
+      logSecurityEvent('command-run-canceled', { command: safeCommand, cwd: safeCwd })
+      return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+    }
+    logSecurityEvent('command-run-requested', { command: safeCommand, cwd: safeCwd })
     return await new Promise((resolve) => {
-      const child = exec(command, { cwd: cwd || process.cwd(), windowsHide: true }, (error, stdout, stderr) => {
+      exec(safeCommand, {
+        cwd: safeCwd,
+        windowsHide: true,
+        timeout: 120000,
+        maxBuffer: 1024 * 1024,
+      }, (error, stdout, stderr) => {
         if (error) {
+          logSecurityEvent('command-run-failed', { command: safeCommand, cwd: safeCwd, error: error.message })
           resolve({ error: error.message, stdout, stderr })
         } else {
+          logSecurityEvent('command-run-completed', { command: safeCommand, cwd: safeCwd })
           resolve({ ok: true, stdout, stderr })
         }
       })
@@ -907,6 +1078,19 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
     const shellType = options.shell || 'default'
     const requestedCwd = options.cwd || ''
     const isSshShell = String(shellType).startsWith('ssh:')
+    if (isSshShell) {
+      const launchPreview = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
+      const approved = await confirmSensitiveAction({
+        title: 'Open SSH Terminal',
+        message: 'AuroraPad wants to open an SSH terminal session.',
+        detail: `Shell:\n${launchPreview?.file || 'ssh'} ${(launchPreview?.args || []).join(' ')}`.trim(),
+        confirmLabel: 'Open SSH',
+      })
+      if (!approved) {
+        logSecurityEvent('remote-ssh-terminal-canceled', { shellType, cwd: requestedCwd })
+        return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+      }
+    }
     const cwd = isSshShell ? process.cwd() : (requestedCwd || process.cwd())
     const terminalLaunch = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
     if (!terminalLaunch) {
@@ -927,6 +1111,7 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
 
     const id = `term-${nextTerminalId++}`
     terminals.set(id, term)
+    logSecurityEvent('terminal-created', { id, shell: shellKey, cwd, ssh: isSshShell })
 
     term.onData(data => {
       mainWindow?.webContents.send('terminal:data', { id, data })
@@ -1206,23 +1391,43 @@ ipcMain.handle('plugin:listUserPlugins', async () => {
   try {
     await fs.mkdir(pluginsDir(), { recursive: true })
     const entries = await fs.readdir(pluginsDir(), { withFileTypes: true })
-    return entries.filter(e => e.isFile() && e.name.endsWith('.js')).map(e => e.name)
+    const files = entries.filter(e => e.isFile() && e.name.endsWith('.js')).map(e => e.name)
+    logSecurityEvent('plugin-list-read', { count: files.length })
+    return files
   } catch {
     return []
   }
 })
 
 ipcMain.handle('plugin:readUserPlugin', async (_, filename) => {
-  const filePath = path.join(pluginsDir(), filename)
   try {
-    return await fs.readFile(filePath, 'utf8')
-  } catch {
+    const safeFilename = sanitizePluginFilename(filename)
+    const filePath = path.join(pluginsDir(), safeFilename)
+    const stat = await fs.stat(filePath)
+    if (stat.size > 256 * 1024) {
+      const error = new Error('Plugin file is too large')
+      error.code = 'PLUGIN_TOO_LARGE'
+      throw error
+    }
+    const content = await fs.readFile(filePath, 'utf8')
+    logSecurityEvent('plugin-loaded', { file: safeFilename, bytes: stat.size })
+    return content
+  } catch (error) {
+    logSecurityEvent('plugin-load-failed', { file: String(filename || ''), error: error.message })
     return null
   }
 })
 
 ipcMain.handle('plugin:openPluginsFolder', async () => {
   await fs.mkdir(pluginsDir(), { recursive: true })
+  const approved = await confirmSensitiveAction({
+    title: 'Open Plugins Folder',
+    message: 'Open AuroraPad’s local plugins folder in the system file manager?',
+    detail: pluginsDir(),
+    confirmLabel: 'Open Folder',
+  })
+  if (!approved) return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+  logSecurityEvent('plugin-folder-opened', { path: pluginsDir() })
   shell.openPath(pluginsDir())
 })
 

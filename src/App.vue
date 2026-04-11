@@ -150,6 +150,9 @@
           <div class="dialog-intro">
             AuroraPad uses built-in skills plus user JavaScript plugins. Drop `.js` plugins into the plugins folder to extend the app.
           </div>
+          <div class="dialog-security-note">
+            User plugins are trusted local code and can run with desktop-level access. Only enable plugins you wrote yourself or fully trust.
+          </div>
           <v-list class="dialog-list" bg-color="transparent">
             <v-list-item
               v-for="p in pluginsStore.plugins"
@@ -1291,7 +1294,20 @@ function cycleTab(direction) {
 
 async function setupPlugins() {
   pluginsStore.loadBuiltInPlugins()
-  await pluginsStore.loadUserPlugins()
+  const userPluginNames = await window.electronAPI?.listUserPlugins?.() || []
+  if (userPluginNames.length) {
+    if (!settingsStore.trustLocalPlugins) {
+      const shouldEnable = confirm(
+        'AuroraPad found local JavaScript plugins. These plugins are trusted local code and may run commands or access files on this machine.\n\nPress OK to enable local plugins for future launches, or Cancel to keep them disabled.'
+      )
+      if (shouldEnable) {
+        settingsStore.setTrustLocalPlugins(true)
+      }
+    }
+    if (settingsStore.trustLocalPlugins) {
+      await pluginsStore.loadUserPlugins(userPluginNames)
+    }
+  }
   if (window.electronAPI?.sendPluginMenuStructure) {
     window.electronAPI.sendPluginMenuStructure(pluginsStore.getMenuStructureForMain())
   }
@@ -2390,6 +2406,10 @@ async function runCommandPrompt() {
   }
   const cmd = prompt('Run command (will execute on your machine):', lastRunCommand.value || '')
   if (!cmd) return
+  const shouldRun = confirm(
+    `Run this command locally?\n\n${cmd}\n\nAuroraPad will execute it with your current user permissions.`
+  )
+  if (!shouldRun) return
   lastRunCommand.value = cmd
   const result = await window.electronAPI.runCommand(cmd, getCommandWorkingDirectory())
   if (result?.error) {
@@ -2408,6 +2428,10 @@ async function runLastCommand() {
     alert('No previous command to run.')
     return
   }
+  const shouldRun = confirm(
+    `Run the last local command again?\n\n${lastRunCommand.value}\n\nAuroraPad will execute it with your current user permissions.`
+  )
+  if (!shouldRun) return
   const result = await window.electronAPI.runCommand(lastRunCommand.value, getCommandWorkingDirectory())
   if (result?.error) {
     alert(`Command failed:\n${result.error}\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)

@@ -15,6 +15,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const highlightCurrentLine = useStorage('aurorapad-highlight-current-line', true)
   const showMinimap = useStorage('aurorapad-show-minimap', false)
   const autoSave = useStorage('aurorapad-auto-save', false)
+  const trustLocalPlugins = useStorage('aurorapad-trust-local-plugins', false)
 
   function setTheme(value) {
     theme.value = value
@@ -61,6 +62,10 @@ export const useSettingsStore = defineStore('settings', () => {
     autoSave.value = !!value
   }
 
+  function setTrustLocalPlugins(value) {
+    trustLocalPlugins.value = !!value
+  }
+
   function loadRecentFilesFromMain() {
     if (typeof window !== 'undefined' && window.electronAPI) {
       window.electronAPI.getRecentFiles().then(files => {
@@ -101,6 +106,7 @@ export const useSettingsStore = defineStore('settings', () => {
     highlightCurrentLine,
     showMinimap,
     autoSave,
+    trustLocalPlugins,
     setTheme,
     setWordWrap,
     setLineNumbers,
@@ -112,6 +118,7 @@ export const useSettingsStore = defineStore('settings', () => {
     setHighlightCurrentLine,
     setShowMinimap,
     setAutoSave,
+    setTrustLocalPlugins,
     loadRecentFilesFromMain,
     clearRecentFiles,
   }

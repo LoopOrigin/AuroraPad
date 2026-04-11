@@ -37,6 +37,22 @@ function makeVersion(stat = {}) {
   return `${size}:${modifiedAt}`
 }
 
+function boundedString(input, field, { max = 255, trim = true, allowEmpty = false } = {}) {
+  const value = String(input ?? '')
+  const normalized = trim ? value.trim() : value
+  if (!allowEmpty && !normalized) {
+    const error = new Error(`${field} is required`)
+    error.code = `${String(field).toUpperCase().replace(/[^A-Z0-9]+/g, '_')}_REQUIRED`
+    throw error
+  }
+  if (normalized.length > max) {
+    const error = new Error(`${field} is too long`)
+    error.code = `${String(field).toUpperCase().replace(/[^A-Z0-9]+/g, '_')}_TOO_LONG`
+    throw error
+  }
+  return normalized
+}
+
 function sortEntries(entries) {
   return entries.sort((a, b) => {
     if (a.isDirectory === b.isDirectory) return a.name.localeCompare(b.name)
@@ -483,25 +499,44 @@ class RemoteConnectionManager {
   }
 
   #sanitizeSecretPayload(input = {}) {
+    const password = input.password ? String(input.password) : ''
+    const passphrase = input.passphrase ? String(input.passphrase) : ''
+    if (password.length > 4096 || passphrase.length > 4096) {
+      const error = new Error('Secret value is too large')
+      error.code = 'REMOTE_SECRET_TOO_LARGE'
+      throw error
+    }
     return {
-      password: input.password ? String(input.password) : '',
-      passphrase: input.passphrase ? String(input.passphrase) : '',
+      password,
+      passphrase,
     }
   }
 
   #sanitizeProfile(input = {}) {
     const protocol = ['sftp', 'ftp', 'ftps'].includes(input.protocol) ? input.protocol : 'sftp'
-    const authType = input.authType === 'privateKey' ? 'privateKey' : 'password'
+    const authType = protocol === 'sftp' && input.authType === 'privateKey' ? 'privateKey' : 'password'
+    const host = boundedString(input.host, 'Host')
+    const username = boundedString(input.username, 'Username')
+    const name = boundedString(input.name || `${username}@${host}`, 'Profile name', { max: 120 })
+    const remoteRoot = ensurePosixPath(boundedString(input.remoteRoot || '/', 'Default remote root', { max: 1024 }))
+    const rawPort = Number(input.port)
+    const port = Number.isInteger(rawPort) && rawPort >= 1 && rawPort <= 65535
+      ? rawPort
+      : (protocol === 'sftp' ? 22 : 21)
+    const privateKeyPath = authType === 'privateKey'
+      ? path.resolve(boundedString(input.privateKeyPath, 'Private key path', { max: 1024 }))
+      : ''
+
     return {
-      id: input.id ? String(input.id) : '',
-      name: String(input.name || `${(input.username || 'user')}@${(input.host || 'server')}`),
+      id: input.id ? boundedString(input.id, 'Profile id', { max: 160 }) : '',
+      name,
       protocol,
-      host: String(input.host || '').trim(),
-      port: Number(input.port) || (protocol === 'sftp' ? 22 : 21),
-      username: String(input.username || '').trim(),
+      host,
+      port,
+      username,
       authType,
-      remoteRoot: ensurePosixPath(input.remoteRoot || '/'),
-      privateKeyPath: input.privateKeyPath ? path.resolve(String(input.privateKeyPath)) : '',
+      remoteRoot,
+      privateKeyPath,
       createdAt: input.createdAt || nowIso(),
     }
   }
