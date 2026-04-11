@@ -188,7 +188,7 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="showRemoteManager" max-width="1020">
-      <v-card class="aurora-dialog remote-manager-dialog">
+      <v-card class="aurora-dialog remote-manager-dialog" @keydown.capture="handleRemoteManagerClipboardShortcut">
         <v-toolbar color="transparent" density="comfortable">
           <v-toolbar-title>
             Remote Servers
@@ -748,6 +748,13 @@ async function connectRemoteProfile(profile) {
   }
 
   fileTreeStore.setRemoteWorkspace(result.connection)
+  const treeLoad = await fileTreeStore.loadTree(result.connection.rootPath || '/')
+  if (treeLoad?.error) {
+    await window.electronAPI?.remoteDisconnect?.(result.connection.connectionId)
+    fileTreeStore.clearRemoteWorkspace()
+    alert(`Connected to ${profile.name}, but AuroraPad could not open the initial remote directory.\n\n${treeLoad.error}\n\nTry editing the profile's Default Remote Root or reconnecting.`)
+    return
+  }
   settingsStore.setSidebarVisible(true)
   showRemoteManager.value = false
 }
@@ -1280,6 +1287,41 @@ function runClipboardActionOnFocusedInput(action) {
     return document.execCommand(action)
   } catch {
     return false
+  }
+}
+
+function handleRemoteManagerClipboardShortcut(event) {
+  if (!showRemoteManager.value) return
+  const mod = isMacPlatform ? event.metaKey : event.ctrlKey
+  if (!mod || event.altKey) return
+
+  const key = String(event.key || '').toLowerCase()
+  const actions = {
+    c: 'copy',
+    x: 'cut',
+    v: 'paste',
+  }
+
+  if (actions[key]) {
+    if (runClipboardActionOnFocusedInput(actions[key])) {
+      event.stopPropagation()
+    }
+    return
+  }
+
+  if (key === 'a') {
+    const editable = getFocusedEditableElement()
+    if (!editable) return
+    editable.focus?.()
+    if (typeof editable.select === 'function') {
+      editable.select()
+    } else {
+      try {
+        document.execCommand('selectAll')
+      } catch {}
+    }
+    event.preventDefault()
+    event.stopPropagation()
   }
 }
 

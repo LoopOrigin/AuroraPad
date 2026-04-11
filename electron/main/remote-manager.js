@@ -60,6 +60,24 @@ function sortEntries(entries) {
   })
 }
 
+function normalizeRemoteError(error, profile) {
+  if (!error) return error
+  const message = String(error.message || error)
+  const protocolLabel = String(profile?.protocol || '').toUpperCase() || 'REMOTE'
+
+  if (/before handshake/i.test(message) || /Client network socket disconnected before secure TLS connection was established/i.test(message)) {
+    return new Error(
+      `${protocolLabel} connection failed before the server handshake completed. Check host, port, and protocol selection. If this server expects plain FTP, use FTP. If it expects TLS on connect, try FTPS and verify whether the server requires implicit FTPS.`
+    )
+  }
+
+  if (/ECONNREFUSED|ETIMEDOUT|ENOTFOUND|EHOSTUNREACH|ENETUNREACH/i.test(message)) {
+    return new Error(`${protocolLabel} connection failed: ${message}. Verify the host, port, and firewall/network access.`)
+  }
+
+  return error
+}
+
 class RemoteConnectionManager {
   constructor(options = {}) {
     this.connections = new Map()
@@ -154,11 +172,13 @@ class RemoteConnectionManager {
 
     const connectionId = `remote-${this.nextConnectionId++}`
     let instance
+    let rootPath = ensurePosixPath(profile.remoteRoot || '/')
 
     if (profile.protocol === 'sftp') {
       instance = await this.#connectSftp(profile, secret)
     } else {
       instance = await this.#connectFtp(profile, secret)
+      rootPath = await this.#resolveFtpRoot(profile, instance)
     }
 
     this.connections.set(connectionId, {
@@ -177,7 +197,7 @@ class RemoteConnectionManager {
       host: profile.host,
       port: profile.port,
       username: profile.username,
-      rootPath: ensurePosixPath(profile.remoteRoot || '/'),
+      rootPath,
       authType: profile.authType,
       keyPath: profile.privateKeyPath || '',
     }
@@ -474,8 +494,12 @@ class RemoteConnectionManager {
       options.password = secret.password
     }
 
-    await client.connect(options)
-    return client
+    try {
+      await client.connect(options)
+      return client
+    } catch (error) {
+      throw normalizeRemoteError(error, profile)
+    }
   }
 
   async #connectFtp(profile, secret) {
@@ -488,14 +512,33 @@ class RemoteConnectionManager {
 
     const client = new ftp.Client(20000)
     client.ftp.verbose = false
-    await client.access({
-      host: profile.host,
-      port: profile.port || (profile.protocol === 'ftps' ? 21 : 21),
-      user: profile.username,
-      password: secret.password,
-      secure: profile.protocol === 'ftps',
-    })
-    return client
+
+    try {
+      await client.access({
+        host: profile.host,
+        port: profile.port || 21,
+        user: profile.username,
+        password: secret.password,
+        secure: profile.protocol === 'ftps',
+      })
+      return client
+    } catch (error) {
+      client.close()
+      throw normalizeRemoteError(error, profile)
+    }
+  }
+
+  async #resolveFtpRoot(profile, client) {
+    const configuredRoot = String(profile.remoteRoot || '').trim()
+
+    if (configuredRoot && configuredRoot !== '/') {
+      await client.cd(configuredRoot)
+      const activeRoot = await client.pwd().catch(() => configuredRoot)
+      return ensurePosixPath(activeRoot || configuredRoot)
+    }
+
+    const serverRoot = await client.pwd().catch(() => '/')
+    return ensurePosixPath(serverRoot || '/')
   }
 
   #sanitizeSecretPayload(input = {}) {

@@ -13,18 +13,20 @@ export const useFileTreeStore = defineStore('fileTree', () => {
     try {
       if (workspaceMode.value === 'remote' && !remoteConnection.value?.connectionId) {
         tree.value = []
-        return
+        return { error: 'Remote connection is unavailable' }
       }
       const entries = workspaceMode.value === 'remote' && remoteConnection.value?.connectionId
         ? await window.electronAPI.remoteReadDir(remoteConnection.value.connectionId, path)
         : await window.electronAPI.readDir(path)
       if (entries.error) {
         tree.value = []
-        return
+        return { error: entries.error, code: entries.code || null }
       }
       tree.value = entries
+      return { ok: true, entries }
     } catch {
       tree.value = []
+      return { error: 'Failed to load directory' }
     }
   }
 
