@@ -142,6 +142,7 @@ The release workflow:
 - creates and pushes the corresponding git tag
 - builds macOS, Windows, and Linux artifacts
 - publishes a GitHub Release with uploaded binaries
+- writes the released version back to `package.json` and `package-lock.json` only after a successful release
 
 Relevant files:
 

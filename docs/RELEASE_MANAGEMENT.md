@@ -8,7 +8,7 @@ AuroraPad now includes GitHub release automation through:
 
 ## How it works
 
-1. Keep the repository baseline version at `0.1.0`.
+1. Start from repository version `0.1.0`.
 2. Every push to `main` or `master` runs the release workflow.
 3. GitHub Actions looks for the latest semantic version tag such as `v0.1.0`, `v0.2.0`, or `v1.0.0`.
 4. CI calculates the next semantic version automatically from commit history:
@@ -25,6 +25,7 @@ AuroraPad now includes GitHub release automation through:
 9. The workflow collects packaged artifacts from `release/`.
 10. A matching private tag is created in the source repository for semantic version history.
 11. The generated installers and metadata files are published to a separate public GitHub releases repository.
+12. After a successful build and publish, CI commits the released version back to the source branch so the repository version stays aligned with the latest successful release.
 
 ## Notes
 
@@ -75,8 +76,8 @@ AuroraPad now includes GitHub release automation through:
 
 ## Local versioning
 
-- The repository baseline is `0.1.0`.
-- CI owns semantic version increments after that, so local development does not need manual version bumps for each release.
+- The repository starts at `0.1.0`.
+- CI owns semantic version increments after that and persists the released version back into `package.json` and `package-lock.json` only after a successful release.
 - Using conventional commits such as `feat:` and `fix:` will make release bumps predictable.
 
 ## Public downloads setup
