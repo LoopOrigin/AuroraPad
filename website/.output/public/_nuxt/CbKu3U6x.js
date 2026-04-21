@@ -1,0 +1,1 @@
+import{L as o}from"./ih196yNa.js";import{l as r,d as s}from"./BvhNbTfY.js";import{e as t,f as l,g as n,h as e,o as p}from"./DoNMQGcP.js";import"./CHV4pif9.js";const _=t({__name:"usage",setup(u){const a=r.usage;return l({title:`AuroraPad | ${a.title}`,description:a.summary}),(m,d)=>(p(),n(o,{page:e(a),"download-url":e(s)},null,8,["page","download-url"]))}});export{_ as default};

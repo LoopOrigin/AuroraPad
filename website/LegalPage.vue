@@ -18,7 +18,6 @@
 
         <div class="legal-header__actions">
           <NuxtLink to="/" @click="handleNavClick('home', '/')">Home</NuxtLink>
-          <a :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_legal_header', repoUrl, 'legal-header')">Repository</a>
           <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_legal_header', downloadUrl, 'legal-header')">Releases</a>
         </div>
       </div>
@@ -70,10 +69,6 @@ const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
 defineProps({
   page: {
     type: Object,
-    required: true,
-  },
-  repoUrl: {
-    type: String,
     required: true,
   },
   downloadUrl: {

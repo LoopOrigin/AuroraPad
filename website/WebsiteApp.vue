@@ -26,7 +26,6 @@
         </nav>
 
         <div class="site-header__actions">
-          <a class="site-btn site-btn--ghost" :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_header', repoUrl, 'header')">Repository</a>
           <a class="site-btn site-btn--primary" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_header', downloadUrl, 'header')">Download</a>
         </div>
       </div>
@@ -46,9 +45,6 @@
             <div class="hero__actions">
               <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_hero', downloadUrl, 'hero')">
                 Download Latest Release
-              </a>
-              <a class="site-btn site-btn--outline site-btn--large" :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_hero', repoUrl, 'hero')">
-                View Repository
               </a>
             </div>
 
@@ -240,7 +236,7 @@
       <section id="releases" class="section release-section">
         <div class="section-head">
           <p class="eyebrow">Releases</p>
-          <h2>Clear download paths, GitHub transparency, and release automation that matches the product.</h2>
+          <h2>Clear download paths and release automation that match the product.</h2>
         </div>
 
         <div class="release-grid">
@@ -261,10 +257,6 @@
           </div>
 
           <div class="release-aside">
-            <div class="release-link-group">
-              <span class="eyebrow">Repository</span>
-              <a :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_release_section', repoUrl, 'release-section')">{{ repoUrl }}</a>
-            </div>
             <div class="release-link-group">
               <span class="eyebrow">Latest Builds</span>
               <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_release_section', downloadUrl, 'release-section')">{{ downloadUrl }}</a>
@@ -310,7 +302,7 @@
         <div class="open-source__grid">
           <div class="section-head section-head--compact">
             <p class="eyebrow">Project System</p>
-            <h2>The editor, the release flow, and the product website live in one repository.</h2>
+            <h2>The editor, release flow, and product website are built as one connected system.</h2>
           </div>
 
           <div class="open-source__items">
@@ -340,7 +332,7 @@
       <section class="section final-cta">
         <div class="final-cta__shell">
           <p class="eyebrow">Try AuroraPad</p>
-          <h2>Download the latest build, inspect the repo, and shape the editor around your own workflow.</h2>
+          <h2>Download the latest build and shape the editor around your own workflow.</h2>
           <div class="final-cta__options">
             <div v-for="item in finalOptions" :key="item.title" class="final-cta__option">
               <strong>{{ item.title }}</strong>
@@ -350,9 +342,6 @@
           <div class="hero__actions">
             <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_final_cta', downloadUrl, 'final-cta')">
               Download AuroraPad
-            </a>
-            <a class="site-btn site-btn--outline site-btn--large" :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_final_cta', repoUrl, 'final-cta')">
-              Browse Source
             </a>
           </div>
         </div>
@@ -365,7 +354,6 @@
             <p>Cross-platform desktop editing with real project awareness.</p>
           </div>
           <div class="site-footer__links">
-            <a :href="repoUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('repository_footer', repoUrl, 'footer')">GitHub</a>
             <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_footer', downloadUrl, 'footer')">Releases</a>
             <a href="#workspace" @click="handleSectionNavigation('workspace', 'footer')">Workspace</a>
             <a href="#faq" @click="handleSectionNavigation('faq', 'footer')">FAQ</a>
@@ -382,7 +370,7 @@
 
 <script setup>
 import appIcon from '../assets/aurorapad-app-icon.png'
-import { repoUrl, downloadUrl } from './data/site'
+import { downloadUrl } from './data/site'
 const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
 
 function handleOutboundClick(label, destination, placement) {
@@ -516,7 +504,7 @@ const manifestoPoints = [
   },
   {
     title: 'Open-source transparency',
-    body: 'The repository, release flow, website, and product direction are visible and hackable in one place.',
+    body: 'The release flow, website, and product direction stay visible in one connected product surface.',
   },
 ]
 
@@ -533,8 +521,8 @@ const comparisonItems = [
   },
   {
     kicker: 'More product-minded',
-    title: 'Ship, explain, and iterate from the same repository.',
-    body: 'The app, release flow, and website all live together, which makes AuroraPad easier to evolve as an actual software product.',
+    title: 'Ship, explain, and iterate from the same product surface.',
+    body: 'The app, release flow, and website move together, which makes AuroraPad easier to evolve as an actual software product.',
   },
 ]
 
@@ -577,7 +565,7 @@ const artifactRows = [
 const releaseSteps = [
   {
     index: '01',
-    title: 'Version resolves from repository history',
+    title: 'Version resolves from release history',
     body: 'CI computes the next semantic version and tags the release so builds stay consistent with the project timeline.',
   },
   {
@@ -617,7 +605,7 @@ const faqItems = [
   },
   {
     q: 'Can I inspect or modify the project myself?',
-    a: 'Yes. AuroraPad is open source, and the repository includes the desktop app, release workflow, and website in one place.',
+    a: 'Yes. AuroraPad is open source, with the desktop app, release workflow, and website developed together.',
   },
   {
     q: 'How do downloads work?',
@@ -631,8 +619,8 @@ const finalOptions = [
     body: 'Start with the latest packaged release for your platform.',
   },
   {
-    title: 'Inspect the repo',
-    body: 'Review the code, workflow, and release setup directly on GitHub.',
+    title: 'Track releases',
+    body: 'Use the latest packaged release for your platform and follow product updates from the website.',
   },
   {
     title: 'Adapt the workflow',
