@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - master
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,7 +20,7 @@ jobs:
   metadata:
     name: Resolve release version
     runs-on: ubuntu-latest
-    if: ${{ github.actor != 'github-actions[bot]' }}
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' && github.actor != 'github-actions[bot]' }}
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
@@ -202,6 +200,7 @@ jobs:
     needs:
       - metadata
       - build
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' && github.actor != 'github-actions[bot]' }}
 
     steps:
       - name: Checkout
@@ -476,7 +475,7 @@ jobs:
       - metadata
       - build
       - publish
-    if: ${{ github.actor != 'github-actions[bot]' && (github.ref_name == 'main' || github.ref_name == 'master') && needs.metadata.result == 'success' && needs.build.result == 'success' && needs.publish.result == 'success' }}
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' && github.actor != 'github-actions[bot]' && needs.metadata.result == 'success' && needs.build.result == 'success' && needs.publish.result == 'success' }}
 
     steps:
       - name: Checkout
