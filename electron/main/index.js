@@ -33,6 +33,8 @@ try {
 
 let mainWindow = null
 let watchers = new Map()
+let fileWatchers = new Map()
+const suppressedFiles = new Set()
 let terminals = new Map()
 let nextTerminalId = 1
 
@@ -722,11 +724,14 @@ ipcMain.handle('fs:readFile', async (_, filePath, encoding = 'utf8') => {
 
 ipcMain.handle('fs:writeFile', async (_, filePath, content, encoding = 'utf8') => {
   try {
+    suppressedFiles.add(filePath)
     const buffer = encoding === 'utf8' ? Buffer.from(content, 'utf8') : iconv.encode(content, encoding)
     await fs.writeFile(filePath, buffer)
     addRecentFile(filePath)
+    setTimeout(() => suppressedFiles.delete(filePath), 1000)
     return { ok: true }
   } catch (e) {
+    suppressedFiles.delete(filePath)
     return { error: e.message }
   }
 })
@@ -1209,10 +1214,32 @@ ipcMain.handle('fs:unwatchFolder', async (_, folderPath) => {
   }
 })
 
+ipcMain.handle('fs:watchFile', async (_, filePath) => {
+  if (fileWatchers.has(filePath)) return
+  const watcher = chokidar.watch(filePath, { ignoreInitial: true, persistent: false })
+  watcher.on('change', () => {
+    if (suppressedFiles.has(filePath)) return
+    mainWindow?.webContents.send('fs:fileChangedExternally', { path: filePath })
+  })
+  watcher.on('unlink', () => {
+    mainWindow?.webContents.send('fs:fileChangedExternally', { path: filePath, deleted: true })
+    fileWatchers.delete(filePath)
+  })
+  fileWatchers.set(filePath, watcher)
+})
+
+ipcMain.handle('fs:unwatchFile', async (_, filePath) => {
+  const w = fileWatchers.get(filePath)
+  if (w) {
+    w.close()
+    fileWatchers.delete(filePath)
+  }
+})
+
 ipcMain.handle('search:findInFiles', async (_, options) => {
   const root = options?.root
   const needle = options?.pattern ?? ''
-  const mask = options?.mask ?? '*.*'
+  const mask = options?.mask ?? '*'
   const useRegex = !!options?.useRegex
   const matchCase = !!options?.matchCase
 
@@ -1222,7 +1249,7 @@ ipcMain.handle('search:findInFiles', async (_, options) => {
   const maxBytesPerFile = 512 * 1024
 
   function buildMaskRegex(maskStr) {
-    const parts = (maskStr || '*.*').split(';').map(s => s.trim()).filter(Boolean)
+    const parts = (maskStr || '*').split(';').map(s => s.trim()).filter(Boolean)
     const escaped = parts.map(p => p
       .replace(/[.+^${}()|[\]\\]/g, '\\$&')
       .replace(/\*/g, '.*')
@@ -1492,6 +1519,8 @@ function buildMinimalMenu() {
 app.on('window-all-closed', () => {
   watchers.forEach(w => w.close())
   watchers.clear()
+  fileWatchers.forEach(w => w.close())
+  fileWatchers.clear()
   remoteManager.disconnectAll().catch(() => {})
   if (process.platform !== 'darwin') app.quit()
 })

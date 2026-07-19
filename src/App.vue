@@ -451,6 +451,34 @@
       @close="showFindInFiles = false"
       @open-result="openFindInFilesResult"
     />
+
+    <!-- File changed on disk notification -->
+    <v-snackbar
+      v-if="fileChangedNotification"
+      :model-value="true"
+      location="bottom right"
+      :timeout="-1"
+      color="surface-variant"
+      elevation="8"
+      rounded="lg"
+      class="file-changed-snackbar"
+    >
+      <span>
+        <strong>{{ fileChangedNotification.name }}</strong>
+        {{ fileChangedNotification.deleted ? ' was deleted from disk.' : ' was changed on disk.' }}
+      </span>
+      <template #actions>
+        <v-btn
+          v-if="!fileChangedNotification.deleted"
+          variant="text"
+          color="primary"
+          @click="acceptFileChangedOnDisk"
+        >
+          Reload
+        </v-btn>
+        <v-btn variant="text" @click="fileChangedNotification = null">Dismiss</v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -480,6 +508,7 @@ const monacoEditorSecondaryRef = ref(null)
 const showCommandPalette = ref(false)
 const commandPaletteRecentOnly = ref(false)
 const showPluginManager = ref(false)
+const fileChangedNotification = ref(null)
 const showRemoteManager = ref(false)
 const showDeleteRemoteProfileDialog = ref(false)
 const showFindInFiles = ref(false)
@@ -1151,6 +1180,7 @@ onMounted(async () => {
   loadRemoteProfiles()
   setupMenuListeners()
   setupFolderWatcher()
+  setupFileChangeWatcher()
   setupPlugins()
   setupKeyboardShortcuts()
   restoreSession()
@@ -1497,6 +1527,59 @@ function setupFolderWatcher() {
     if (fileTreeStore.openFolderPath === root) {
       fileTreeStore.loadTree(root)
     }
+  })
+}
+
+// Unwatch local files when their tab is closed
+watch(
+  () => tabsStore.tabs.map(t => t.path).filter(Boolean),
+  (current, previous) => {
+    if (!window.electronAPI?.unwatchFile || !previous) return
+    for (const path of previous) {
+      if (!current.includes(path)) {
+        window.electronAPI.unwatchFile(path)
+      }
+    }
+  }
+)
+
+function setupFileChangeWatcher() {
+  if (!window.electronAPI?.onFileChangedExternally) return
+  window.electronAPI.onFileChangedExternally(async ({ path, deleted }) => {
+    const tab = tabsStore.tabs.find(t => t.path === path && !isRemoteTab(t))
+    if (!tab) return
+    if (!deleted && !tab.isDirty) {
+      // Auto-reload clean tabs silently
+      const result = await window.electronAPI.readFile(path, tab.encoding || 'utf8')
+      if (!result.error) {
+        tabsStore.updateTab(tab.id, {
+          content: result.content,
+          encoding: result.encoding || tab.encoding,
+          isDirty: false,
+          bookmarks: [],
+        })
+      }
+      return
+    }
+    // Dirty or deleted: show notification
+    const name = path.split(/[/\\]/).pop() || path
+    fileChangedNotification.value = { path, name, tabId: tab.id, deleted: !!deleted }
+  })
+}
+
+async function acceptFileChangedOnDisk() {
+  const n = fileChangedNotification.value
+  fileChangedNotification.value = null
+  if (!n?.path) return
+  const tab = tabsStore.getTab(n.tabId)
+  if (!tab) return
+  const result = await window.electronAPI.readFile(n.path, tab.encoding || 'utf8')
+  if (result.error) return
+  tabsStore.updateTab(tab.id, {
+    content: result.content,
+    encoding: result.encoding || tab.encoding,
+    isDirty: false,
+    bookmarks: [],
   })
 }
 
@@ -2304,6 +2387,7 @@ async function openFileByPath(filePath) {
     language: tabsStore.inferLanguage?.(filePath, result.content),
     isDirty: false,
   })
+  window.electronAPI?.watchFile?.(filePath)
 }
 
 async function saveLocalTab(tab, { saveAs = false, copyOnly = false } = {}) {

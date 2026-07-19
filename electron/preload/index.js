@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readDir: (path) => ipcRenderer.invoke('fs:readDir', path),
   watchFolder: (path) => ipcRenderer.invoke('fs:watchFolder', path),
   unwatchFolder: (path) => ipcRenderer.invoke('fs:unwatchFolder', path),
+  watchFile: (path) => ipcRenderer.invoke('fs:watchFile', path),
+  unwatchFile: (path) => ipcRenderer.invoke('fs:unwatchFile', path),
 
   // Dialogs
   openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),
@@ -40,6 +42,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // File tree watcher events
   onFolderChanged: (fn) => {
     ipcRenderer.on('fs:folderChanged', (_, payload) => fn(payload))
+  },
+
+  // Individual file change detection
+  onFileChangedExternally: (fn) => {
+    ipcRenderer.on('fs:fileChangedExternally', (_, payload) => fn(payload))
   },
 
   // Plugins: send menu structure to main, listen for plugin run
