@@ -39,8 +39,13 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
       - name: Install dependencies
         run: npm ci
+        env:
+          npm_config_msvs_version: 2022
 
       - name: Run security scan
         run: npm run security:scan
