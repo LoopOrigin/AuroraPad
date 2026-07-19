@@ -1,9 +1,9 @@
 <template>
   <div class="aurora-site">
     <div class="site-bg" aria-hidden="true">
-      <span class="orb orb-blue"></span>
-      <span class="orb orb-teal"></span>
-      <span class="orb orb-violet"></span>
+      <span ref="orbBlue" class="orb orb-blue"></span>
+      <span ref="orbTeal" class="orb orb-teal"></span>
+      <span ref="orbViolet" class="orb orb-violet"></span>
       <span class="mesh"></span>
     </div>
 
@@ -57,7 +57,7 @@
           </div>
 
           <div class="hero__visual">
-            <div class="product-window">
+            <div ref="heroWindow" class="product-window">
               <div class="product-window__top">
                 <div class="traffic">
                   <span></span>
@@ -112,12 +112,12 @@
               </div>
             </div>
 
-            <div class="floating-note floating-note--left">
+            <div ref="floatLeft" class="floating-note floating-note--left">
               <span class="eyebrow">Search</span>
               <strong>Whole-project search, not file-only editing</strong>
             </div>
 
-            <div class="floating-note floating-note--right">
+            <div ref="floatRight" class="floating-note floating-note--right">
               <span class="eyebrow">Release</span>
               <strong>Ship tagged builds for Windows, macOS, and Linux</strong>
             </div>
@@ -132,13 +132,19 @@
       </section>
 
       <section id="why" class="section section--editorial">
-        <div class="section-head">
+        <div class="section-head" data-reveal="up">
           <p class="eyebrow">Why AuroraPad</p>
           <h2>Built for developers who want a sharper desktop editor without losing project depth.</h2>
         </div>
 
         <div class="editorial-columns">
-          <article v-for="item in pillars" :key="item.title" class="editorial-column">
+          <article
+            v-for="(item, i) in pillars"
+            :key="item.title"
+            class="editorial-column"
+            data-reveal="up"
+            :data-reveal-delay="i * 130"
+          >
             <span class="eyebrow">{{ item.kicker }}</span>
             <h3>{{ item.title }}</h3>
             <p>{{ item.body }}</p>
@@ -148,7 +154,7 @@
 
       <section id="workspace" class="section workspace-story">
         <div class="workspace-story__grid">
-          <div class="workspace-story__intro">
+          <div class="workspace-story__intro" data-reveal="left">
             <p class="eyebrow">Workspace</p>
             <h2>Editing, navigation, terminal context, and commands in one calm desktop surface.</h2>
             <p>
@@ -158,7 +164,13 @@
           </div>
 
           <div class="workspace-story__list">
-            <article v-for="feature in features" :key="feature.title" class="feature-row">
+            <article
+              v-for="(feature, i) in features"
+              :key="feature.title"
+              class="feature-row"
+              :data-reveal="i % 2 === 0 ? 'left' : 'right'"
+              :data-reveal-delay="i * 100"
+            >
               <div class="feature-row__index">{{ feature.index }}</div>
               <div>
                 <span class="eyebrow">{{ feature.kicker }}</span>
@@ -171,17 +183,19 @@
       </section>
 
       <section id="showcase" class="section showcase">
-        <div class="section-head">
+        <div class="section-head" data-reveal="up">
           <p class="eyebrow">Showcase</p>
           <h2>A closer look at the moments that make AuroraPad feel like a modern desktop tool.</h2>
         </div>
 
         <div class="showcase-grid">
           <article
-            v-for="item in showcaseCards"
+            v-for="(item, i) in showcaseCards"
             :key="item.title"
             class="showcase-card"
             :class="item.className"
+            data-reveal="zoom"
+            :data-reveal-delay="i * 120"
           >
             <div class="showcase-card__visual">
               <div class="showcase-mockup">
@@ -204,7 +218,7 @@
       </section>
 
       <section class="section manifesto">
-        <div class="manifesto-card">
+        <div class="manifesto-card" data-reveal="zoom">
           <div>
             <p class="eyebrow">What Makes It Different</p>
             <h2>More grounded than a generic editor shell, lighter than a full IDE, and packaged like a real product.</h2>
@@ -219,13 +233,19 @@
       </section>
 
       <section class="section compare-section">
-        <div class="section-head">
+        <div class="section-head" data-reveal="up">
           <p class="eyebrow">Positioning</p>
           <h2>Made for the space between a bare text editor and a full-blown IDE.</h2>
         </div>
 
         <div class="compare-grid">
-          <article v-for="item in comparisonItems" :key="item.title" class="compare-card">
+          <article
+            v-for="(item, i) in comparisonItems"
+            :key="item.title"
+            class="compare-card"
+            data-reveal="up"
+            :data-reveal-delay="i * 130"
+          >
             <span class="eyebrow">{{ item.kicker }}</span>
             <h3>{{ item.title }}</h3>
             <p>{{ item.body }}</p>
@@ -234,7 +254,7 @@
       </section>
 
       <section id="releases" class="section release-section">
-        <div class="section-head">
+        <div class="section-head" data-reveal="up">
           <p class="eyebrow">Releases</p>
           <h2>Clear download paths and release automation that match the product.</h2>
         </div>
@@ -242,12 +262,14 @@
         <div class="release-grid">
           <div class="download-matrix">
             <a
-              v-for="item in downloads"
+              v-for="(item, i) in downloads"
               :key="item.title"
               class="download-item"
               :href="downloadUrl"
               target="_blank"
               rel="noreferrer"
+              data-reveal="up"
+              :data-reveal-delay="i * 110"
               @click="handleOutboundClick(`download_${item.kicker.toLowerCase()}`, downloadUrl, 'download-matrix')"
             >
               <span class="eyebrow">{{ item.kicker }}</span>
@@ -256,19 +278,19 @@
             </a>
           </div>
 
-          <div class="release-aside">
+          <div class="release-aside" data-reveal="right">
             <div class="release-link-group">
               <span class="eyebrow">Latest Builds</span>
               <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_release_section', downloadUrl, 'release-section')">{{ downloadUrl }}</a>
             </div>
             <div class="release-callout">
-              AuroraPad publishes packaged binaries first. GitHub’s auto-generated source archives still exist,
+              AuroraPad publishes packaged binaries first. GitHub's auto-generated source archives still exist,
               but the intended experience is to download the platform-specific desktop builds.
             </div>
           </div>
         </div>
 
-        <div class="artifact-matrix">
+        <div class="artifact-matrix" data-reveal="up">
           <div class="artifact-matrix__head">
             <span>Platform</span>
             <span>Primary assets</span>
@@ -281,13 +303,19 @@
           </div>
         </div>
 
-        <div class="release-flow">
+        <div class="release-flow" data-reveal="up">
           <div class="release-flow__intro">
             <p class="eyebrow">Release Flow</p>
             <h3>From commit to tagged desktop binaries.</h3>
           </div>
           <div class="release-flow__steps">
-            <article v-for="step in releaseSteps" :key="step.title" class="release-step">
+            <article
+              v-for="(step, i) in releaseSteps"
+              :key="step.title"
+              class="release-step"
+              data-reveal="left"
+              :data-reveal-delay="i * 120"
+            >
               <span class="release-step__index">{{ step.index }}</span>
               <div>
                 <strong>{{ step.title }}</strong>
@@ -300,13 +328,19 @@
 
       <section class="section open-source">
         <div class="open-source__grid">
-          <div class="section-head section-head--compact">
+          <div class="section-head section-head--compact" data-reveal="left">
             <p class="eyebrow">Project System</p>
             <h2>The editor, release flow, and product website are built as one connected system.</h2>
           </div>
 
           <div class="open-source__items">
-            <article v-for="item in projectItems" :key="item.title" class="open-source__item">
+            <article
+              v-for="(item, i) in projectItems"
+              :key="item.title"
+              class="open-source__item"
+              data-reveal="right"
+              :data-reveal-delay="i * 110"
+            >
               <span class="eyebrow">{{ item.kicker }}</span>
               <h3>{{ item.title }}</h3>
               <p>{{ item.body }}</p>
@@ -316,13 +350,19 @@
       </section>
 
       <section id="faq" class="section faq">
-        <div class="section-head">
+        <div class="section-head" data-reveal="up">
           <p class="eyebrow">FAQ</p>
           <h2>Questions people usually ask before trying a new editor.</h2>
         </div>
 
         <div class="faq-list">
-          <article v-for="item in faqItems" :key="item.q" class="faq-item">
+          <article
+            v-for="(item, i) in faqItems"
+            :key="item.q"
+            class="faq-item"
+            data-reveal="up"
+            :data-reveal-delay="i * 120"
+          >
             <h3>{{ item.q }}</h3>
             <p>{{ item.a }}</p>
           </article>
@@ -330,7 +370,7 @@
       </section>
 
       <section class="section final-cta">
-        <div class="final-cta__shell">
+        <div class="final-cta__shell" data-reveal="zoom">
           <p class="eyebrow">Try AuroraPad</p>
           <h2>Download the latest build and shape the editor around your own workflow.</h2>
           <div class="final-cta__options">
@@ -369,6 +409,7 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
 import appIcon from '../assets/aurorapad-app-icon.png'
 import { downloadUrl } from './data/site'
 const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
@@ -376,15 +417,140 @@ const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
 function handleOutboundClick(label, destination, placement) {
   trackOutboundLink(label, destination, placement)
 }
-
 function handleSectionNavigation(section, placement) {
   trackNavigation(`section_${section}`, `#${section}`, placement)
 }
-
 function handleLegalNavigation(page, placement) {
   trackNavigation(`legal_${page}`, `/${page}`, placement)
 }
 
+// ── Parallax refs ──────────────────────────────────────────────────────────
+const heroWindow = ref(null)
+const orbBlue    = ref(null)
+const orbTeal    = ref(null)
+const orbViolet  = ref(null)
+const floatLeft  = ref(null)
+const floatRight = ref(null)
+
+// ── Scroll reveal via IntersectionObserver ─────────────────────────────────
+function setupScrollReveal() {
+  if (typeof window === 'undefined') return null
+
+  // Respect reduced-motion preference
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-revealed'))
+    return null
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        const el    = entry.target
+        const delay = parseInt(el.dataset.revealDelay || '0', 10)
+
+        el.style.transitionDelay = `${delay}ms`
+        // rAF ensures layout is stable before class toggle
+        requestAnimationFrame(() => el.classList.add('is-revealed'))
+
+        // Clear delay so subsequent transitions (hover, etc.) are instant
+        setTimeout(() => { el.style.transitionDelay = '0ms' }, delay + 900)
+
+        observer.unobserve(el)
+      })
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -48px 0px' },
+  )
+
+  document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el))
+  return observer
+}
+
+// ── Parallax scroll ────────────────────────────────────────────────────────
+let ticking = false
+let heroAnimDone = false
+
+function updateParallax() {
+  const y = window.scrollY
+
+  // Orbs drift at independent speeds
+  if (orbBlue.value)   orbBlue.value.style.transform   = `translate3d(0, ${y * 0.16}px, 0)`
+  if (orbTeal.value)   orbTeal.value.style.transform    = `translate3d(0, ${-y * 0.11}px, 0)`
+  if (orbViolet.value) orbViolet.value.style.transform  = `translate3d(0, ${y * 0.23}px, 0)`
+
+  // Floating notes counter-drift
+  if (floatLeft.value)  floatLeft.value.style.transform  = `translate3d(0, ${-y * 0.07}px, 0)`
+  if (floatRight.value) floatRight.value.style.transform = `translate3d(0, ${y * 0.07}px, 0)`
+
+  // Hero product window 3D perspective tilt on scroll
+  if (heroWindow.value && heroAnimDone) {
+    const tilt = Math.min(y * 0.013, 11)
+    const ty   = Math.min(y * 0.05, 80)
+    heroWindow.value.style.transform = `perspective(1400px) rotateX(${tilt}deg) translateY(${ty}px)`
+  }
+
+  ticking = false
+}
+
+function onScroll() {
+  if (!ticking) {
+    requestAnimationFrame(updateParallax)
+    ticking = true
+  }
+}
+
+// ── Card 3D hover tilt ─────────────────────────────────────────────────────
+function setupCardTilt() {
+  if (typeof window === 'undefined') return
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  const selector = '.feature-row, .showcase-card, .compare-card, .open-source__item, .faq-item, .download-item'
+  document.querySelectorAll(selector).forEach((card) => {
+    card.addEventListener('mouseenter', () => {
+      card.style.transition = 'transform 0.12s ease, box-shadow 0.12s ease'
+    })
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect()
+      const cx   = rect.left + rect.width  / 2
+      const cy   = rect.top  + rect.height / 2
+      const dx   = (e.clientX - cx) / (rect.width  / 2)
+      const dy   = (e.clientY - cy) / (rect.height / 2)
+      card.style.transform  = `perspective(900px) rotateY(${dx * 7}deg) rotateX(${-dy * 5}deg) translateZ(14px) scale(1.015)`
+      card.style.boxShadow  = `0 28px 64px rgba(0,0,0,0.32), 0 0 0 1px rgba(173,198,255,0.18)`
+    })
+    card.addEventListener('mouseleave', () => {
+      card.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.55s ease'
+      card.style.transform  = 'perspective(900px) rotateY(0deg) rotateX(0deg) translateZ(0) scale(1)'
+      card.style.boxShadow  = ''
+    })
+  })
+}
+
+// ── Lifecycle ──────────────────────────────────────────────────────────────
+let revealObserver = null
+
+onMounted(() => {
+  revealObserver = setupScrollReveal()
+  window.addEventListener('scroll', onScroll, { passive: true })
+
+  // Wait for hero CSS animation (1.1s) to finish before JS takes over the window transform
+  setTimeout(() => {
+    heroAnimDone = true
+    if (heroWindow.value) {
+      heroWindow.value.style.animation = 'none'
+    }
+  }, 1200)
+
+  // Card tilt initialised after a short settle
+  setTimeout(setupCardTilt, 300)
+})
+
+onUnmounted(() => {
+  revealObserver?.disconnect()
+  window.removeEventListener('scroll', onScroll)
+})
+
+// ── Static data ────────────────────────────────────────────────────────────
 const heroMeta = [
   { label: 'Platforms', value: 'Windows, macOS, Linux' },
   { label: 'Core stack', value: 'Electron, Vue, Monaco' },
@@ -630,6 +796,67 @@ const finalOptions = [
 </script>
 
 <style scoped>
+/* ── 3D Scroll Reveal ───────────────────────────────────────────────────── */
+/*
+  All transform variants share the same function list so CSS can interpolate
+  smoothly between any initial state and the revealed neutral state.
+  Functions: perspective · rotateX · rotateY · translateX · translateY · scale
+*/
+[data-reveal] {
+  opacity: 0;
+  transition:
+    opacity  0.82s cubic-bezier(0.23, 1, 0.32, 1),
+    transform 0.82s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal='up'] {
+  transform: perspective(900px) rotateX(18deg) rotateY(0deg) translateX(0) translateY(56px) scale(1);
+}
+
+[data-reveal='left'] {
+  transform: perspective(900px) rotateX(0deg) rotateY(-16deg) translateX(-52px) translateY(0) scale(1);
+}
+
+[data-reveal='right'] {
+  transform: perspective(900px) rotateX(0deg) rotateY(16deg) translateX(52px) translateY(0) scale(1);
+}
+
+[data-reveal='zoom'] {
+  transform: perspective(900px) rotateX(10deg) rotateY(0deg) translateX(0) translateY(36px) scale(0.88);
+}
+
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateX(0) translateY(0) scale(1);
+}
+
+/* Reduced-motion: skip all animation */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── Card tilt: performance hint ────────────────────────────────────────── */
+.feature-row,
+.showcase-card,
+.compare-card,
+.open-source__item,
+.faq-item,
+.download-item {
+  will-change: transform;
+}
+
+/* ── Product window: parallax baseline ──────────────────────────────────── */
+.product-window {
+  transform-origin: center top;
+  will-change: transform;
+}
+
+/* ── Base site ─────────────────────────────────────────────────────────── */
 .aurora-site {
   color: #eef5ff;
   background:
@@ -651,6 +878,7 @@ const finalOptions = [
   border-radius: 999px;
   filter: blur(64px);
   opacity: 0.68;
+  will-change: transform;
 }
 
 .orb-blue {
@@ -887,7 +1115,15 @@ const finalOptions = [
   box-shadow:
     0 34px 90px rgba(0, 0, 0, 0.38),
     0 0 0 1px rgba(255, 255, 255, 0.02) inset;
-  animation: float-in 1.1s ease both;
+  animation: float-in-3d 1.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+  transition: box-shadow 0.3s ease;
+}
+
+.product-window:hover {
+  box-shadow:
+    0 48px 110px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 80px rgba(15, 99, 233, 0.1);
 }
 
 .product-window__top {
@@ -912,17 +1148,9 @@ const finalOptions = [
   background: rgba(255, 255, 255, 0.2);
 }
 
-.traffic span:nth-child(1) {
-  background: #ff6d7a;
-}
-
-.traffic span:nth-child(2) {
-  background: #f4c15d;
-}
-
-.traffic span:nth-child(3) {
-  background: #32d2a3;
-}
+.traffic span:nth-child(1) { background: #ff6d7a; }
+.traffic span:nth-child(2) { background: #f4c15d; }
+.traffic span:nth-child(3) { background: #32d2a3; }
 
 .product-window__title {
   color: rgba(232, 239, 255, 0.88);
@@ -950,8 +1178,7 @@ const finalOptions = [
 .workspace-sidebar {
   padding: 22px 18px;
   border-right: 1px solid rgba(173, 198, 255, 0.1);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
 }
 
 .workspace-sidebar__section {
@@ -1049,6 +1276,7 @@ const finalOptions = [
   backdrop-filter: blur(18px);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
   animation: rise-in 1.2s ease both;
+  will-change: transform;
 }
 
 .floating-note strong {
@@ -1060,15 +1288,8 @@ const finalOptions = [
   margin-bottom: 8px;
 }
 
-.floating-note--left {
-  left: -18px;
-  bottom: 92px;
-}
-
-.floating-note--right {
-  right: -24px;
-  top: 110px;
-}
+.floating-note--left  { left: -18px;  bottom: 92px; }
+.floating-note--right { right: -24px; top: 110px; }
 
 .proof-strip {
   padding: 12px 20px 0;
@@ -1198,8 +1419,7 @@ const finalOptions = [
   border-radius: 24px;
   overflow: hidden;
   border: 1px solid rgba(173, 198, 255, 0.14);
-  background:
-    linear-gradient(180deg, rgba(18, 30, 58, 0.96), rgba(8, 16, 32, 0.98));
+  background: linear-gradient(180deg, rgba(18, 30, 58, 0.96), rgba(8, 16, 32, 0.98));
 }
 
 .showcase-mockup__bar {
@@ -1292,8 +1512,7 @@ const finalOptions = [
   padding: 24px;
   border-radius: 26px;
   border: 1px solid rgba(173, 198, 255, 0.13);
-  background:
-    linear-gradient(180deg, rgba(10, 19, 36, 0.62), rgba(8, 16, 32, 0.46));
+  background: linear-gradient(180deg, rgba(10, 19, 36, 0.62), rgba(8, 16, 32, 0.46));
 }
 
 .compare-card h3 {
@@ -1340,19 +1559,12 @@ const finalOptions = [
   background: rgba(10, 19, 36, 0.58);
   color: inherit;
   text-decoration: none;
-  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
 }
 
 .download-item strong {
   display: block;
   margin-bottom: 8px;
   font-size: 1.15rem;
-}
-
-.download-item:hover {
-  transform: translateY(-4px);
-  border-color: rgba(143, 188, 255, 0.26);
-  background: rgba(12, 24, 48, 0.72);
 }
 
 .release-aside {
@@ -1553,28 +1765,24 @@ const finalOptions = [
   gap: 18px;
 }
 
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
 @keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float-in-3d {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: perspective(1400px) rotateX(22deg) rotateY(-4deg) translateY(48px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: perspective(1400px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
   }
 }
 
-@keyframes float-in {
-  from {
-    opacity: 0;
-    transform: translateY(28px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
+/* ── Buttons ────────────────────────────────────────────────────────────── */
 .site-btn {
   display: inline-flex;
   align-items: center;
@@ -1590,13 +1798,7 @@ const finalOptions = [
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
 }
 
-.site-btn:hover {
-  transform: translateY(-1px);
-}
-
-.site-btn--ghost {
-  background: transparent;
-}
+.site-btn:hover { transform: translateY(-2px); }
 
 .site-btn--primary {
   background: linear-gradient(135deg, #0f63e9 0%, #7a38eb 100%);
@@ -1614,6 +1816,7 @@ const finalOptions = [
   font-size: 15px;
 }
 
+/* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 1180px) {
   .hero__inner,
   .workspace-story__grid,
@@ -1623,13 +1826,8 @@ const finalOptions = [
     grid-template-columns: 1fr;
   }
 
-  .hero__visual {
-    min-height: auto;
-  }
-
-  .floating-note {
-    display: none;
-  }
+  .hero__visual { min-height: auto; }
+  .floating-note { display: none; }
 
   .download-matrix,
   .faq-list,
@@ -1640,31 +1838,15 @@ const finalOptions = [
     grid-template-columns: 1fr;
   }
 
-  .release-flow {
-    grid-template-columns: 1fr;
-  }
-
-  .proof-strip__inner {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+  .release-flow { grid-template-columns: 1fr; }
+  .proof-strip__inner { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
-  .site-header {
-    padding: 14px 14px 0;
-  }
-
-  .site-header__inner {
-    padding: 10px 12px;
-  }
-
-  .brand__copy small {
-    display: none;
-  }
-
-  .hero {
-    padding: 36px 14px 20px;
-  }
+  .site-header { padding: 14px 14px 0; }
+  .site-header__inner { padding: 10px 12px; }
+  .brand__copy small { display: none; }
+  .hero { padding: 36px 14px 20px; }
 
   .section,
   .site-footer,
@@ -1678,27 +1860,19 @@ const finalOptions = [
     font-size: clamp(3rem, 13vw, 4.8rem);
   }
 
-  .hero__meta {
-    grid-template-columns: 1fr;
-  }
+  .hero__meta { grid-template-columns: 1fr; }
 
-  .product-window__body {
-    grid-template-columns: 1fr;
-  }
+  .product-window__body { grid-template-columns: 1fr; }
 
   .workspace-sidebar {
     border-right: none;
     border-bottom: 1px solid rgba(173, 198, 255, 0.1);
   }
 
-  .proof-strip__inner {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .proof-strip__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .manifesto-card,
-  .final-cta__shell {
-    padding: 26px;
-  }
+  .final-cta__shell { padding: 26px; }
 
   .artifact-matrix__head,
   .artifact-matrix__row {
@@ -1713,25 +1887,13 @@ const finalOptions = [
 }
 
 @media (max-width: 640px) {
-  .site-nav--desktop {
-    display: none;
-  }
+  .site-nav--desktop    { display: none; }
+  .site-header__actions { display: none; }
 
-  .site-header__actions {
-    display: none;
-  }
+  .hero__actions { width: 100%; }
+  .hero__actions .site-btn { width: 100%; }
 
-  .hero__actions {
-    width: 100%;
-  }
-
-  .hero__actions .site-btn {
-    width: 100%;
-  }
-
-  .workspace-tabs {
-    flex-wrap: wrap;
-  }
+  .workspace-tabs { flex-wrap: wrap; }
 
   .feature-row {
     grid-template-columns: 1fr;
@@ -1742,8 +1904,6 @@ const finalOptions = [
     height: 48px;
   }
 
-  .proof-strip__inner {
-    grid-template-columns: 1fr;
-  }
+  .proof-strip__inner { grid-template-columns: 1fr; }
 }
 </style>
