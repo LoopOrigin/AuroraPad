@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, clipboard } = require('electron')
 
 // Ensure the app consistently identifies as AuroraPad across platforms
 // Setting this early helps with macOS dock name and app menu
@@ -15,16 +15,190 @@ const Store = require('electron-store')
 const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
-const pty = require('node-pty')
+const pty = require('node-pty-prebuilt-multiarch')
+const { RemoteConnectionManager } = require('./remote-manager')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 const shouldOpenDevTools = process.env.AURORAPAD_OPEN_DEVTOOLS === '1'
+const REMOTE_KEYCHAIN_SERVICE = 'AuroraPad.RemoteProfiles'
+const SECURITY_LOG_FILE = 'security-events.log'
+let keytar = null
+
+try {
+  keytar = require('keytar')
+} catch {
+  keytar = null
+}
 
 let mainWindow = null
 let watchers = new Map()
+let fileWatchers = new Map()
+const suppressedFiles = new Set()
 let terminals = new Map()
 let nextTerminalId = 1
+
+function hasKeychainSupport() {
+  return !!keytar && typeof keytar.getPassword === 'function'
+}
+
+function ensureKeychainSupport() {
+  if (!hasKeychainSupport()) {
+    const err = new Error('OS keychain is not available on this machine')
+    err.code = 'KEYCHAIN_UNAVAILABLE'
+    throw err
+  }
+}
+
+async function getRemoteSecret(profileId) {
+  if (!hasKeychainSupport()) return null
+  const raw = await keytar.getPassword(REMOTE_KEYCHAIN_SERVICE, `profile:${profileId}`)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+async function setRemoteSecret(profileId, secret) {
+  ensureKeychainSupport()
+  const payload = JSON.stringify(secret || {})
+  await keytar.setPassword(REMOTE_KEYCHAIN_SERVICE, `profile:${profileId}`, payload)
+}
+
+async function deleteRemoteSecret(profileId) {
+  if (!hasKeychainSupport()) return false
+  return keytar.deletePassword(REMOTE_KEYCHAIN_SERVICE, `profile:${profileId}`)
+}
+
+const remoteManager = new RemoteConnectionManager({
+  getProfiles: () => store.get('remoteProfiles', []),
+  setProfiles: (profiles) => store.set('remoteProfiles', profiles),
+  getSecret: getRemoteSecret,
+  setSecret: setRemoteSecret,
+  deleteSecret: deleteRemoteSecret,
+  ensureSecretStorage: ensureKeychainSupport,
+})
+
+function buildRemoteExportPayload() {
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    app: 'AuroraPad',
+    profiles: remoteManager.listProfiles().map(profile => ({
+      id: profile.id,
+      name: profile.name,
+      protocol: profile.protocol,
+      authType: profile.authType,
+      host: profile.host,
+      port: profile.port,
+      username: profile.username,
+      remoteRoot: profile.remoteRoot,
+      privateKeyPath: profile.privateKeyPath,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    })),
+  }
+}
+
+function normalizeImportedProfiles(payload) {
+  if (Array.isArray(payload)) return payload
+  if (payload && Array.isArray(payload.profiles)) return payload.profiles
+  return []
+}
+
+function logSecurityEvent(type, details = {}) {
+  try {
+    const entry = JSON.stringify({
+      timestamp: new Date().toISOString(),
+      type,
+      ...details,
+    })
+    const logPath = path.join(app.getPath('userData'), SECURITY_LOG_FILE)
+    fsSync.appendFileSync(logPath, `${entry}\n`, 'utf8')
+  } catch {}
+}
+
+function isAllowedAppUrl(targetUrl) {
+  try {
+    const parsed = new URL(targetUrl)
+    if (parsed.protocol === 'file:') return true
+    if (isDev) {
+      return ['127.0.0.1:5173', 'localhost:5173'].includes(parsed.host)
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+function validateLocalDirectory(inputPath) {
+  const resolved = path.resolve(String(inputPath || process.cwd()))
+  if (!fsSync.existsSync(resolved) || !fsSync.statSync(resolved).isDirectory()) {
+    const err = new Error('Working directory is not available')
+    err.code = 'INVALID_CWD'
+    throw err
+  }
+  return resolved
+}
+
+function validateImportedRemoteProfilesPayload(profiles) {
+  if (!profiles.length) {
+    const error = new Error('No remote profiles found in selected file.')
+    error.code = 'REMOTE_IMPORT_EMPTY'
+    throw error
+  }
+  if (profiles.length > 200) {
+    const error = new Error('Import file contains too many remote profiles.')
+    error.code = 'REMOTE_IMPORT_TOO_LARGE'
+    throw error
+  }
+}
+
+function validateCommandInput(command) {
+  const normalized = String(command || '').trim()
+  if (!normalized) {
+    const error = new Error('Command is required')
+    error.code = 'COMMAND_REQUIRED'
+    throw error
+  }
+  if (normalized.length > 2000) {
+    const error = new Error('Command is too long')
+    error.code = 'COMMAND_TOO_LONG'
+    throw error
+  }
+  return normalized
+}
+
+function sanitizePluginFilename(filename) {
+  const normalized = path.basename(String(filename || ''))
+  if (!normalized || normalized !== filename || !normalized.endsWith('.js')) {
+    const error = new Error('Plugin filename is invalid')
+    error.code = 'INVALID_PLUGIN_FILENAME'
+    throw error
+  }
+  return normalized
+}
+
+async function confirmSensitiveAction({
+  title,
+  message,
+  detail = '',
+  confirmLabel = 'Continue',
+}) {
+  const result = await dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    buttons: ['Cancel', confirmLabel],
+    defaultId: 1,
+    cancelId: 0,
+    noLink: true,
+    title,
+    message,
+    detail,
+  })
+  return result.response === 1
+}
 
 function getPlatformInfo() {
   const isWindows = process.platform === 'win32'
@@ -74,7 +248,11 @@ function getPlatformInfo() {
   }
 }
 
-function resolveTerminalLaunch(shellType = 'default') {
+function resolveTerminalLaunch(shellType = 'default', cwd = '') {
+  if (String(shellType).startsWith('ssh:')) {
+    return remoteManager.resolveSshLaunch(shellType, cwd)
+  }
+
   const isWindows = process.platform === 'win32'
 
   if (isWindows) {
@@ -140,10 +318,42 @@ function createWindow() {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
       backgroundThrottling: false,
     },
     show: false,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
+  })
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    logSecurityEvent('window-open-blocked', { url })
+    return { action: 'deny' }
+  })
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!isAllowedAppUrl(url)) {
+      event.preventDefault()
+      logSecurityEvent('navigation-blocked', { url })
+    }
+  })
+
+  const ses = mainWindow.webContents.session
+  ses.setPermissionRequestHandler((_, permission, callback) => {
+    logSecurityEvent('permission-request-denied', { permission })
+    callback(false)
+  })
+  ses.setPermissionCheckHandler(() => false)
+  ses.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = {
+      ...details.responseHeaders,
+      'Permissions-Policy': [
+        'camera=(), microphone=(), geolocation=(), fullscreen=(self), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), clipboard-read=(self), clipboard-write=(self)',
+      ],
+      'X-Content-Type-Options': ['nosniff'],
+      'Referrer-Policy': ['no-referrer'],
+      'Cross-Origin-Opener-Policy': ['same-origin'],
+    }
+    callback({ responseHeaders })
   })
 
   if (isDev) {
@@ -180,114 +390,7 @@ function buildMenu(pluginMenuItems = []) {
   app.name = appName // Reinforce app name before template building
   app.setName(appName)
 
-  const template = [
-    ...(process.platform === 'darwin'
-      ? [
-          {
-            label: appName,
-            submenu: [
-              { role: 'about' },
-              { type: 'separator' },
-              { label: 'Preferences...', accelerator: 'Cmd+,', click: () => mainWindow?.webContents.send('menu:preferences') },
-              { type: 'separator' },
-              { role: 'services' },
-              { type: 'separator' },
-              { role: 'hide' },
-              { role: 'hideOthers' },
-              { role: 'unhide' },
-              { type: 'separator' },
-              { role: 'quit' },
-            ],
-          },
-        ]
-      : []),
-    {
-      label: 'File',
-      submenu: [
-        { label: 'New', accelerator: 'CmdOrCtrl+N', click: () => mainWindow?.webContents.send('menu:new') },
-        { type: 'separator' },
-        { label: 'Open File...', accelerator: 'CmdOrCtrl+O', click: () => mainWindow?.webContents.send('menu:open-file') },
-        { label: 'Open Folder...', accelerator: 'CmdOrCtrl+Shift+O', click: () => mainWindow?.webContents.send('menu:open-folder') },
-        { type: 'separator' },
-        { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow?.webContents.send('menu:save') },
-        { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-all') },
-        { label: 'Save As...', accelerator: 'F12', click: () => mainWindow?.webContents.send('menu:save-as') },
-        { label: 'Save a Copy As...', click: () => mainWindow?.webContents.send('menu:save-copy-as') },
-        { label: 'Rename...', click: () => mainWindow?.webContents.send('menu:rename') },
-        { type: 'separator' },
-        { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
-        { label: 'Close All', click: () => mainWindow?.webContents.send('menu:close-all') },
-        { label: 'Close All But Active', click: () => mainWindow?.webContents.send('menu:close-others') },
-        { type: 'separator' },
-        {
-          label: 'Recent Files',
-          submenu: [
-            ...(getRecentFiles().map(p => ({
-              label: p,
-              click: () => mainWindow?.webContents.send('menu:open-recent', p),
-            })) || []),
-            { type: 'separator' },
-            { label: 'Open All Recent Files', click: () => mainWindow?.webContents.send('menu:open-all-recent') },
-            { label: 'Restore Recently Closed File', click: () => mainWindow?.webContents.send('menu:restore-recent') },
-            { label: 'Empty Recent Files List', click: () => mainWindow?.webContents.send('menu:clear-recent') },
-          ],
-        },
-        { type: 'separator' },
-        {
-          label: 'Open Containing Folder',
-          submenu: [
-            {
-              label: `in ${platformInfo.revealInFolderLabel}`,
-              click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer'),
-            },
-            {
-              label: `in ${platformInfo.terminalAppLabel}`,
-              click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd'),
-            },
-            { label: 'as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
-          ],
-        },
-        { label: 'Open in Default Viewer', click: () => mainWindow?.webContents.send('menu:open-in-default-viewer') },
-        { type: 'separator' },
-        { label: 'Reload from Disk', click: () => mainWindow?.webContents.send('menu:reload-from-disk') },
-        { type: 'separator' },
-        { label: 'Exit', accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4', click: () => app.quit() },
-      ],
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => mainWindow?.webContents.send('menu:undo') },
-        { label: 'Redo', accelerator: 'CmdOrCtrl+Y', click: () => mainWindow?.webContents.send('menu:redo') },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'CmdOrCtrl+X', click: () => mainWindow?.webContents.send('menu:cut') },
-        { label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => mainWindow?.webContents.send('menu:copy') },
-        { label: 'Paste', accelerator: 'CmdOrCtrl+V', click: () => mainWindow?.webContents.send('menu:paste') },
-        { type: 'separator' },
-        { label: 'Duplicate Line', accelerator: 'CmdOrCtrl+D', click: () => mainWindow?.webContents.send('menu:duplicate-line') },
-        { label: 'Delete Line', accelerator: 'CmdOrCtrl+L', click: () => mainWindow?.webContents.send('menu:delete-line') },
-        { label: 'Move Line Up', accelerator: 'CmdOrCtrl+Shift+Up', click: () => mainWindow?.webContents.send('menu:move-line-up') },
-        { label: 'Move Line Down', accelerator: 'CmdOrCtrl+Shift+Down', click: () => mainWindow?.webContents.send('menu:move-line-down') },
-        { label: 'Join Lines', accelerator: 'CmdOrCtrl+J', click: () => mainWindow?.webContents.send('menu:join-lines') },
-        { type: 'separator' },
-        { label: 'Toggle Comment', accelerator: 'CmdOrCtrl+Q', click: () => mainWindow?.webContents.send('menu:toggle-comment') },
-        { type: 'separator' },
-        { label: 'Lowercase', accelerator: 'CmdOrCtrl+U', click: () => mainWindow?.webContents.send('menu:lowercase') },
-        { label: 'UPPERCASE', accelerator: 'CmdOrCtrl+Shift+U', click: () => mainWindow?.webContents.send('menu:uppercase') },
-      ],
-    },
-    {
-      label: 'Search',
-      submenu: [
-        { label: 'Find', accelerator: 'CmdOrCtrl+F', click: () => mainWindow?.webContents.send('menu:find') },
-        { label: 'Replace', accelerator: 'CmdOrCtrl+H', click: () => mainWindow?.webContents.send('menu:replace') },
-        { label: 'Find Next', accelerator: 'F3', click: () => mainWindow?.webContents.send('menu:find-next') },
-        { label: 'Find Previous', accelerator: 'Shift+F3', click: () => mainWindow?.webContents.send('menu:find-prev') },
-        { label: 'Go to Line...', accelerator: 'CmdOrCtrl+G', click: () => mainWindow?.webContents.send('menu:go-to-line') },
-        { type: 'separator' },
-        { label: 'Find in Files…', accelerator: 'CmdOrCtrl+Shift+F', click: () => mainWindow?.webContents.send('menu:find-in-files') },
-      ],
-    },
+  const secondaryNativeMenus = [
     {
       label: 'View',
       submenu: [
@@ -393,6 +496,132 @@ function buildMenu(pluginMenuItems = []) {
       label: 'Plugins',
       submenu: pluginsSubmenu,
     },
+  ]
+
+  const template = [
+    ...(process.platform === 'darwin'
+      ? [
+          {
+            label: appName,
+            submenu: [
+              { role: 'about' },
+              { type: 'separator' },
+              { label: 'Preferences...', accelerator: 'Cmd+,', click: () => mainWindow?.webContents.send('menu:preferences') },
+              { type: 'separator' },
+              { role: 'services' },
+              { type: 'separator' },
+              { role: 'hide' },
+              { role: 'hideOthers' },
+              { role: 'unhide' },
+              { type: 'separator' },
+              { role: 'quit' },
+            ],
+          },
+        ]
+      : []),
+    {
+      label: 'File',
+      submenu: [
+        { label: 'New', accelerator: 'CmdOrCtrl+N', click: () => mainWindow?.webContents.send('menu:new') },
+        { type: 'separator' },
+        { label: 'Open File...', accelerator: 'CmdOrCtrl+O', click: () => mainWindow?.webContents.send('menu:open-file') },
+        { label: 'Open Folder...', accelerator: 'CmdOrCtrl+Shift+O', click: () => mainWindow?.webContents.send('menu:open-folder') },
+        { type: 'separator' },
+        { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow?.webContents.send('menu:save') },
+        { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: () => mainWindow?.webContents.send('menu:save-all') },
+        { label: 'Save As...', accelerator: 'F12', click: () => mainWindow?.webContents.send('menu:save-as') },
+        { label: 'Save a Copy As...', click: () => mainWindow?.webContents.send('menu:save-copy-as') },
+        { label: 'Rename...', click: () => mainWindow?.webContents.send('menu:rename') },
+        { type: 'separator' },
+        { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => mainWindow?.webContents.send('menu:close-tab') },
+        { label: 'Close All', click: () => mainWindow?.webContents.send('menu:close-all') },
+        { label: 'Close All But Active', click: () => mainWindow?.webContents.send('menu:close-others') },
+        { type: 'separator' },
+        {
+          label: 'Recent Files',
+          submenu: [
+            ...(getRecentFiles().map(p => ({
+              label: p,
+              click: () => mainWindow?.webContents.send('menu:open-recent', p),
+            })) || []),
+            { type: 'separator' },
+            { label: 'Open All Recent Files', click: () => mainWindow?.webContents.send('menu:open-all-recent') },
+            { label: 'Restore Recently Closed File', click: () => mainWindow?.webContents.send('menu:restore-recent') },
+            { label: 'Empty Recent Files List', click: () => mainWindow?.webContents.send('menu:clear-recent') },
+          ],
+        },
+        { type: 'separator' },
+        {
+          label: 'Open Containing Folder',
+          submenu: [
+            {
+              label: `in ${platformInfo.revealInFolderLabel}`,
+              click: () => mainWindow?.webContents.send('menu:open-containing-folder:explorer'),
+            },
+            {
+              label: `in ${platformInfo.terminalAppLabel}`,
+              click: () => mainWindow?.webContents.send('menu:open-containing-folder:cmd'),
+            },
+            { label: 'as Workspace', click: () => mainWindow?.webContents.send('menu:open-containing-folder:faw') },
+          ],
+        },
+        { label: 'Open in Default Viewer', click: () => mainWindow?.webContents.send('menu:open-in-default-viewer') },
+        { type: 'separator' },
+        { label: 'Reload from Disk', click: () => mainWindow?.webContents.send('menu:reload-from-disk') },
+        { type: 'separator' },
+        { label: 'Exit', accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4', click: () => app.quit() },
+      ],
+    },
+    {
+      label: 'Remote',
+      submenu: [
+        { label: 'Remote Manager...', click: () => mainWindow?.webContents.send('menu:remote-manager') },
+        { label: 'Connect Server...', click: () => mainWindow?.webContents.send('menu:connect-server') },
+        { label: 'Disconnect Server', click: () => mainWindow?.webContents.send('menu:disconnect-server') },
+        { label: 'Open SSH Terminal', click: () => mainWindow?.webContents.send('menu:open-ssh-terminal') },
+        { type: 'separator' },
+        { label: 'Import Profiles...', click: () => mainWindow?.webContents.send('menu:remote-import') },
+        { label: 'Export Profiles...', click: () => mainWindow?.webContents.send('menu:remote-export') },
+        { type: 'separator' },
+        { label: 'New SFTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-sftp') },
+        { label: 'New FTP Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftp') },
+        { label: 'New FTPS Profile', click: () => mainWindow?.webContents.send('menu:remote-new-ftps') },
+      ],
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => mainWindow?.webContents.send('menu:undo') },
+        { label: 'Redo', accelerator: 'CmdOrCtrl+Y', click: () => mainWindow?.webContents.send('menu:redo') },
+        { type: 'separator' },
+        { label: 'Cut', accelerator: 'CmdOrCtrl+X', click: () => mainWindow?.webContents.send('menu:cut') },
+        { label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => mainWindow?.webContents.send('menu:copy') },
+        { label: 'Paste', accelerator: 'CmdOrCtrl+V', click: () => mainWindow?.webContents.send('menu:paste') },
+        { type: 'separator' },
+        { label: 'Duplicate Line', accelerator: 'CmdOrCtrl+D', click: () => mainWindow?.webContents.send('menu:duplicate-line') },
+        { label: 'Delete Line', accelerator: 'CmdOrCtrl+L', click: () => mainWindow?.webContents.send('menu:delete-line') },
+        { label: 'Move Line Up', accelerator: 'CmdOrCtrl+Shift+Up', click: () => mainWindow?.webContents.send('menu:move-line-up') },
+        { label: 'Move Line Down', accelerator: 'CmdOrCtrl+Shift+Down', click: () => mainWindow?.webContents.send('menu:move-line-down') },
+        { label: 'Join Lines', accelerator: 'CmdOrCtrl+J', click: () => mainWindow?.webContents.send('menu:join-lines') },
+        { type: 'separator' },
+        { label: 'Toggle Comment', accelerator: 'CmdOrCtrl+Q', click: () => mainWindow?.webContents.send('menu:toggle-comment') },
+        { type: 'separator' },
+        { label: 'Lowercase', accelerator: 'CmdOrCtrl+U', click: () => mainWindow?.webContents.send('menu:lowercase') },
+        { label: 'UPPERCASE', accelerator: 'CmdOrCtrl+Shift+U', click: () => mainWindow?.webContents.send('menu:uppercase') },
+      ],
+    },
+    {
+      label: 'Search',
+      submenu: [
+        { label: 'Find', accelerator: 'CmdOrCtrl+F', click: () => mainWindow?.webContents.send('menu:find') },
+        { label: 'Replace', accelerator: 'CmdOrCtrl+H', click: () => mainWindow?.webContents.send('menu:replace') },
+        { label: 'Find Next', accelerator: 'F3', click: () => mainWindow?.webContents.send('menu:find-next') },
+        { label: 'Find Previous', accelerator: 'Shift+F3', click: () => mainWindow?.webContents.send('menu:find-prev') },
+        { label: 'Go to Line...', accelerator: 'CmdOrCtrl+G', click: () => mainWindow?.webContents.send('menu:go-to-line') },
+        { type: 'separator' },
+        { label: 'Find in Files…', accelerator: 'CmdOrCtrl+Shift+F', click: () => mainWindow?.webContents.send('menu:find-in-files') },
+      ],
+    },
     {
       label: 'Window',
       submenu: [
@@ -420,54 +649,71 @@ function buildMenu(pluginMenuItems = []) {
         { label: 'About AuroraPad', click: () => mainWindow?.webContents.send('menu:about') },
       ],
     },
+    {
+      label: 'More',
+      submenu: secondaryNativeMenus,
+    },
   ]
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
+async function isBinaryBuffer(buffer) {
+  try {
+    if (!buffer || !buffer.length) return false
+    if (buffer.length > 5 * 1024 * 1024) return false
+    const { fileTypeFromBuffer } = await import('file-type')
+    const type = await fileTypeFromBuffer(buffer)
+    if (!type) return false
+    return ![
+      'text/plain',
+      'application/json',
+      'application/javascript',
+      'text/html',
+      'text/css',
+      'text/xml',
+      'application/xml',
+    ].includes(type.mime)
+  } catch {
+    return false
+  }
+}
+
+function decodeTextBuffer(buffer, encoding = 'utf8') {
+  let detectedEncoding = encoding || 'utf8'
+  try {
+    const detection = jschardet.detect(buffer)
+    if (detection && detection.encoding && detection.confidence >= 0.6) {
+      detectedEncoding = detection.encoding.toLowerCase()
+    }
+  } catch {
+    // Best-effort detection; fall back to requested/default encoding
+  }
+
+  let content
+  if (detectedEncoding === 'utf-8' || detectedEncoding === 'utf8') {
+    content = buffer.toString('utf8')
+    detectedEncoding = 'utf8'
+  } else {
+    try {
+      content = iconv.decode(buffer, detectedEncoding)
+    } catch {
+      content = buffer.toString('utf8')
+      detectedEncoding = 'utf8'
+    }
+  }
+
+  return { content, encoding: detectedEncoding }
 }
 
 // IPC handlers
 ipcMain.handle('fs:readFile', async (_, filePath, encoding = 'utf8') => {
   try {
     const buffer = await fs.readFile(filePath)
-    let isBinary = false
-    try {
-      // Skip expensive MIME detection for very large files to keep open fast
-      const stat = await fs.stat(filePath)
-      if (stat.size <= 5 * 1024 * 1024) {
-        const { fileTypeFromBuffer } = await import('file-type')
-        const type = await fileTypeFromBuffer(buffer)
-        if (type && !['text/plain', 'application/json', 'application/javascript', 'text/html', 'text/css', 'text/xml', 'application/xml'].includes(type.mime)) {
-          isBinary = true
-        }
-      }
-    } catch {
-      // Best-effort detection; fall back to treating as text
-    }
+    const isBinary = await isBinaryBuffer(buffer)
     if (isBinary) {
       return { error: 'Binary file', binary: true }
     }
-
-    let detectedEncoding = encoding || 'utf8'
-    try {
-      const detection = jschardet.detect(buffer)
-      if (detection && detection.encoding && detection.confidence >= 0.6) {
-        detectedEncoding = detection.encoding.toLowerCase()
-      }
-    } catch {
-      // Best-effort detection; fall back to requested/default encoding
-    }
-
-    let content
-    if (detectedEncoding === 'utf-8' || detectedEncoding === 'utf8') {
-      content = buffer.toString('utf8')
-      detectedEncoding = 'utf8'
-    } else {
-      try {
-        content = iconv.decode(buffer, detectedEncoding)
-      } catch {
-        content = buffer.toString('utf8')
-        detectedEncoding = 'utf8'
-      }
-    }
+    const { content, encoding: detectedEncoding } = decodeTextBuffer(buffer, encoding)
 
     addRecentFile(filePath)
     return { content, encoding: detectedEncoding }
@@ -478,11 +724,14 @@ ipcMain.handle('fs:readFile', async (_, filePath, encoding = 'utf8') => {
 
 ipcMain.handle('fs:writeFile', async (_, filePath, content, encoding = 'utf8') => {
   try {
+    suppressedFiles.add(filePath)
     const buffer = encoding === 'utf8' ? Buffer.from(content, 'utf8') : iconv.encode(content, encoding)
     await fs.writeFile(filePath, buffer)
     addRecentFile(filePath)
+    setTimeout(() => suppressedFiles.delete(filePath), 1000)
     return { ok: true }
   } catch (e) {
+    suppressedFiles.delete(filePath)
     return { error: e.message }
   }
 })
@@ -514,6 +763,206 @@ ipcMain.handle('dialog:openFolder', async () => {
 ipcMain.handle('store:getRecentFiles', () => getRecentFiles())
 ipcMain.handle('store:clearRecentFiles', () => store.set('recentFiles', []))
 
+ipcMain.handle('remote:listProfiles', async () => {
+  try {
+    return {
+      ok: true,
+      keychainAvailable: hasKeychainSupport(),
+      profiles: remoteManager.listProfiles(),
+    }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_LIST_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:saveProfile', async (_, profile) => {
+  try {
+    const saved = await remoteManager.saveProfile(profile || {})
+    return { ok: true, profile: saved, keychainAvailable: hasKeychainSupport() }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_SAVE_PROFILE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:deleteProfile', async (_, profileId) => {
+  try {
+    await remoteManager.deleteProfile(profileId)
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_DELETE_PROFILE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:exportProfiles', async () => {
+  try {
+    const payload = buildRemoteExportPayload()
+    const dateTag = new Date().toISOString().slice(0, 10)
+    const defaultPath = path.join(app.getPath('documents'), `aurorapad-remote-profiles-${dateTag}.json`)
+    const result = await dialog.showSaveDialog({
+      defaultPath,
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    })
+    if (result.canceled || !result.filePath) return { canceled: true }
+    await fs.writeFile(result.filePath, JSON.stringify(payload, null, 2), 'utf8')
+    logSecurityEvent('remote-profiles-exported', { path: result.filePath, count: payload.profiles.length })
+    return { ok: true, path: result.filePath, count: payload.profiles.length }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_EXPORT_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:importProfiles', async () => {
+  try {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    })
+    if (result.canceled || !result.filePaths?.[0]) return { canceled: true }
+    const importPath = result.filePaths[0]
+    const stat = await fs.stat(importPath)
+    if (stat.size > 1024 * 1024) {
+      return { error: 'Import file is too large.', code: 'REMOTE_IMPORT_TOO_LARGE' }
+    }
+    const raw = await fs.readFile(importPath, 'utf8')
+    const parsed = JSON.parse(raw)
+    const profiles = normalizeImportedProfiles(parsed)
+    validateImportedRemoteProfilesPayload(profiles)
+
+    const imported = []
+    for (const profile of profiles) {
+      const saved = await remoteManager.saveProfile({
+        id: profile.id,
+        name: profile.name,
+        protocol: profile.protocol,
+        authType: profile.authType,
+        host: profile.host,
+        port: profile.port,
+        username: profile.username,
+        remoteRoot: profile.remoteRoot,
+        privateKeyPath: profile.privateKeyPath,
+        saveSecret: false,
+      })
+      imported.push(saved)
+    }
+
+    logSecurityEvent('remote-profiles-imported', { path: importPath, count: imported.length })
+
+    return {
+      ok: true,
+      path: importPath,
+      count: imported.length,
+      keychainAvailable: hasKeychainSupport(),
+      profiles: remoteManager.listProfiles(),
+    }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_IMPORT_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:connect', async (_, profileId, secretInput) => {
+  try {
+    const connection = await remoteManager.connect(profileId, secretInput || {})
+    return { ok: true, connection }
+  } catch (e) {
+    return {
+      error: e.message,
+      code: e.code || 'REMOTE_CONNECT_FAILED',
+      secretType: e.secretType || null,
+      currentVersion: e.currentVersion || null,
+    }
+  }
+})
+
+ipcMain.handle('remote:testConnection', async (_, profileDraft) => {
+  try {
+    const result = await remoteManager.testConnection(profileDraft || {})
+    return result
+  } catch (e) {
+    return {
+      error: e.message,
+      code: e.code || 'REMOTE_TEST_CONNECTION_FAILED',
+      secretType: e.secretType || null,
+    }
+  }
+})
+
+ipcMain.handle('remote:disconnect', async (_, connectionId) => {
+  try {
+    await remoteManager.disconnect(connectionId)
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_DISCONNECT_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:readDir', async (_, connectionId, remotePath) => {
+  try {
+    const entries = await remoteManager.list(connectionId, remotePath)
+    return entries
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_READ_DIR_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:readFile', async (_, connectionId, remotePath, encoding = 'utf8') => {
+  try {
+    const result = await remoteManager.readFile(connectionId, remotePath)
+    const isBinary = await isBinaryBuffer(result.buffer)
+    if (isBinary) return { error: 'Binary file', binary: true }
+    const decoded = decodeTextBuffer(result.buffer, encoding)
+    return {
+      content: decoded.content,
+      encoding: decoded.encoding,
+      version: result.version,
+      modifiedAt: result.modifiedAt,
+      size: result.size,
+      path: result.path,
+    }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_READ_FILE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:writeFile', async (_, connectionId, remotePath, content, encoding = 'utf8', expectedVersion = null) => {
+  try {
+    const buffer = encoding === 'utf8' ? Buffer.from(content || '', 'utf8') : iconv.encode(content || '', encoding)
+    const result = await remoteManager.writeFile(connectionId, remotePath, buffer, expectedVersion)
+    return result
+  } catch (e) {
+    return {
+      error: e.message,
+      code: e.code || 'REMOTE_WRITE_FILE_FAILED',
+      currentVersion: e.currentVersion || null,
+    }
+  }
+})
+
+ipcMain.handle('remote:movePath', async (_, connectionId, fromPath, toPath) => {
+  try {
+    return await remoteManager.move(connectionId, fromPath, toPath)
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_MOVE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:mkdir', async (_, connectionId, remotePath) => {
+  try {
+    return await remoteManager.mkdir(connectionId, remotePath)
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_MKDIR_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:openSshTerminal', async (_, connectionId, cwd = '') => {
+  try {
+    const descriptor = remoteManager.getSshTerminalDescriptor(connectionId, cwd)
+    logSecurityEvent('remote-ssh-terminal-opened', { connectionId, cwd: descriptor.cwd })
+    return { ok: true, ...descriptor }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_SSH_TERMINAL_FAILED' }
+  }
+})
+
 ipcMain.handle('fs:renameFile', async (_, oldPath, newPath) => {
   try {
     await fs.rename(oldPath, newPath)
@@ -527,8 +976,17 @@ ipcMain.handle('fs:renameFile', async (_, oldPath, newPath) => {
 ipcMain.handle('shell:openInDefaultViewer', async (_, filePath) => {
   if (!filePath) return { error: 'No file path provided' }
   try {
-    const res = await shell.openPath(filePath)
+    const resolvedPath = path.resolve(String(filePath))
+    const approved = await confirmSensitiveAction({
+      title: 'Open In Default Viewer',
+      message: 'Open this file in another application?',
+      detail: resolvedPath,
+      confirmLabel: 'Open File',
+    })
+    if (!approved) return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+    const res = await shell.openPath(resolvedPath)
     if (res) return { error: res }
+    logSecurityEvent('open-in-default-viewer', { path: resolvedPath })
     return { ok: true }
   } catch (e) {
     return { error: e.message }
@@ -538,14 +996,24 @@ ipcMain.handle('shell:openInDefaultViewer', async (_, filePath) => {
 ipcMain.handle('shell:revealInFolder', async (_, filePath) => {
   if (!filePath) return { error: 'No file path provided' }
   try {
-    if (fsSync.existsSync(filePath)) {
-      shell.showItemInFolder(filePath)
+    const resolvedPath = path.resolve(String(filePath))
+    const approved = await confirmSensitiveAction({
+      title: 'Reveal In Folder',
+      message: 'Open the system file manager for this path?',
+      detail: resolvedPath,
+      confirmLabel: 'Reveal',
+    })
+    if (!approved) return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+    if (fsSync.existsSync(resolvedPath)) {
+      shell.showItemInFolder(resolvedPath)
+      logSecurityEvent('reveal-in-folder', { path: resolvedPath })
       return { ok: true }
     }
 
-    const fallbackDir = path.dirname(filePath)
+    const fallbackDir = path.dirname(resolvedPath)
     const res = await shell.openPath(fallbackDir)
     if (res) return { error: res }
+    logSecurityEvent('reveal-in-folder-fallback', { path: fallbackDir })
     return { ok: true }
   } catch (e) {
     return { error: e.message }
@@ -553,6 +1021,11 @@ ipcMain.handle('shell:revealInFolder', async (_, filePath) => {
 })
 
 ipcMain.handle('platform:getInfo', () => getPlatformInfo())
+ipcMain.handle('clipboard:readText', () => clipboard.readText())
+ipcMain.handle('clipboard:writeText', async (_, text) => {
+  clipboard.writeText(String(text || ''))
+  return { ok: true }
+})
 
 function getSession() {
   return store.get('session', null)
@@ -589,11 +1062,31 @@ ipcMain.handle('tools:getHash', async (_, algorithm, text) => {
 ipcMain.handle('run:command', async (_, command, cwd) => {
   try {
     const { exec } = require('child_process')
+    const safeCommand = validateCommandInput(command)
+    const safeCwd = validateLocalDirectory(cwd)
+    const approved = await confirmSensitiveAction({
+      title: 'Run Local Command',
+      message: 'AuroraPad wants to execute a command on this machine.',
+      detail: `Command:\n${safeCommand}\n\nWorking directory:\n${safeCwd}`,
+      confirmLabel: 'Run Command',
+    })
+    if (!approved) {
+      logSecurityEvent('command-run-canceled', { command: safeCommand, cwd: safeCwd })
+      return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+    }
+    logSecurityEvent('command-run-requested', { command: safeCommand, cwd: safeCwd })
     return await new Promise((resolve) => {
-      const child = exec(command, { cwd: cwd || process.cwd(), windowsHide: true }, (error, stdout, stderr) => {
+      exec(safeCommand, {
+        cwd: safeCwd,
+        windowsHide: true,
+        timeout: 120000,
+        maxBuffer: 1024 * 1024,
+      }, (error, stdout, stderr) => {
         if (error) {
+          logSecurityEvent('command-run-failed', { command: safeCommand, cwd: safeCwd, error: error.message })
           resolve({ error: error.message, stdout, stderr })
         } else {
+          logSecurityEvent('command-run-completed', { command: safeCommand, cwd: safeCwd })
           resolve({ ok: true, stdout, stderr })
         }
       })
@@ -606,8 +1099,23 @@ ipcMain.handle('run:command', async (_, command, cwd) => {
 ipcMain.handle('terminal:create', async (_, options = {}) => {
   try {
     const shellType = options.shell || 'default'
-    const cwd = options.cwd || process.cwd()
-    const terminalLaunch = resolveTerminalLaunch(shellType) || resolveTerminalLaunch('default')
+    const requestedCwd = options.cwd || ''
+    const isSshShell = String(shellType).startsWith('ssh:')
+    if (isSshShell) {
+      const launchPreview = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
+      const approved = await confirmSensitiveAction({
+        title: 'Open SSH Terminal',
+        message: 'AuroraPad wants to open an SSH terminal session.',
+        detail: `Shell:\n${launchPreview?.file || 'ssh'} ${(launchPreview?.args || []).join(' ')}`.trim(),
+        confirmLabel: 'Open SSH',
+      })
+      if (!approved) {
+        logSecurityEvent('remote-ssh-terminal-canceled', { shellType, cwd: requestedCwd })
+        return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+      }
+    }
+    const cwd = isSshShell ? process.cwd() : (requestedCwd || process.cwd())
+    const terminalLaunch = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
     if (!terminalLaunch) {
       return { error: `The ${shellType} terminal profile is not available on this platform.` }
     }
@@ -626,6 +1134,7 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
 
     const id = `term-${nextTerminalId++}`
     terminals.set(id, term)
+    logSecurityEvent('terminal-created', { id, shell: shellKey, cwd, ssh: isSshShell })
 
     term.onData(data => {
       mainWindow?.webContents.send('terminal:data', { id, data })
@@ -705,10 +1214,32 @@ ipcMain.handle('fs:unwatchFolder', async (_, folderPath) => {
   }
 })
 
+ipcMain.handle('fs:watchFile', async (_, filePath) => {
+  if (fileWatchers.has(filePath)) return
+  const watcher = chokidar.watch(filePath, { ignoreInitial: true, persistent: false })
+  watcher.on('change', () => {
+    if (suppressedFiles.has(filePath)) return
+    mainWindow?.webContents.send('fs:fileChangedExternally', { path: filePath })
+  })
+  watcher.on('unlink', () => {
+    mainWindow?.webContents.send('fs:fileChangedExternally', { path: filePath, deleted: true })
+    fileWatchers.delete(filePath)
+  })
+  fileWatchers.set(filePath, watcher)
+})
+
+ipcMain.handle('fs:unwatchFile', async (_, filePath) => {
+  const w = fileWatchers.get(filePath)
+  if (w) {
+    w.close()
+    fileWatchers.delete(filePath)
+  }
+})
+
 ipcMain.handle('search:findInFiles', async (_, options) => {
   const root = options?.root
   const needle = options?.pattern ?? ''
-  const mask = options?.mask ?? '*.*'
+  const mask = options?.mask ?? '*'
   const useRegex = !!options?.useRegex
   const matchCase = !!options?.matchCase
 
@@ -718,7 +1249,7 @@ ipcMain.handle('search:findInFiles', async (_, options) => {
   const maxBytesPerFile = 512 * 1024
 
   function buildMaskRegex(maskStr) {
-    const parts = (maskStr || '*.*').split(';').map(s => s.trim()).filter(Boolean)
+    const parts = (maskStr || '*').split(';').map(s => s.trim()).filter(Boolean)
     const escaped = parts.map(p => p
       .replace(/[.+^${}()|[\]\\]/g, '\\$&')
       .replace(/\*/g, '.*')
@@ -905,23 +1436,43 @@ ipcMain.handle('plugin:listUserPlugins', async () => {
   try {
     await fs.mkdir(pluginsDir(), { recursive: true })
     const entries = await fs.readdir(pluginsDir(), { withFileTypes: true })
-    return entries.filter(e => e.isFile() && e.name.endsWith('.js')).map(e => e.name)
+    const files = entries.filter(e => e.isFile() && e.name.endsWith('.js')).map(e => e.name)
+    logSecurityEvent('plugin-list-read', { count: files.length })
+    return files
   } catch {
     return []
   }
 })
 
 ipcMain.handle('plugin:readUserPlugin', async (_, filename) => {
-  const filePath = path.join(pluginsDir(), filename)
   try {
-    return await fs.readFile(filePath, 'utf8')
-  } catch {
+    const safeFilename = sanitizePluginFilename(filename)
+    const filePath = path.join(pluginsDir(), safeFilename)
+    const stat = await fs.stat(filePath)
+    if (stat.size > 256 * 1024) {
+      const error = new Error('Plugin file is too large')
+      error.code = 'PLUGIN_TOO_LARGE'
+      throw error
+    }
+    const content = await fs.readFile(filePath, 'utf8')
+    logSecurityEvent('plugin-loaded', { file: safeFilename, bytes: stat.size })
+    return content
+  } catch (error) {
+    logSecurityEvent('plugin-load-failed', { file: String(filename || ''), error: error.message })
     return null
   }
 })
 
 ipcMain.handle('plugin:openPluginsFolder', async () => {
   await fs.mkdir(pluginsDir(), { recursive: true })
+  const approved = await confirmSensitiveAction({
+    title: 'Open Plugins Folder',
+    message: 'Open AuroraPad’s local plugins folder in the system file manager?',
+    detail: pluginsDir(),
+    confirmLabel: 'Open Folder',
+  })
+  if (!approved) return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+  logSecurityEvent('plugin-folder-opened', { path: pluginsDir() })
   shell.openPath(pluginsDir())
 })
 
@@ -968,5 +1519,12 @@ function buildMinimalMenu() {
 app.on('window-all-closed', () => {
   watchers.forEach(w => w.close())
   watchers.clear()
+  fileWatchers.forEach(w => w.close())
+  fileWatchers.clear()
+  remoteManager.disconnectAll().catch(() => {})
   if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('before-quit', () => {
+  remoteManager.disconnectAll().catch(() => {})
 })

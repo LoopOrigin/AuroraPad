@@ -7,6 +7,8 @@
   "main": "electron/main/index.js",
   "scripts": {
     "assets:generate-icons": "node scripts/generate-icons.js",
+    "security:scan": "node scripts/security-scan.js",
+    "security:audit": "npm audit",
     "version:set": "node scripts/set-version.js",
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "site:dev": "nuxi dev website --open",
@@ -27,29 +29,32 @@
     "@vueuse/core": "^14.2.1",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
+    "basic-ftp": "^5.2.2",
     "chokidar": "^3.5.3",
     "electron-store": "^8.1.0",
-    "file-type": "^22.0.0",
+    "file-type": "^22.0.1",
     "iconv-lite": "^0.7.2",
     "jschardet": "^3.1.4",
+    "keytar": "^7.9.0",
     "monaco-editor": "^0.47.0",
-    "node-pty": "^1.1.0",
+    "node-pty-prebuilt-multiarch": "^0.10.1-pre.5",
     "pinia": "^3.0.4",
+    "ssh2-sftp-client": "^12.1.1",
     "vite-plugin-vuetify": "^2.1.3",
     "vue": "^3.4.0",
     "vuetify": "^4.0.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.4",
+    "@vitejs/plugin-vue": "^6.0.5",
     "commander": "^13.1.0",
     "concurrently": "^9.2.1",
-    "electron": "^29.4.6",
-    "electron-builder": "^24.13.3",
-    "esbuild": "^0.25.11",
+    "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
+    "esbuild": "^0.28.0",
     "nuxt": "^4.4.2",
-    "vite": "^5.4.21",
+    "vite": "^8.0.8",
     "vite-plugin-monaco-editor": "^1.1.0",
-    "wait-on": "^9.0.4"
+    "wait-on": "^9.0.5"
   },
   "build": {
     "appId": "com.aurorapad.app",
@@ -83,7 +88,6 @@
       ]
     },
     "win": {
-      "publisherName": "Muhammad Ali",
       "target": [
         "nsis",
         "portable"

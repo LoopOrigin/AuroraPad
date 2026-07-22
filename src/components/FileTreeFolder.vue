@@ -8,6 +8,8 @@
           active: !entry.isDirectory && isActiveFile(entry.path),
         }"
         @click="entry.isDirectory ? toggle(entry) : openFile(entry.path)"
+        @dblclick="entry.isDirectory && remoteMode ? enterDirectory(entry.path) : null"
+        @contextmenu.prevent="onContextMenu(entry)"
       >
         <span class="icon">
           <i
@@ -23,12 +25,24 @@
           ></i>
         </span>
         <span class="file-tree-label" :title="entry.name">{{ entry.name }}</span>
+        <button
+          v-if="entry.isDirectory && remoteMode"
+          type="button"
+          class="file-tree-enter-btn"
+          title="Set as current directory"
+          @click.stop="enterDirectory(entry.path)"
+        >
+          ↪
+        </button>
       </div>
       <FileTreeFolder
         v-if="entry.isDirectory && isExpanded(entry.path) && childrenMap.get(entry.path)"
         :entries="childrenMap.get(entry.path)"
         :root="entry.path"
+        :remote-mode="remoteMode"
         @open-file="$emit('open-file', $event)"
+        @enter-directory="$emit('enter-directory', $event)"
+        @move-entry="$emit('move-entry', $event)"
       />
     </template>
   </div>
@@ -43,9 +57,10 @@ import FileTreeFolder from './FileTreeFolder.vue'
 const props = defineProps({
   entries: { type: Array, default: () => [] },
   root: { type: String, default: '' },
+  remoteMode: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['open-file'])
+const emit = defineEmits(['open-file', 'enter-directory', 'move-entry'])
 
 const fileTreeStore = useFileTreeStore()
 const tabsStore = useTabsStore()
@@ -67,6 +82,17 @@ async function toggle(entry) {
 
 function openFile(path) {
   emit('open-file', path)
+}
+
+function enterDirectory(path) {
+  emit('enter-directory', path)
+}
+
+function onContextMenu(entry) {
+  if (!props.remoteMode) return
+  const destination = window.prompt('Move/Rename target path', entry.path)
+  if (!destination || destination === entry.path) return
+  emit('move-entry', { fromPath: entry.path, toPath: destination })
 }
 
 function isActiveFile(path) {
@@ -92,5 +118,18 @@ function fileIcon(name = '') {
 <style scoped>
 .file-tree-children {
   padding-left: 12px;
+}
+
+.file-tree-enter-btn {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--npp-text-dim);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.file-tree-enter-btn:hover {
+  color: var(--npp-accent);
 }
 </style>
