@@ -704,9 +704,9 @@ All build jobs use Node.js 22.
 
 ## Repository Links
 
-- Repository: [github.com/ali111887/AuroraPad](https://github.com/ali111887/AuroraPad)
-- Public releases: [github.com/ali111887/AuroraPad-Releases](https://github.com/ali111887/AuroraPad-Releases)
-- Source releases: [github.com/ali111887/AuroraPad/releases](https://github.com/ali111887/AuroraPad/releases)
+- Repository: [github.com/LoopOrigin/AuroraPad](https://github.com/LoopOrigin/AuroraPad)
+- Public releases: [github.com/LoopOrigin/AuroraPad-Releases](https://github.com/LoopOrigin/AuroraPad-Releases)
+- Source releases: [github.com/LoopOrigin/AuroraPad/releases](https://github.com/LoopOrigin/AuroraPad/releases)
 
 ---
 
