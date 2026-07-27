@@ -695,7 +695,7 @@ All build jobs use Node.js 22.
 
 - Remote find in files
 - Sandboxed third-party plugin runtime
-- Split view editing pane (Monaco editor split is in roadmap)
+- Split view editing pane (Monaco editor split is in the roadmap)
 - Macro recording and playback
 - Built-in Git integration panel
 - Plugins Admin / online plugin discovery
