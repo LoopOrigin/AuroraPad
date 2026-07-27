@@ -1,6 +1,7 @@
 const path = require('path')
 const fs = require('fs').promises
 const { Writable, Readable } = require('stream')
+const { Client: Ssh2Client } = require('ssh2')
 const SftpClient = require('ssh2-sftp-client')
 const ftp = require('basic-ftp')
 
@@ -502,14 +503,18 @@ class RemoteConnectionManager {
     }
   }
 
-  async #connectSftp(profile, secret) {
-    const client = new SftpClient()
+  async #buildSshOptions(profile, secret) {
+    const keepAliveInterval = Number.isInteger(profile.keepAliveInterval) && profile.keepAliveInterval > 0
+      ? profile.keepAliveInterval * 1000
+      : 15000
+
     const options = {
       host: profile.host,
       port: profile.port || 22,
       username: profile.username,
       readyTimeout: 20000,
-      keepaliveInterval: 10000,
+      keepaliveInterval: keepAliveInterval,
+      keepaliveCountMax: profile.keepAliveCountMax || 3,
     }
 
     if (profile.authType === 'privateKey') {
@@ -530,6 +535,48 @@ class RemoteConnectionManager {
       options.password = secret.password
     }
 
+    if (profile.proxyHost) {
+      options.sock = await this.#openProxySocket(profile, secret)
+    }
+
+    return options
+  }
+
+  async #openProxySocket(profile, secret) {
+    return new Promise((resolve, reject) => {
+      const proxy = new Ssh2Client()
+      const proxyPort = profile.proxyPort || 22
+      proxy.on('ready', () => {
+        proxy.forwardOut('127.0.0.1', 0, profile.host, profile.port || 22, (err, stream) => {
+          if (err) { proxy.end(); return reject(err) }
+          stream.on('close', () => proxy.end())
+          resolve(stream)
+        })
+      })
+      proxy.on('error', reject)
+      const proxyOpts = {
+        host: profile.proxyHost,
+        port: proxyPort,
+        username: profile.proxyUsername || profile.username,
+        readyTimeout: 15000,
+      }
+      if (profile.proxyAuthType === 'privateKey' && profile.proxyKeyPath) {
+        fs.readFile(profile.proxyKeyPath).then(key => {
+          proxyOpts.privateKey = key
+          if (secret.proxyPassphrase) proxyOpts.passphrase = secret.proxyPassphrase
+          proxy.connect(proxyOpts)
+        }).catch(reject)
+      } else {
+        proxyOpts.password = secret.proxyPassword || secret.password
+        proxy.connect(proxyOpts)
+      }
+    })
+  }
+
+  async #connectSftp(profile, secret) {
+    const client = new SftpClient()
+    const options = await this.#buildSshOptions(profile, secret)
+
     try {
       await client.connect(options)
       await this.#validateSftpRoot(profile, client)
@@ -537,6 +584,62 @@ class RemoteConnectionManager {
     } catch (error) {
       throw normalizeRemoteError(error, profile)
     }
+  }
+
+  async startPortForward(connectionId, { localPort, remoteHost, remotePort, type = 'local' }) {
+    const net = require('net')
+    const connection = this.getConnection(connectionId)
+    if (connection.protocol !== 'sftp') {
+      const error = new Error('Port forwarding is only supported for SFTP/SSH connections')
+      error.code = 'PROTOCOL_NOT_SUPPORTED'
+      throw error
+    }
+
+    const forwardKey = `${connectionId}:${localPort}`
+    if (this.portForwards?.has(forwardKey)) {
+      const error = new Error(`Local port ${localPort} is already forwarded`)
+      error.code = 'PORT_ALREADY_FORWARDED'
+      throw error
+    }
+
+    if (!this.portForwards) this.portForwards = new Map()
+
+    const ssh = connection.instance.client
+    const server = net.createServer(socket => {
+      ssh.forwardOut('127.0.0.1', localPort, remoteHost, remotePort, (err, stream) => {
+        if (err) { socket.destroy(); return }
+        socket.pipe(stream)
+        stream.pipe(socket)
+        stream.on('close', () => socket.destroy())
+        socket.on('close', () => stream.destroy())
+        socket.on('error', () => stream.destroy())
+        stream.on('error', () => socket.destroy())
+      })
+    })
+
+    await new Promise((resolve, reject) => {
+      server.once('error', reject)
+      server.listen(localPort, '127.0.0.1', resolve)
+    })
+
+    this.portForwards.set(forwardKey, { server, connectionId, localPort, remoteHost, remotePort, type, startedAt: nowIso() })
+    return { ok: true, localPort, remoteHost, remotePort }
+  }
+
+  async stopPortForward(connectionId, localPort) {
+    const forwardKey = `${connectionId}:${localPort}`
+    const forward = this.portForwards?.get(forwardKey)
+    if (!forward) return { ok: true }
+    await new Promise(resolve => forward.server.close(resolve))
+    this.portForwards.delete(forwardKey)
+    return { ok: true }
+  }
+
+  listPortForwards(connectionId) {
+    if (!this.portForwards) return []
+    return [...this.portForwards.values()]
+      .filter(f => f.connectionId === connectionId)
+      .map(({ localPort, remoteHost, remotePort, type, startedAt }) => ({ localPort, remoteHost, remotePort, type, startedAt }))
   }
 
   async #connectFtp(profile, secret) {
@@ -613,6 +716,21 @@ class RemoteConnectionManager {
       ? path.resolve(boundedString(input.privateKeyPath, 'Private key path', { max: 1024 }))
       : ''
 
+    const rawKeepAlive = Number(input.keepAliveInterval)
+    const keepAliveInterval = Number.isInteger(rawKeepAlive) && rawKeepAlive >= 0 ? rawKeepAlive : 15
+
+    const group = input.group ? boundedString(input.group, 'Group', { max: 80, allowEmpty: true }) : ''
+    const notes = input.notes ? boundedString(input.notes, 'Notes', { max: 2048, allowEmpty: true }) : ''
+
+    const proxyHost = input.proxyHost ? boundedString(input.proxyHost, 'Proxy host', { max: 255, allowEmpty: true }) : ''
+    const rawProxyPort = Number(input.proxyPort)
+    const proxyPort = Number.isInteger(rawProxyPort) && rawProxyPort >= 1 && rawProxyPort <= 65535 ? rawProxyPort : 22
+    const proxyUsername = input.proxyUsername ? boundedString(input.proxyUsername, 'Proxy username', { max: 128, allowEmpty: true }) : ''
+    const proxyAuthType = input.proxyAuthType === 'privateKey' ? 'privateKey' : 'password'
+    const proxyKeyPath = proxyAuthType === 'privateKey' && input.proxyKeyPath
+      ? path.resolve(boundedString(input.proxyKeyPath, 'Proxy key path', { max: 1024 }))
+      : ''
+
     return {
       id: input.id ? boundedString(input.id, 'Profile id', { max: 160 }) : '',
       name,
@@ -623,6 +741,15 @@ class RemoteConnectionManager {
       authType,
       remoteRoot,
       privateKeyPath,
+      keepAliveInterval,
+      keepAliveCountMax: 3,
+      group,
+      notes,
+      proxyHost,
+      proxyPort,
+      proxyUsername,
+      proxyAuthType,
+      proxyKeyPath,
       createdAt: input.createdAt || nowIso(),
     }
   }

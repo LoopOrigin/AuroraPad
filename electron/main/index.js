@@ -963,6 +963,31 @@ ipcMain.handle('remote:openSshTerminal', async (_, connectionId, cwd = '') => {
   }
 })
 
+ipcMain.handle('remote:startPortForward', async (_, connectionId, options) => {
+  try {
+    const { localPort, remoteHost, remotePort, type } = options || {}
+    return await remoteManager.startPortForward(connectionId, { localPort, remoteHost, remotePort, type })
+  } catch (e) {
+    return { error: e.message, code: e.code || 'PORT_FORWARD_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:stopPortForward', async (_, connectionId, localPort) => {
+  try {
+    return await remoteManager.stopPortForward(connectionId, localPort)
+  } catch (e) {
+    return { error: e.message, code: e.code || 'PORT_FORWARD_STOP_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:listPortForwards', async (_, connectionId) => {
+  try {
+    return remoteManager.listPortForwards(connectionId)
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
 ipcMain.handle('fs:renameFile', async (_, oldPath, newPath) => {
   try {
     await fs.rename(oldPath, newPath)

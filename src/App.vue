@@ -18,6 +18,8 @@
       :has-editor="!!tabsStore.activeTab"
       :can-save-all="tabsStore.hasDirty"
       :word-wrap="settingsStore.wordWrap"
+      :eol-mode="activeTabEolMode"
+      @convert-eol="cycleEol"
       @new="menuNew"
       @open="menuOpenFile"
       @save="menuSave"
@@ -536,6 +538,22 @@ const remoteConnectionTestBusy = ref(false)
 let autoSaveInterval = null
 
 const primaryTab = computed(() => tabsStore.activeTab)
+
+const activeTabEolMode = computed(() => {
+  const tab = tabsStore.activeTab
+  if (!tab) return 'LF'
+  return tab.eol === 'crlf' ? 'CRLF' : tab.eol === 'cr' ? 'CR' : 'LF'
+})
+
+function cycleEol() {
+  const tab = tabsStore.activeTab
+  if (!tab) return
+  const cycleMap = { 'lf': 'crlf', 'crlf': 'cr', 'cr': 'lf' }
+  const current = tab.eol || 'lf'
+  const next = cycleMap[current] || 'lf'
+  convertEol(next)
+}
+
 const secondaryTab = computed(() => {
   if (!secondaryTabId.value) return null
   return tabsStore.tabs.find(t => t.id === secondaryTabId.value) || null

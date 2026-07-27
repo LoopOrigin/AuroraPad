@@ -80,6 +80,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   remoteMovePath: (connectionId, fromPath, toPath) => ipcRenderer.invoke('remote:movePath', connectionId, fromPath, toPath),
   remoteMkdir: (connectionId, remotePath) => ipcRenderer.invoke('remote:mkdir', connectionId, remotePath),
   remoteOpenSshTerminal: (connectionId, cwd) => ipcRenderer.invoke('remote:openSshTerminal', connectionId, cwd),
+  remoteStartPortForward: (connectionId, options) => ipcRenderer.invoke('remote:startPortForward', connectionId, options),
+  remoteStopPortForward: (connectionId, localPort) => ipcRenderer.invoke('remote:stopPortForward', connectionId, localPort),
+  remoteListPortForwards: (connectionId) => ipcRenderer.invoke('remote:listPortForwards', connectionId),
 
   // Tools / Run
   getHash: (algorithm, text) => ipcRenderer.invoke('tools:getHash', algorithm, text),
