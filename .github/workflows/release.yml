@@ -285,13 +285,17 @@ jobs:
             bootstrap_dir="$(mktemp -d)"
             git clone "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" "$bootstrap_dir"
             pushd "$bootstrap_dir" >/dev/null
-            git checkout --orphan "$TARGET_REF"
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            printf '# AuroraPad Releases\n\nPublic download repository for AuroraPad packaged builds.\n' > README.md
-            git add README.md
-            git commit -m "chore: initialize public releases repository"
-            git push origin "$TARGET_REF"
+            if git show-ref --verify --quiet "refs/remotes/origin/${TARGET_REF}"; then
+              echo "Branch ${TARGET_REF} already exists in remote, skipping bootstrap commit."
+            else
+              git checkout --orphan "$TARGET_REF"
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              printf '# AuroraPad Releases\n\nPublic download repository for AuroraPad packaged builds.\n' > README.md
+              git add README.md
+              git commit -m "chore: initialize public releases repository"
+              git push origin "$TARGET_REF"
+            fi
             popd >/dev/null
             rm -rf "$bootstrap_dir"
           else
