@@ -3,7 +3,7 @@ import { watch } from 'vue'
 import { useStorage } from '@vueuse/core'
 
 export const useSettingsStore = defineStore('settings', () => {
-  const theme = useStorage('notepad-theme', 'light') // 'light' | 'dark' | 'monokai' | 'solarized-dark'
+  const theme = useStorage('notepad-theme', 'light') // 'light' | 'dark' | 'material-ocean' | 'monokai' | 'solarized-dark'
   const wordWrap = useStorage('aurorapad-word-wrap', false)
   const lineNumbers = useStorage('aurorapad-line-numbers', true)
   const sidebarVisible = useStorage('aurorapad-sidebar-visible', false)

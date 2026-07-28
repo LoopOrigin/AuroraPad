@@ -9,6 +9,7 @@
   --npp-toolbar-hover: #edf2ff;
   --npp-tab-bg: #e9eeff;
   --npp-tab-active-bg: #ffffff;
+  --npp-tab-active-accent: #0f63e9;
   --npp-tab-border: #d7dff3;
   --npp-tab-text: #172347;
   --npp-status-bg: rgba(245, 248, 255, 0.94);
@@ -38,6 +39,7 @@
   --npp-toolbar-hover: #152b4a;
   --npp-tab-bg: #0e1d39;
   --npp-tab-active-bg: #0b1730;
+  --npp-tab-active-accent: #27a6ff;
   --npp-tab-border: #203359;
   --npp-tab-text: #edf5ff;
   --npp-status-bg: rgba(8, 17, 34, 0.95);
@@ -65,6 +67,7 @@
   --npp-toolbar-hover: #3b3c35;
   --npp-tab-bg: #2c2d27;
   --npp-tab-active-bg: #23241f;
+  --npp-tab-active-accent: #ff5d9e;
   --npp-tab-border: #545448;
   --npp-tab-text: #f7f5e9;
   --npp-status-bg: rgba(44, 45, 39, 0.95);
@@ -88,6 +91,7 @@
   --npp-toolbar-hover: #0e4b5e;
   --npp-tab-bg: #08333f;
   --npp-tab-active-bg: #032730;
+  --npp-tab-active-accent: #d5a527;
   --npp-tab-border: #16414d;
   --npp-tab-text: #eee7d2;
   --npp-status-bg: rgba(7, 47, 58, 0.95);
@@ -99,6 +103,35 @@
   --npp-text-dim: #93a6a8;
   --npp-accent: #d5a527;
   --npp-dirty-dot: #ef6e56;
+}
+
+[data-theme='material-ocean'] {
+  color-scheme: dark;
+  --npp-bg: #090b0f;
+  --npp-menubar-bg: rgba(14, 17, 23, 0.92);
+  --npp-menubar-hover: #1c2233;
+  --npp-toolbar-bg: rgba(14, 17, 23, 0.95);
+  --npp-toolbar-border: #1c2233;
+  --npp-toolbar-hover: #1c2233;
+  --npp-tab-bg: #0e1117;
+  --npp-tab-active-bg: #1e2130;
+  --npp-tab-active-accent: #29d4f0;
+  --npp-tab-border: #1c2233;
+  --npp-tab-text: #b2c3f1;
+  --npp-status-bg: rgba(9, 11, 15, 0.98);
+  --npp-status-text: #7986b0;
+  --npp-status-border: #1c2233;
+  --npp-sidebar-bg: rgba(17, 21, 32, 0.96);
+  --npp-sidebar-border: #1c2233;
+  --npp-text: #cdd6f4;
+  --npp-text-dim: #7986b0;
+  --npp-accent: #80cbc4;
+  --npp-accent-alt: #c792ea;
+  --npp-accent-glow: #4ec9a0;
+  --npp-dirty-dot: #ff5370;
+  --npp-shadow-lg: 0 26px 82px rgba(0, 0, 0, 0.7);
+  --npp-shadow-md: 0 14px 40px rgba(0, 0, 0, 0.5);
+  --npp-focus-ring: 0 0 0 3px rgba(41, 212, 240, 0.22);
 }
 
 * {
@@ -321,6 +354,8 @@ select:focus-visible,
   background: color-mix(in srgb, var(--npp-tab-bg) 84%, transparent);
   color: var(--npp-tab-text);
   border-radius: 14px 14px 0 0;
+  position: relative;
+  overflow: hidden;
   transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
 
@@ -347,6 +382,17 @@ select:focus-visible,
   border-color: color-mix(in srgb, var(--npp-accent-alt) 16%, var(--npp-tab-border));
   border-bottom-color: var(--npp-tab-active-bg);
   box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.04);
+}
+
+.tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: var(--npp-tab-active-accent, var(--npp-accent));
+  border-radius: 0 0 2px 2px;
 }
 
 .tab.active .tab-icon {

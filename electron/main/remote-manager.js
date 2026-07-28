@@ -244,6 +244,15 @@ class RemoteConnectionManager {
     const connection = this.connections.get(connectionId)
     if (!connection) return { ok: true }
 
+    if (this.portForwards) {
+      const keys = [...this.portForwards.keys()].filter(k => k.startsWith(`${connectionId}:`))
+      for (const key of keys) {
+        const fwd = this.portForwards.get(key)
+        if (fwd) await new Promise(resolve => fwd.server.close(resolve)).catch(() => {})
+        this.portForwards.delete(key)
+      }
+    }
+
     try {
       if (connection.protocol === 'sftp') {
         await connection.instance.end().catch(() => {})
@@ -484,7 +493,7 @@ class RemoteConnectionManager {
       throw error
     }
 
-    const args = []
+    const args = ['-t']
     if (profile.port) args.push('-p', String(profile.port))
     if (profile.privateKeyPath) args.push('-i', profile.privateKeyPath)
     const userHost = profile.username ? `${profile.username}@${profile.host}` : profile.host
@@ -512,7 +521,7 @@ class RemoteConnectionManager {
       host: profile.host,
       port: profile.port || 22,
       username: profile.username,
-      readyTimeout: 20000,
+      readyTimeout: 30000,
       keepaliveInterval: keepAliveInterval,
       keepaliveCountMax: profile.keepAliveCountMax || 3,
     }
@@ -579,9 +588,9 @@ class RemoteConnectionManager {
 
     try {
       await client.connect(options)
-      await this.#validateSftpRoot(profile, client)
       return client
     } catch (error) {
+      await client.end().catch(() => {})
       throw normalizeRemoteError(error, profile)
     }
   }
@@ -604,7 +613,13 @@ class RemoteConnectionManager {
 
     if (!this.portForwards) this.portForwards = new Map()
 
+    // ssh2-sftp-client exposes the underlying ssh2.Client as .client
     const ssh = connection.instance.client
+    if (!ssh) {
+      const error = new Error('Underlying SSH connection is not available for port forwarding')
+      error.code = 'SSH_CLIENT_UNAVAILABLE'
+      throw error
+    }
     const server = net.createServer(socket => {
       ssh.forwardOut('127.0.0.1', localPort, remoteHost, remotePort, (err, stream) => {
         if (err) { socket.destroy(); return }
@@ -650,7 +665,7 @@ class RemoteConnectionManager {
       throw error
     }
 
-    const client = new ftp.Client(20000)
+    const client = new ftp.Client(30000)
     client.ftp.verbose = false
 
     try {
@@ -660,6 +675,7 @@ class RemoteConnectionManager {
         user: profile.username,
         password: secret.password,
         secure: profile.protocol === 'ftps',
+        secureOptions: profile.protocol === 'ftps' ? { rejectUnauthorized: false } : undefined,
       })
       return client
     } catch (error) {

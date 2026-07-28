@@ -567,6 +567,8 @@ const monacoTheme = computed(() => {
       return 'aurora-monokai'
     case 'solarized-dark':
       return 'aurora-solarized-dark'
+    case 'material-ocean':
+      return 'aurora-material-ocean'
     default:
       return 'vs'
   }
@@ -575,6 +577,7 @@ const showPreferences = ref(false)
 const themeOptions = [
   { title: 'Aurora Light', value: 'light' },
   { title: 'Aurora Dark', value: 'dark' },
+  { title: 'Material Ocean', value: 'material-ocean' },
   { title: 'Monokai Dark', value: 'monokai' },
   { title: 'Solarized Dark', value: 'solarized-dark' },
 ]
