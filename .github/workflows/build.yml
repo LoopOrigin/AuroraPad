@@ -93,6 +93,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Remove optional cpu-features (ssh2 uses JS fallback)
+        run: rm -rf node_modules/cpu-features
+
       - name: Rebuild native modules
         run: npx electron-rebuild -f -w node-pty-prebuilt-multiarch keytar
 
@@ -139,6 +142,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
+
+      - name: Remove optional cpu-features (ssh2 uses JS fallback)
+        run: rm -rf node_modules/cpu-features
 
       - name: Rebuild native modules
         run: npx electron-rebuild -f -w node-pty-prebuilt-multiarch keytar

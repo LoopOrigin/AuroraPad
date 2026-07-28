@@ -109,6 +109,10 @@ jobs:
         shell: pwsh
         run: if (Test-Path node_modules\cpu-features) { Remove-Item -Recurse -Force node_modules\cpu-features }
 
+      - name: Remove optional cpu-features on Linux/macOS (ssh2 uses JS fallback)
+        if: runner.os != 'Windows'
+        run: rm -rf node_modules/cpu-features
+
       - name: Rebuild native modules
         run: npx electron-rebuild -f -w node-pty-prebuilt-multiarch keytar
 
