@@ -1,179 +1,164 @@
 <template>
-  <div class="aurora-site">
-    <div class="site-bg" aria-hidden="true">
-      <span ref="orbBlue" class="orb orb-blue"></span>
-      <span ref="orbTeal" class="orb orb-teal"></span>
-      <span ref="orbViolet" class="orb orb-violet"></span>
-      <span class="mesh"></span>
-    </div>
+  <div class="site">
+    <!-- Fixed backgrounds -->
+    <div class="site-bg" aria-hidden="true"></div>
+    <div class="site-grid" aria-hidden="true"></div>
 
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a href="#top" class="brand" aria-label="AuroraPad home">
-          <img class="brand__icon" :src="appIcon" alt="" />
-          <span class="brand__copy">
-            <strong>AuroraPad</strong>
-            <small>Desktop editor</small>
-          </span>
-        </a>
+    <div class="wrap">
 
-        <nav class="site-nav site-nav--desktop" aria-label="Primary">
-          <a href="#why" @click="handleSectionNavigation('why', 'header-nav')">Why</a>
-          <a href="#workspace" @click="handleSectionNavigation('workspace', 'header-nav')">Workspace</a>
-          <a href="#showcase" @click="handleSectionNavigation('showcase', 'header-nav')">Showcase</a>
-          <a href="#releases" @click="handleSectionNavigation('releases', 'header-nav')">Releases</a>
-          <a href="#faq" @click="handleSectionNavigation('faq', 'header-nav')">FAQ</a>
-        </nav>
+      <!-- NAV -->
+      <header class="nav">
+        <div class="nav-i">
+          <a href="#top" class="brand" aria-label="AuroraPad home">
+            <img class="logo" :src="appIcon" alt="AuroraPad" />
+            <div>
+              <div class="brand-name">AuroraPad</div>
+              <div class="brand-tag">Desktop editor</div>
+            </div>
+          </a>
+          <nav class="nav-links" aria-label="Primary">
+            <a href="#features" @click="handleSectionNavigation('features', 'header-nav')">Features</a>
+            <a href="#remote" @click="handleSectionNavigation('remote', 'header-nav')">Remote</a>
+            <a href="#tools" @click="handleSectionNavigation('tools', 'header-nav')">Tools</a>
+            <a href="#releases" @click="handleSectionNavigation('releases', 'header-nav')">Releases</a>
+            <a href="#faq" @click="handleSectionNavigation('faq', 'header-nav')">FAQ</a>
+          </nav>
+          <a class="nav-cta" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_header', downloadUrl, 'header')">Download Free</a>
+        </div>
+      </header>
 
-        <div class="site-header__actions">
-          <a class="site-btn site-btn--primary" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_header', downloadUrl, 'header')">Download</a>
+      <!-- HERO -->
+      <section id="top" class="hero">
+        <div class="hero-i">
+          <div class="hero-copy">
+            <span class="ey">Free &middot; Open source &middot; Windows &middot; macOS &middot; Linux</span>
+            <h1 class="hero-h1">Edit, SSH, commit &amp; ship<br><span class="ac">&mdash;&nbsp;one desktop app.</span></h1>
+            <p class="hero-p">
+              Monaco editor (VS Code's core), integrated SSH/SFTP client, Git panel,
+              multi-shell terminal, and 30+ editing tools. No extension marketplace.
+              No setup. Everything built in.
+            </p>
+            <div class="hero-acts">
+              <a class="btn-p" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_hero', downloadUrl, 'hero')">
+                <svg width="15" height="15" fill="none" viewBox="0 0 16 16" aria-hidden="true"><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3-3 3 3 3-3M3 13h10"/></svg>
+                Download Latest
+              </a>
+              <a class="btn-g" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_releases', downloadUrl, 'hero')">View all releases &rarr;</a>
+            </div>
+            <div class="pills">
+              <span v-for="pill in heroPills" :key="pill" class="pill">
+                <span class="pill-dot" aria-hidden="true"></span>{{ pill }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Editor window mockup -->
+          <div class="ew" aria-hidden="true">
+            <div class="ew-top">
+              <div class="tl"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+              <div class="ew-ttl">AuroraPad &mdash; my-project</div>
+              <div class="ew-badge">v{{ appVersion }}</div>
+            </div>
+            <div class="ew-body">
+              <div class="ew-sb">
+                <span class="sb-lbl">Explorer</span>
+                <div class="sb-f">&#128193; src/</div>
+                <div class="sb-f on">&#128196; App.vue</div>
+                <div class="sb-f">&#128196; settings.js</div>
+                <div class="sb-f">&#128196; router.js</div>
+                <span class="sb-lbl" style="margin-top:13px">SSH Profiles</span>
+                <div class="sb-f on">&#128279; prod-api</div>
+                <div class="sb-f">&#128279; staging-db</div>
+                <span class="sb-lbl" style="margin-top:13px">Git</span>
+                <div class="sb-f" style="color:rgba(74,227,195,0.75)">&#11044; main &middot; 2 changed</div>
+              </div>
+              <div class="ew-main">
+                <div class="ew-tabs">
+                  <div class="ew-tab on">App.vue</div>
+                  <div class="ew-tab">settings.js</div>
+                  <div class="ew-tab">router.js</div>
+                </div>
+                <div class="ew-code">
+                  <span class="cm">&lt;!-- App.vue --&gt;</span><br>
+                  <span class="kw">&lt;template&gt;</span><br>
+                  &nbsp;&nbsp;<span class="fn">&lt;div</span> <span class="ac">class</span>=<span class="st">"app"</span><span class="fn">&gt;</span><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">&lt;ActivityBar</span> <span class="ac">@nav</span>=<span class="st">"onNav"</span> <span class="fn">/&gt;</span><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">&lt;EditorPane</span> <span class="ac">v-if</span>=<span class="st">"screen==='editor'"</span><span class="fn">/&gt;</span><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">&lt;SshScreen</span> <span class="ac">v-if</span>=<span class="st">"screen==='ssh'"</span> <span class="fn">/&gt;</span><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">&lt;SftpScreen</span> <span class="ac">v-if</span>=<span class="st">"screen==='sftp'"</span><span class="fn">/&gt;</span><br>
+                  &nbsp;&nbsp;<span class="fn">&lt;/div&gt;</span><br>
+                  <span class="kw">&lt;/template&gt;</span>
+                </div>
+                <div class="ew-term">
+                  <div class="term-top">
+                    <span class="term-lbl">Terminal &mdash; zsh</span>
+                    <span style="font-size:9.5px;color:rgba(74,227,195,0.45)">&#9679; 2 sessions</span>
+                  </div>
+                  <div class="term-body">
+                    <div>$ npm run electron:dev</div>
+                    <div style="color:rgba(74,227,195,0.72)">&#10003; vite ready on :5173</div>
+                    <div style="color:rgba(74,227,195,0.72)">&#10003; electron launched</div>
+                    <div style="color:rgba(180,245,232,0.42)">&#9679; watching&hellip;</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROOF STRIP -->
+      <div class="proof" aria-label="Key features">
+        <div class="proof-i">
+          <div v-for="item in proofItems" :key="item" class="proof-it">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 6.5l1.4 1.4L8.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{ item }}
+          </div>
         </div>
       </div>
-    </header>
 
-    <main>
-      <section id="top" class="hero">
-        <div class="hero__inner">
-          <div class="hero__copy">
-            <p class="eyebrow">Modern desktop editing for real project work</p>
-            <h1>One focused editor for code, search, terminal flow, and release-ready shipping.</h1>
-            <p class="hero__body">
-              AuroraPad brings Monaco editing, project navigation, built-in skills, integrated terminal
-              sessions, and packaged cross-platform releases into a faster, cleaner desktop experience.
-            </p>
-
-            <div class="hero__actions">
-              <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_hero', downloadUrl, 'hero')">
-                Download Latest Release
-              </a>
-            </div>
-
-            <div class="hero__meta">
-              <div v-for="item in heroMeta" :key="item.label" class="hero__meta-item">
-                <span>{{ item.label }}</span>
-                <strong>{{ item.value }}</strong>
-              </div>
-            </div>
+      <!-- WHY -->
+      <section id="features" class="sec">
+        <div class="sec-i">
+          <div class="sec-hd" data-reveal="up">
+            <span class="ey">Why AuroraPad</span>
+            <h2>Monaco editor, SSH/SFTP, Git, and 30+ tools &mdash; without the extension sprawl.</h2>
+            <p>Open a folder and every feature is immediately available. No marketplace. No configuration. No rebuilds.</p>
           </div>
-
-          <div class="hero__visual">
-            <div ref="heroWindow" class="product-window">
-              <div class="product-window__top">
-                <div class="traffic">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                <div class="product-window__title">AuroraPad Workspace</div>
-                <div class="product-window__badge">v0.1.x builds</div>
-              </div>
-
-              <div class="product-window__body">
-                <aside class="workspace-sidebar">
-                  <div class="workspace-sidebar__section">
-                    <span class="workspace-label">Project</span>
-                    <span>src/</span>
-                    <span>components/</span>
-                    <span>plugins/</span>
-                    <span>website/</span>
-                  </div>
-                  <div class="workspace-sidebar__section">
-                    <span class="workspace-label">Recent</span>
-                    <span>App.vue</span>
-                    <span>TerminalDock.vue</span>
-                    <span>release.yml</span>
-                  </div>
-                </aside>
-
-                <div class="workspace-editor">
-                  <div class="workspace-tabs">
-                    <span class="is-active">release.yml</span>
-                    <span>settings.js</span>
-                    <span>WebsiteApp.vue</span>
-                  </div>
-
-                  <div class="workspace-code">
-                    <div v-for="line in editorLines" :key="line" class="workspace-code__line">{{ line }}</div>
-                  </div>
-
-                  <div class="workspace-terminal">
-                    <div class="workspace-terminal__head">
-                      <span>Integrated Terminal</span>
-                      <span>zsh • project root</span>
-                    </div>
-                    <div class="workspace-terminal__body">
-                      <span>$ npm run build</span>
-                      <span>✓ app ready</span>
-                      <span>✓ website ready</span>
-                      <span>✓ release assets packaged</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div ref="floatLeft" class="floating-note floating-note--left">
-              <span class="eyebrow">Search</span>
-              <strong>Whole-project search, not file-only editing</strong>
-            </div>
-
-            <div ref="floatRight" class="floating-note floating-note--right">
-              <span class="eyebrow">Release</span>
-              <strong>Ship tagged builds for Windows, macOS, and Linux</strong>
-            </div>
+          <div class="pillars">
+            <article
+              v-for="(item, i) in pillars"
+              :key="item.title"
+              class="pc"
+              data-reveal="up"
+              :data-reveal-delay="i * 130"
+            >
+              <div class="pc-icon" aria-hidden="true" v-html="item.icon"></div>
+              <span class="ey" style="margin-bottom:7px">{{ item.kicker }}</span>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.body }}</p>
+            </article>
           </div>
         </div>
       </section>
 
-      <section class="proof-strip" aria-label="Product proof">
-        <div class="proof-strip__inner">
-          <span v-for="item in proofItems" :key="item">{{ item }}</span>
-        </div>
-      </section>
-
-      <section id="why" class="section section--editorial">
-        <div class="section-head" data-reveal="up">
-          <p class="eyebrow">Why AuroraPad</p>
-          <h2>Monaco editor, SSH/SFTP, Git, terminal, and 30+ built-in tools — packaged as one desktop app.</h2>
-        </div>
-
-        <div class="editorial-columns">
-          <article
-            v-for="(item, i) in pillars"
-            :key="item.title"
-            class="editorial-column"
-            data-reveal="up"
-            :data-reveal-delay="i * 130"
-          >
-            <span class="eyebrow">{{ item.kicker }}</span>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.body }}</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="workspace" class="section workspace-story">
-        <div class="workspace-story__grid">
-          <div class="workspace-story__intro" data-reveal="left">
-            <p class="eyebrow">Features</p>
-            <h2>Everything covered. Nothing to install.</h2>
-            <p>
-              Editor, search, terminal, SSH, SFTP, Git, and 30+ editing tools are all built in.
-              Open a folder and every feature is immediately available — no extensions, no marketplace, no setup.
-            </p>
+      <!-- FEATURE ROWS -->
+      <section class="sec" style="padding-top:60px">
+        <div class="sec-i">
+          <div class="sec-hd" data-reveal="up">
+            <span class="ey">Every Feature</span>
+            <h2>Six built-in capabilities. Nothing to install.</h2>
           </div>
-
-          <div class="workspace-story__list">
+          <div class="frows">
             <article
               v-for="(feature, i) in features"
-              :key="feature.title"
-              class="feature-row"
-              :data-reveal="i % 2 === 0 ? 'left' : 'right'"
-              :data-reveal-delay="i * 100"
+              :key="feature.index"
+              class="fr"
+              data-reveal="up"
+              :data-reveal-delay="i * 80"
             >
-              <div class="feature-row__index">{{ feature.index }}</div>
+              <div class="fn-num" aria-hidden="true">{{ feature.index }}</div>
               <div>
-                <span class="eyebrow">{{ feature.kicker }}</span>
                 <h3>{{ feature.title }}</h3>
                 <p>{{ feature.body }}</p>
               </div>
@@ -182,220 +167,152 @@
         </div>
       </section>
 
-      <section id="showcase" class="section showcase">
-        <div class="section-head" data-reveal="up">
-          <p class="eyebrow">Showcase</p>
-          <h2>Command palette, SSH connections, and SFTP — three features that replace three separate apps.</h2>
-        </div>
-
-        <div class="showcase-grid">
-          <article
-            v-for="(item, i) in showcaseCards"
-            :key="item.title"
-            class="showcase-card"
-            :class="item.className"
-            data-reveal="zoom"
-            :data-reveal-delay="i * 120"
-          >
-            <div class="showcase-card__visual">
-              <div class="showcase-mockup">
-                <div class="showcase-mockup__bar">
-                  <span>{{ item.mockupTitle }}</span>
-                  <small>{{ item.mockupMeta }}</small>
-                </div>
-                <div class="showcase-mockup__body">
-                  <span v-for="line in item.lines" :key="line">{{ line }}</span>
-                </div>
+      <!-- SHOWCASE -->
+      <section id="remote" class="sec">
+        <div class="sec-i">
+          <div class="sec-hd" data-reveal="up">
+            <span class="ey">Showcase</span>
+            <h2>Command palette, SSH manager, SFTP browser &mdash; all built in.</h2>
+            <p>Three tools that typically require separate apps or dozens of extensions. All ready on first launch.</p>
+          </div>
+          <div class="sg">
+            <article
+              v-for="(card, i) in showcaseCards"
+              :key="card.title"
+              class="sc"
+              :class="card.className"
+              data-reveal="up"
+              :data-reveal-delay="i * 120"
+            >
+              <div class="sm">
+                <div class="sm-bar">{{ card.mockupTitle }} <small>{{ card.mockupMeta }}</small></div>
+                <div class="sm-body" v-html="card.mockupHtml"></div>
               </div>
-            </div>
-            <div class="showcase-card__copy">
-              <span class="eyebrow">{{ item.kicker }}</span>
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.body }}</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section manifesto">
-        <div class="manifesto-card" data-reveal="zoom">
-          <div>
-            <p class="eyebrow">What Makes It Different</p>
-            <h2>SSH, SFTP, Git, and 30+ tools built in — not extensions. Ships as a real installer for all three platforms.</h2>
-          </div>
-          <div class="manifesto-points">
-            <div v-for="point in manifestoPoints" :key="point.title" class="manifesto-point">
-              <strong>{{ point.title }}</strong>
-              <p>{{ point.body }}</p>
-            </div>
+              <span class="ey" style="margin-bottom:7px">{{ card.kicker }}</span>
+              <h3>{{ card.title }}</h3>
+              <p>{{ card.body }}</p>
+            </article>
           </div>
         </div>
       </section>
 
-      <section class="section compare-section">
-        <div class="section-head" data-reveal="up">
-          <p class="eyebrow">Positioning</p>
-          <h2>More capable than a text editor. Faster to open than an IDE. Ships as a real desktop product.</h2>
-        </div>
-
-        <div class="compare-grid">
-          <article
-            v-for="(item, i) in comparisonItems"
-            :key="item.title"
-            class="compare-card"
-            data-reveal="up"
-            :data-reveal-delay="i * 130"
-          >
-            <span class="eyebrow">{{ item.kicker }}</span>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.body }}</p>
-          </article>
+      <!-- BUILT-IN TOOLS -->
+      <section id="tools" class="sec">
+        <div class="sec-i">
+          <div class="sec-hd" data-reveal="up">
+            <span class="ey">Built-in Skills</span>
+            <h2>8 skill packs, 30+ tools &mdash; installed, zero setup.</h2>
+            <p>Available from the Plugin menu and command palette on first launch. Add your own with a plain JavaScript file &mdash; no build step.</p>
+          </div>
+          <div class="tg">
+            <article
+              v-for="(pack, i) in toolPacks"
+              :key="pack.name"
+              class="tc"
+              :class="{ hi: pack.highlight }"
+              data-reveal="up"
+              :data-reveal-delay="i * 60"
+            >
+              <h4>{{ pack.name }}</h4>
+              <div class="tc-items">
+                <span v-for="tool in pack.tools" :key="tool" class="tc-item">{{ tool }}</span>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section id="releases" class="section release-section">
-        <div class="section-head" data-reveal="up">
-          <p class="eyebrow">Releases</p>
-          <h2>One tag. Three platforms. Installer, portable, DMG, AppImage — all built and published automatically.</h2>
-        </div>
-
-        <div class="release-grid">
-          <div class="download-matrix">
+      <!-- RELEASES -->
+      <section id="releases" class="sec">
+        <div class="sec-i">
+          <div class="sec-hd" data-reveal="up">
+            <span class="ey">Releases</span>
+            <h2>One tag. Three platforms. Built &amp; published automatically.</h2>
+            <p>Push a version tag and GitHub Actions builds Windows, macOS, and Linux in parallel. Every release ships a real installer.</p>
+          </div>
+          <div class="dg">
             <a
-              v-for="(item, i) in downloads"
-              :key="item.title"
-              class="download-item"
+              v-for="(dl, i) in downloads"
+              :key="dl.platform"
+              class="dc-card"
               :href="downloadUrl"
               target="_blank"
               rel="noreferrer"
               data-reveal="up"
-              :data-reveal-delay="i * 110"
-              @click="handleOutboundClick(`download_${item.kicker.toLowerCase()}`, downloadUrl, 'download-matrix')"
+              :data-reveal-delay="i * 120"
+              @click="handleOutboundClick(`download_${dl.platform.toLowerCase()}`, downloadUrl, 'download-grid')"
             >
-              <span class="eyebrow">{{ item.kicker }}</span>
-              <strong>{{ item.title }}</strong>
-              <p>{{ item.body }}</p>
+              <div class="dc-plat">{{ dl.platform }}</div>
+              <h3>{{ dl.title }}</h3>
+              <p>{{ dl.body }}</p>
+              <div class="chips">
+                <span v-for="chip in dl.chips" :key="chip" class="chip">{{ chip }}</span>
+              </div>
             </a>
           </div>
 
-          <div class="release-aside" data-reveal="right">
-            <div class="release-link-group">
-              <span class="eyebrow">Latest Builds</span>
-              <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_release_section', downloadUrl, 'release-section')">{{ downloadUrl }}</a>
-            </div>
-            <div class="release-callout">
-              AuroraPad publishes packaged binaries first. GitHub's auto-generated source archives still exist,
-              but the intended experience is to download the platform-specific desktop builds.
-            </div>
-          </div>
-        </div>
-
-        <div class="artifact-matrix" data-reveal="up">
-          <div class="artifact-matrix__head">
-            <span>Platform</span>
-            <span>Primary assets</span>
-            <span>Best for</span>
-          </div>
-          <div v-for="row in artifactRows" :key="row.platform" class="artifact-matrix__row">
-            <strong>{{ row.platform }}</strong>
-            <span>{{ row.assets }}</span>
-            <span>{{ row.useCase }}</span>
-          </div>
-        </div>
-
-        <div class="release-flow" data-reveal="up">
-          <div class="release-flow__intro">
-            <p class="eyebrow">Release Flow</p>
-            <h3>From commit to tagged desktop binaries.</h3>
-          </div>
-          <div class="release-flow__steps">
-            <article
-              v-for="(step, i) in releaseSteps"
-              :key="step.title"
-              class="release-step"
-              data-reveal="left"
-              :data-reveal-delay="i * 120"
-            >
-              <span class="release-step__index">{{ step.index }}</span>
-              <div>
-                <strong>{{ step.title }}</strong>
+          <div class="pipeline" data-reveal="up">
+            <div v-for="(step, i) in releaseSteps" :key="step.index" class="pipe-wrap">
+              <div class="ps">
+                <div class="ps-num" aria-hidden="true">{{ step.index }}</div>
+                <h4>{{ step.title }}</h4>
                 <p>{{ step.body }}</p>
               </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section open-source">
-        <div class="open-source__grid">
-          <div class="section-head section-head--compact" data-reveal="left">
-            <p class="eyebrow">Project System</p>
-            <h2>App, CI pipeline, and website — one repo, one release, always in sync.</h2>
-          </div>
-
-          <div class="open-source__items">
-            <article
-              v-for="(item, i) in projectItems"
-              :key="item.title"
-              class="open-source__item"
-              data-reveal="right"
-              :data-reveal-delay="i * 110"
-            >
-              <span class="eyebrow">{{ item.kicker }}</span>
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.body }}</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section id="faq" class="section faq">
-        <div class="section-head" data-reveal="up">
-          <p class="eyebrow">FAQ</p>
-          <h2>Common questions about features, remote support, plugins, and releases.</h2>
-        </div>
-
-        <div class="faq-list">
-          <article
-            v-for="(item, i) in faqItems"
-            :key="item.q"
-            class="faq-item"
-            data-reveal="up"
-            :data-reveal-delay="i * 120"
-          >
-            <h3>{{ item.q }}</h3>
-            <p>{{ item.a }}</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section final-cta">
-        <div class="final-cta__shell" data-reveal="zoom">
-          <p class="eyebrow">Download AuroraPad</p>
-          <h2>Monaco editor · SSH/SFTP · Git · terminal · 30+ built-in tools. Free. No account required.</h2>
-          <div class="final-cta__options">
-            <div v-for="item in finalOptions" :key="item.title" class="final-cta__option">
-              <strong>{{ item.title }}</strong>
-              <span>{{ item.body }}</span>
+              <div v-if="i < releaseSteps.length - 1" class="pa" aria-hidden="true">&rarr;</div>
             </div>
           </div>
-          <div class="hero__actions">
-            <a class="site-btn site-btn--primary site-btn--large" :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_final_cta', downloadUrl, 'final-cta')">
-              Download AuroraPad
-            </a>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="sec">
+        <div class="sec-i">
+          <div class="sec-hd" data-reveal="up">
+            <span class="ey">FAQ</span>
+            <h2>Common questions about features, remote support, plugins, and releases.</h2>
+          </div>
+          <div class="faq">
+            <article
+              v-for="(item, i) in faqItems"
+              :key="item.q"
+              class="faq-it"
+              data-reveal="up"
+              :data-reveal-delay="i * 90"
+            >
+              <h3>{{ item.q }}</h3>
+              <p>{{ item.a }}</p>
+            </article>
           </div>
         </div>
       </section>
 
-      <footer class="site-footer">
-        <div class="site-footer__inner">
+      <!-- CTA -->
+      <div class="cta-wrap">
+        <div class="cta-card" data-reveal="up">
           <div>
-            <strong>AuroraPad</strong>
-            <p>Cross-platform desktop editing with real project awareness.</p>
+            <span class="ey">Download AuroraPad</span>
+            <h2>Monaco &middot; SSH/SFTP &middot; Git &middot; terminal &middot; 30+ tools. Free.</h2>
+            <p>No account required. No extension marketplace. Everything built in. Ships as a real installer for Windows, macOS, and Linux.</p>
           </div>
-          <div class="site-footer__links">
+          <div class="cta-acts">
+            <a class="btn-p" :href="downloadUrl" target="_blank" rel="noreferrer" style="white-space:nowrap" @click="handleOutboundClick('download_cta', downloadUrl, 'cta')">Download Latest &rarr;</a>
+            <span class="cta-note">Windows &middot; macOS &middot; Linux</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <div class="footer-i">
+          <div class="footer-brand">
+            <strong>AuroraPad</strong>
+            <p>Cross-platform desktop editor built for real project work.</p>
+          </div>
+          <div class="footer-links">
             <a :href="downloadUrl" target="_blank" rel="noreferrer" @click="handleOutboundClick('download_footer', downloadUrl, 'footer')">Releases</a>
-            <a href="#workspace" @click="handleSectionNavigation('workspace', 'footer')">Workspace</a>
+            <a href="#features" @click="handleSectionNavigation('features', 'footer')">Features</a>
+            <a href="#remote" @click="handleSectionNavigation('remote', 'footer')">Remote</a>
+            <a href="#tools" @click="handleSectionNavigation('tools', 'footer')">Tools</a>
             <a href="#faq" @click="handleSectionNavigation('faq', 'footer')">FAQ</a>
             <NuxtLink to="/terms" @click="handleLegalNavigation('terms', 'footer')">Terms</NuxtLink>
             <NuxtLink to="/privacy" @click="handleLegalNavigation('privacy', 'footer')">Privacy</NuxtLink>
@@ -404,15 +321,18 @@
           </div>
         </div>
       </footer>
-    </main>
-  </div>
+
+    </div><!-- /wrap -->
+  </div><!-- /site -->
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import appIcon from '../assets/aurorapad-app-icon.png'
 import { downloadUrl } from './data/site'
 const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
+
+const appVersion = '0.1.12'
 
 function handleOutboundClick(label, destination, placement) {
   trackOutboundLink(label, destination, placement)
@@ -424,217 +344,116 @@ function handleLegalNavigation(page, placement) {
   trackNavigation(`legal_${page}`, `/${page}`, placement)
 }
 
-// ── Parallax refs ──────────────────────────────────────────────────────────
-const heroWindow = ref(null)
-const orbBlue    = ref(null)
-const orbTeal    = ref(null)
-const orbViolet  = ref(null)
-const floatLeft  = ref(null)
-const floatRight = ref(null)
-
-// ── Scroll reveal via IntersectionObserver ─────────────────────────────────
+// ── Scroll reveal ──────────────────────────────────────────────────────────
 function setupScrollReveal() {
   if (typeof window === 'undefined') return null
-
-  // Respect reduced-motion preference
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-revealed'))
+    document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-revealed'))
     return null
   }
-
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return
         const el    = entry.target
         const delay = parseInt(el.dataset.revealDelay || '0', 10)
-
         el.style.transitionDelay = `${delay}ms`
-        // rAF ensures layout is stable before class toggle
         requestAnimationFrame(() => el.classList.add('is-revealed'))
-
-        // Clear delay so subsequent transitions (hover, etc.) are instant
         setTimeout(() => { el.style.transitionDelay = '0ms' }, delay + 900)
-
         observer.unobserve(el)
       })
     },
-    { threshold: 0.1, rootMargin: '0px 0px -48px 0px' },
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' },
   )
-
-  document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el))
+  document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el))
   return observer
 }
 
-// ── Parallax scroll ────────────────────────────────────────────────────────
-let ticking = false
-let heroAnimDone = false
-
-function updateParallax() {
-  const y = window.scrollY
-
-  // Orbs drift at independent speeds
-  if (orbBlue.value)   orbBlue.value.style.transform   = `translate3d(0, ${y * 0.16}px, 0)`
-  if (orbTeal.value)   orbTeal.value.style.transform    = `translate3d(0, ${-y * 0.11}px, 0)`
-  if (orbViolet.value) orbViolet.value.style.transform  = `translate3d(0, ${y * 0.23}px, 0)`
-
-  // Floating notes counter-drift
-  if (floatLeft.value)  floatLeft.value.style.transform  = `translate3d(0, ${-y * 0.07}px, 0)`
-  if (floatRight.value) floatRight.value.style.transform = `translate3d(0, ${y * 0.07}px, 0)`
-
-  // Hero product window 3D perspective tilt on scroll
-  if (heroWindow.value && heroAnimDone) {
-    const tilt = Math.min(y * 0.013, 11)
-    const ty   = Math.min(y * 0.05, 80)
-    heroWindow.value.style.transform = `perspective(1400px) rotateX(${tilt}deg) translateY(${ty}px)`
-  }
-
-  ticking = false
-}
-
-function onScroll() {
-  if (!ticking) {
-    requestAnimationFrame(updateParallax)
-    ticking = true
-  }
-}
-
-// ── Card 3D hover tilt ─────────────────────────────────────────────────────
+// ── Card hover tilt ────────────────────────────────────────────────────────
 function setupCardTilt() {
   if (typeof window === 'undefined') return
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-  const selector = '.feature-row, .showcase-card, .compare-card, .open-source__item, .faq-item, .download-item'
-  document.querySelectorAll(selector).forEach((card) => {
-    card.addEventListener('mouseenter', () => {
-      card.style.transition = 'transform 0.12s ease, box-shadow 0.12s ease'
-    })
+  const sel = '.fr, .sc, .tc, .pc, .faq-it, .dc-card'
+  document.querySelectorAll(sel).forEach((card) => {
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect()
-      const cx   = rect.left + rect.width  / 2
-      const cy   = rect.top  + rect.height / 2
-      const dx   = (e.clientX - cx) / (rect.width  / 2)
-      const dy   = (e.clientY - cy) / (rect.height / 2)
-      card.style.transform  = `perspective(900px) rotateY(${dx * 7}deg) rotateX(${-dy * 5}deg) translateZ(14px) scale(1.015)`
-      card.style.boxShadow  = `0 28px 64px rgba(0,0,0,0.32), 0 0 0 1px rgba(74,227,195,0.18)`
+      const dx = (e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2)
+      const dy = (e.clientY - rect.top  - rect.height / 2) / (rect.height / 2)
+      card.style.transform = `perspective(900px) rotateY(${dx * 5}deg) rotateX(${-dy * 4}deg) translateZ(10px)`
     })
     card.addEventListener('mouseleave', () => {
-      card.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.55s ease'
-      card.style.transform  = 'perspective(900px) rotateY(0deg) rotateX(0deg) translateZ(0) scale(1)'
-      card.style.boxShadow  = ''
+      card.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1)'
+      card.style.transform  = ''
+      setTimeout(() => { card.style.transition = '' }, 500)
     })
   })
 }
 
-// ── Lifecycle ──────────────────────────────────────────────────────────────
 let revealObserver = null
-
 onMounted(() => {
   revealObserver = setupScrollReveal()
-  window.addEventListener('scroll', onScroll, { passive: true })
-
-  // Wait for hero CSS animation (1.1s) to finish before JS takes over the window transform
-  setTimeout(() => {
-    heroAnimDone = true
-    if (heroWindow.value) {
-      heroWindow.value.style.animation = 'none'
-    }
-  }, 1200)
-
-  // Card tilt initialised after a short settle
   setTimeout(setupCardTilt, 300)
 })
-
 onUnmounted(() => {
   revealObserver?.disconnect()
-  window.removeEventListener('scroll', onScroll)
 })
 
 // ── Static data ────────────────────────────────────────────────────────────
-const heroMeta = [
-  { label: 'Platforms', value: 'Windows · macOS · Linux' },
-  { label: 'Remote', value: 'SSH · SFTP · FTP · FTPS' },
-  { label: 'Built-in tools', value: '8 skill packs · 30+ transforms' },
-]
+const heroPills = ['Monaco Editor', 'SSH & SFTP', 'Git Integration', 'Integrated Terminal', '30+ Tools']
 
-const editorLines = [
-  'editor:   Monaco  // same core as VS Code',
-  '  languages: 100+,  autoSave: true',
-  '  formatOnSave: true,  bracketColors: true',
-  '',
-  'remote:',
-  '  protocols: [SSH, SFTP, FTP, FTPS, SCP]',
-  '  dualPane: true   // local ↔ remote',
-  '  portForwarding: true',
-  '',
-  'git:  stage · commit · branch · diff',
-  'terminal:  zsh · bash · PowerShell · WSL',
-  'plugins:  8 built-in + external .js support',
-]
-
-const proofItems = [
-  'Monaco editor',
-  'SSH & SFTP',
-  'Git integration',
-  'Integrated terminal',
-  '30+ built-in tools',
-  'Cross-platform CI releases',
-]
+const proofItems = ['Monaco Editor', 'SSH & SFTP', 'Git Integration', 'Integrated Terminal', '30+ Tools', 'Free & Open Source']
 
 const pillars = [
   {
     kicker: 'VS Code editor core',
-    title: 'Monaco — 100+ languages, zero configuration.',
-    body: 'Syntax highlighting, IntelliSense, bracket colorization, minimap, find & replace, word wrap, format-on-save, and whitespace visibility are all on by default. No extension marketplace needed.',
+    title: 'Monaco. 100+ languages, zero configuration.',
+    body: 'Syntax highlighting, auto-save, format-on-save, bracket colorization, minimap, word wrap, find & replace — all on by default. No extension marketplace needed.',
+    icon: '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M7 8l2 2-2 2M11 12h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   },
   {
     kicker: 'Remote-ready',
-    title: 'SSH, SFTP, FTP, and FTPS — no separate client required.',
-    body: 'Save server profiles with key or password auth. Browse remote files in a dual-pane view, transfer with a queue, forward ports, and open an SSH terminal — all inside the editor.',
+    title: 'SSH, SFTP, FTP, FTPS — no separate client.',
+    body: 'Saved profiles per environment. Key or password auth. Dual-pane file browser. Transfer queue. Port forwarding. SSH terminal tab — all in one panel.',
+    icon: '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.2" stroke="currentColor" stroke-width="1.5"/><path d="M13.5 7l1.8-1.8M13.5 13l1.8 1.8M6.5 7L4.7 5.2M6.5 13l-1.8 1.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
   },
   {
     kicker: 'Batteries included',
-    title: '8 built-in skill packs with 30+ tools on first launch.',
-    body: 'Developer Tools, Text Tools, Selection Tools, Whitespace Tools, Sort Lines, Smart Edit, and more are installed by default. Add your own with a plain JavaScript file in the plugins folder.',
+    title: '8 skill packs, 30+ tools — installed, no setup.',
+    body: 'JSON pretty/minify, Base64, URL encode, sort lines, slugify, wrap in quotes, trim whitespace, insert datetime — and more. Drop a JS file to add your own.',
+    icon: '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 5.5h12M4 9.5h8M4 13.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="13.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M15 12.5v1.5l.8.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
   },
 ]
 
 const features = [
   {
     index: '01',
-    kicker: 'Monaco editor',
-    title: 'Language-aware editing with every setting you actually use.',
-    body: 'Syntax highlighting for 100+ languages, auto-save, format-on-save, tab-size (2/4/8), bracket pair colorization, word wrap, whitespace visibility, minimap, line highlighting, and font size — all persistent across sessions.',
+    title: 'Monaco editor — 100+ languages, persistent settings, format on save.',
+    body: 'Tab size, word wrap, font size, line numbers, minimap, bracket pair colorization, whitespace visibility, auto-save interval — all configurable and saved across sessions.',
   },
   {
     index: '02',
-    kicker: 'Project navigation',
-    title: 'File tree, tabs, command palette, and whole-project search.',
-    body: 'Open a folder to get a full file tree. Find in Files searches across every file in the project — not just the open buffer. The command palette (Ctrl+P) jumps to any file or action instantly. Recent files are tracked per workspace.',
+    title: 'Project navigation — file tree, tabs, command palette, Find in Files.',
+    body: 'Open a folder to get a full tree. Find in Files searches every file in the workspace, not just open buffers. Command palette (Ctrl+P / Cmd+P) jumps to any file or action instantly.',
   },
   {
     index: '03',
-    kicker: 'Integrated terminal',
-    title: 'Multiple shells and sessions, docked below the editor.',
-    body: 'Open zsh, bash, PowerShell, Git Bash, or WSL from the terminal dock. Run multiple sessions in tabs, switch with Ctrl+Tab, and keep shell work next to the files you\'re editing without switching windows.',
+    title: 'Integrated terminal — multiple shells and sessions, docked below the editor.',
+    body: 'Open zsh, bash, PowerShell, Git Bash, or WSL from the terminal dock. Run multiple sessions in tabs. Default shell is auto-detected on first launch.',
   },
   {
     index: '04',
-    kicker: 'SSH & SFTP',
-    title: 'Full remote workflow: profiles, dual-pane browser, port forwarding.',
-    body: 'Save server profiles grouped by environment. Connect with SSH key or password, browse remote files side-by-side with local files, upload/download with a transfer queue, forward ports, and open an SSH terminal tab.',
+    title: 'SSH & SFTP — profiles, dual-pane browser, transfer queue, port forwarding.',
+    body: 'Group servers by environment. Connect with SSH key or password. Browse local and remote files side-by-side. Upload/download with a queue. Forward ports. Open SSH terminal in a tab.',
   },
   {
     index: '05',
-    kicker: 'Git integration',
-    title: 'Stage, commit, and track changes from the sidebar.',
-    body: 'The Git panel shows staged and unstaged files with M/A badges. Write a commit message and commit without leaving the editor. Current branch shows in the status bar. Modified files are marked in the file tree.',
+    title: 'Git integration — stage, commit, and track changes from the sidebar.',
+    body: 'Git panel shows staged and unstaged files with M/A badges. Write commit messages and commit without leaving the editor. Branch name shows in the status bar. Modified files are marked in the tree.',
   },
   {
     index: '06',
-    kicker: 'Built-in skill packs',
-    title: '30+ editing tools installed and ready on first launch.',
-    body: 'Developer Tools (JSON pretty/minify, Base64, URL encode/decode), Text Tools (title case, slugify, stats), Selection Tools (quote wrapping, reverse lines), Sort Lines, Remove Empty Lines, Whitespace Tools (trim, compress, tabs↔spaces), Smart Edit, and Insert Datetime.',
+    title: 'Built-in skills — 30+ editing tools on first launch, no configuration.',
+    body: 'JSON pretty/minify, Base64, URL encode/decode, title case, slugify, reverse lines, sort lines, remove duplicates, trim whitespace, tabs↔spaces, insert datetime, selection statistics, and more.',
   },
 ]
 
@@ -642,1295 +461,603 @@ const showcaseCards = [
   {
     kicker: 'Command palette',
     title: 'Every file, action, and setting — one keystroke away.',
-    body: 'Ctrl+P opens the palette. Jump to any file in the project, run a built-in skill, toggle editor settings, or open any screen without touching the mouse.',
+    body: 'Ctrl+P opens the palette. Jump to any file, run a built-in skill, toggle editor settings, or navigate to any screen without touching the mouse.',
     mockupTitle: 'Command Palette',
     mockupMeta: 'Ctrl+P / Cmd+P',
-    className: 'showcase-card--wide',
-    lines: ['> open release.yml', '> find in project: "remoteConnect"', '> JSON: Pretty Print', '> toggle word wrap', '> open ssh terminal'],
+    className: 'tall',
+    mockupHtml: `
+      <div><span class="d">›</span> <span class="h">open</span> App.vue</div>
+      <div><span class="d">›</span> <span class="h">find in project</span> "remoteConnect"</div>
+      <div><span class="d">›</span> <span class="h">JSON:</span> Pretty Print</div>
+      <div><span class="d">›</span> <span class="h">toggle</span> word wrap</div>
+      <div><span class="d">›</span> <span class="h">Base64:</span> Encode Selection</div>
+      <div><span class="d">›</span> <span class="h">open</span> SSH terminal</div>
+    `,
   },
   {
     kicker: 'SSH connections',
-    title: 'Server profiles with groups, tags, and live status.',
-    body: 'Profiles grouped by environment. Connect with key or password auth, see live connection status, and launch SFTP or an SSH terminal in one click.',
+    title: 'Server profiles with groups, auth type, and live status.',
+    body: 'One click to connect, launch SFTP, or open an SSH terminal tab.',
     mockupTitle: 'SSH Connections',
-    mockupMeta: 'production · 3 servers',
-    className: 'showcase-card--accent',
-    lines: ['api.prod.example.com', '→ connected · key auth', 'db.staging.example.com', '→ online · password auth'],
+    mockupMeta: 'production',
+    className: 'accent',
+    mockupHtml: `
+      <div><span class="h">&#11044;</span> api.prod.example.com</div>
+      <div style="padding-left:16px;font-size:10px;color:rgba(74,227,195,0.52)">connected · key auth</div>
+      <div style="margin-top:6px"><span style="color:rgba(130,160,255,0.58)">&#11044;</span> db.staging.example.com</div>
+      <div style="padding-left:16px;font-size:10px;color:rgba(130,160,255,0.48)">online · password auth</div>
+    `,
   },
   {
     kicker: 'SFTP file manager',
-    title: 'Local and remote panes side by side with a transfer queue.',
-    body: 'Upload, download, rename, delete, and create folders. Open remote files directly in the editor. FTP, FTPS, and SCP also supported.',
+    title: 'Dual-pane, transfer queue, FTP & FTPS too.',
+    body: 'Upload, download, rename, delete, and open remote files directly in the editor.',
     mockupTitle: 'SFTP',
     mockupMeta: 'local ↔ remote',
     className: '',
-    lines: ['LOCAL  /src/api/', 'REMOTE /var/www/api/', '↑ auth.js    2.4 KB  done', '↑ router.js  8.1 KB  uploading…'],
+    mockupHtml: `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:9.5px;color:rgba(74,227,195,0.52);margin-bottom:5px">LOCAL</div>
+          <div style="font-size:11px">/src/api/</div>
+          <div style="font-size:11px;color:rgba(210,228,255,0.52)">auth.js</div>
+          <div style="font-size:11px;color:rgba(210,228,255,0.52)">router.js</div>
+        </div>
+        <div>
+          <div style="font-size:9.5px;color:rgba(74,227,195,0.52);margin-bottom:5px">REMOTE</div>
+          <div style="font-size:11px">/var/www/api/</div>
+          <div style="color:rgba(74,227,195,0.72);font-size:11px">↑ auth.js done</div>
+          <div style="color:rgba(74,227,195,0.42);font-size:11px">↑ router.js…</div>
+        </div>
+      </div>
+    `,
   },
 ]
 
-const manifestoPoints = [
-  {
-    title: 'No extensions required',
-    body: 'SSH, SFTP, Git, terminals, project search, and 30+ editing tools are built in — not installed as extensions after the fact.',
-  },
-  {
-    title: 'Cross-platform from one pipeline',
-    body: 'Windows installer + portable EXE, macOS DMG (Intel & Apple Silicon), and Linux AppImage are all built from a single CI pipeline on every tagged release.',
-  },
-  {
-    title: 'Persistent across sessions',
-    body: 'Theme, font size, active panels, shell preference, SSH profiles, and recent files are saved. The editor re-opens exactly where you left off.',
-  },
-]
-
-const comparisonItems = [
-  {
-    kicker: 'Lighter than a full IDE',
-    title: 'Opens fast, stays focused, no plugin marketplace to manage.',
-    body: 'AuroraPad covers the most common dev workflows — edit, search, terminal, SSH/SFTP, Git — without the memory footprint, extension sprawl, or startup lag of a full IDE.',
-  },
-  {
-    kicker: 'Richer than a text editor',
-    title: 'SSH/SFTP, Git, and 30+ tools are built in, not bolted on.',
-    body: 'Bare editors give you syntax highlighting. AuroraPad adds remote connections, a dual-pane file manager, Git workflow, an integrated terminal, and a full skill library — without any setup.',
-  },
-  {
-    kicker: 'A complete desktop product',
-    title: 'App, release pipeline, and website ship from the same repo.',
-    body: 'Every tagged commit produces signed-ready binaries for all three platforms via GitHub Actions. The product website lives in the same repo so documentation stays in sync.',
-  },
+const toolPacks = [
+  { name: 'Developer Tools', tools: ['JSON Pretty Print', 'JSON Minify', 'Base64 Encode / Decode', 'URL Encode / Decode'] },
+  { name: 'Text Tools',      tools: ['Convert to Title Case', 'Slugify Selection', 'Selection Statistics'] },
+  { name: 'Selection Tools', tools: ['Wrap in Double Quotes', 'Wrap in Single Quotes', 'Wrap in Parentheses', 'Reverse Selected Lines'] },
+  { name: 'Whitespace Tools',tools: ['Trim Trailing Whitespace', 'Compress Blank Lines', 'Tabs → Spaces (4)', 'Spaces → Tabs (4)'] },
+  { name: 'Sort Lines',      tools: ['Sort A → Z', 'Sort Z → A', 'Remove Duplicate Lines'] },
+  { name: 'Smart Edit',      tools: ['Auto Indent', 'Remove Empty Lines', 'Normalize Line Endings'] },
+  { name: 'Insert Datetime', tools: ['Insert ISO Date', 'Insert Timestamp', 'Insert Time Only'] },
+  { name: '+ Your own plugin', tools: ['Drop a .js file', 'Appears immediately', 'Full editor API', 'No build step'], highlight: true },
 ]
 
 const downloads = [
   {
-    kicker: 'Windows',
-    title: 'NSIS installer + portable EXE',
-    body: 'Run the installer for a standard install or use the portable EXE with no installation needed. Both ship in every release.',
-  },
-  {
-    kicker: 'macOS',
-    title: 'DMG for Intel and Apple Silicon',
-    body: 'Separate x64 and arm64 DMG packages. Open, drag to Applications, done. No Homebrew or extra steps.',
-  },
-  {
-    kicker: 'Linux',
-    title: 'AppImage + tar.gz archive',
-    body: 'The AppImage runs on any distro without installation. The archive is for custom setups or packaging into your own dev environment.',
-  },
-]
-
-const artifactRows = [
-  {
     platform: 'Windows',
-    assets: 'Setup executable, portable executable, latest metadata',
-    useCase: 'Best for standard installs or carrying AuroraPad as a portable utility.',
+    title: 'NSIS Installer + Portable EXE',
+    body: 'Run the installer for a standard install or use the portable EXE with zero installation needed.',
+    chips: ['.exe installer', '.exe portable', 'x64'],
   },
   {
     platform: 'macOS',
-    assets: 'DMG package, ZIP archive, update metadata',
-    useCase: 'Best for direct desktop installs on Apple Silicon systems.',
+    title: 'DMG for Intel & Apple Silicon',
+    body: 'Separate x64 and arm64 DMG packages. Open, drag to Applications, done.',
+    chips: ['.dmg x64', '.dmg arm64', '.zip'],
   },
   {
     platform: 'Linux',
-    assets: 'AppImage, tar.gz archive, release metadata',
-    useCase: 'Best for quick runs or keeping AuroraPad inside custom developer environments.',
+    title: 'AppImage + Archive',
+    body: 'The AppImage runs on any distro without installation. The archive is for custom dev environments.',
+    chips: ['.AppImage', '.tar.gz', 'x64'],
   },
 ]
 
 const releaseSteps = [
   {
     index: '01',
-    title: 'Tag a commit to start the pipeline',
-    body: 'Push a version tag (v0.x.x) to trigger the release workflow. CI resolves the version, builds all three platforms in parallel, and attaches the artifacts.',
+    title: 'Push a version tag',
+    body: 'v0.x.x triggers the GitHub Actions release workflow',
   },
   {
     index: '02',
     title: 'Three platforms build in parallel',
-    body: 'GitHub Actions runs Windows, macOS, and Linux jobs concurrently. Each job installs dependencies, rebuilds native modules against Electron\'s ABI, and packages the app.',
+    body: 'Windows · macOS · Linux concurrently on GitHub runners',
   },
   {
     index: '03',
-    title: 'Binaries publish to GitHub Releases',
-    body: 'The NSIS installer, portable EXE, DMG (x64 + arm64), AppImage, and tar.gz all attach to the same tagged release. This website links directly to those assets.',
-  },
-]
-
-const projectItems = [
-  {
-    kicker: 'Desktop app',
-    title: 'Electron 41 · Vue 3 · Monaco · Vuetify 4',
-    body: 'The editor, terminal dock, SSH/SFTP client, Git panel, settings screen, and plugin system are all in one Electron shell. Native modules (node-pty, keytar) rebuild against Electron\'s ABI on every install.',
-  },
-  {
-    kicker: 'CI pipeline',
-    title: 'GitHub Actions — build, security scan, release',
-    body: 'Three workflows: build artifacts on every push, security scan on PRs, and a full release pipeline on tags. Native modules are rebuilt correctly on each platform runner.',
-  },
-  {
-    kicker: 'Product website',
-    title: 'Nuxt 4 static site — same repo, same deploy',
-    body: 'This website is a Nuxt 4 app that lives inside the AuroraPad repo. It generates to a static site and deploys alongside the desktop app so documentation never drifts from the actual product.',
+    title: 'Artifacts publish to GitHub Releases',
+    body: 'Installer, portable, DMG (x64 + arm64), AppImage — all attached',
   },
 ]
 
 const faqItems = [
   {
     q: 'Does it replace VS Code or a full IDE?',
-    a: 'It covers the most common workflows — editing, project search, SSH/SFTP, terminal, Git — without the extension sprawl or memory overhead. If you need a full debugger, LSP-powered refactoring, or a large extension ecosystem, VS Code is still the better fit.',
+    a: 'It covers the most common daily workflows — editing, project search, SSH/SFTP, terminal, Git — without extension overhead or memory sprawl. If you need a full debugger or a large extension ecosystem, VS Code is the better fit. AuroraPad is for developers who want a fast, self-contained editor that handles remote work without switching apps.',
   },
   {
-    q: 'What remote protocols are supported?',
-    a: 'SSH (key or password auth), SFTP, FTP, FTPS, and SCP. Server profiles are saved with encrypted credentials via the system keychain and can be imported or exported.',
+    q: 'What remote protocols does it support?',
+    a: 'SSH (key or password auth), SFTP, FTP, FTPS, and SCP. Server profiles are grouped by environment and saved with encrypted credentials via the system keychain. Profiles can be imported and exported.',
   },
   {
     q: 'How do I add my own tools?',
-    a: 'Drop a JavaScript file in the plugins folder. It appears in the Plugin menu immediately. The plugin API exposes the editor content, current selection, cursor position, and file path — no build step required.',
+    a: 'Drop a JavaScript file in the plugins folder. It appears in the Plugin menu immediately — no build step, no restart. The plugin API exposes the editor content, selection, cursor position, and current file path.',
   },
   {
     q: 'Which shells does the terminal support?',
-    a: 'zsh, bash (macOS/Linux), PowerShell, Git Bash, and WSL (Windows). The default shell is detected automatically. You can switch per session from the terminal dock.',
+    a: 'zsh, bash (macOS/Linux), PowerShell, Git Bash, and WSL (Windows). The default shell is detected automatically on first launch. You can switch per session from the terminal dock.',
   },
   {
     q: 'How does the release pipeline work?',
-    a: 'Push a version tag. GitHub Actions builds Windows (NSIS installer + portable), macOS (x64 + arm64 DMG), and Linux (AppImage + tar.gz) in parallel and attaches all artifacts to the GitHub Release automatically.',
+    a: 'Push a version tag. GitHub Actions builds Windows (NSIS installer + portable EXE), macOS (x64 + arm64 DMG), and Linux (AppImage + tar.gz) in parallel and attaches all artifacts to the GitHub Release automatically.',
   },
   {
     q: 'Are preferences saved between sessions?',
-    a: 'Yes. Theme, font size, word wrap, tab size, active panels, shell preference, SSH profiles, and recent files all persist using electron-store. The editor re-opens to the last workspace and layout.',
-  },
-]
-
-const finalOptions = [
-  {
-    title: 'Windows',
-    body: 'NSIS installer or portable EXE — no extra setup.',
-  },
-  {
-    title: 'macOS',
-    body: 'DMG for Intel and Apple Silicon.',
-  },
-  {
-    title: 'Linux',
-    body: 'AppImage runs on any distro without installation.',
+    a: 'Yes. Theme, font size, word wrap, tab size, active panel, shell preference, SSH profiles, and recent files all persist. The editor re-opens to the last workspace and layout on each launch.',
   },
 ]
 </script>
 
 <style scoped>
-/* ── 3D Scroll Reveal ───────────────────────────────────────────────────── */
-/*
-  All transform variants share the same function list so CSS can interpolate
-  smoothly between any initial state and the revealed neutral state.
-  Functions: perspective · rotateX · rotateY · translateX · translateY · scale
-*/
-[data-reveal] {
-  opacity: 0;
-  transition:
-    opacity  0.82s cubic-bezier(0.23, 1, 0.32, 1),
-    transform 0.82s cubic-bezier(0.23, 1, 0.32, 1);
-  will-change: opacity, transform;
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --bg:     #0b0a1a;
+  --bg-mid: #171338;
+  --bg-te:  #103833;
+  --t400:   #34d3a0;
+  --t500:   #1B8470;
+  --ac:     #4AE3C3;
+  --pu:     #534593;
+  --text:   #eef5ff;
+  --dim:    rgba(220,232,252,0.68);
+  --bd:     rgba(255,255,255,0.09);
+  --bdt:    rgba(74,227,195,0.16);
+  --g1:     rgba(255,255,255,0.048);
+  --g2:     rgba(255,255,255,0.076);
 }
 
-[data-reveal='up'] {
-  transform: perspective(900px) rotateX(18deg) rotateY(0deg) translateX(0) translateY(56px) scale(1);
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+.site {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-[data-reveal='left'] {
-  transform: perspective(900px) rotateX(0deg) rotateY(-16deg) translateX(-52px) translateY(0) scale(1);
+h1, h2, h3, h4 {
+  font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI Variable Display', system-ui, sans-serif;
+  letter-spacing: -0.032em;
+  font-weight: 700;
+  line-height: 1.05;
 }
 
-[data-reveal='right'] {
-  transform: perspective(900px) rotateX(0deg) rotateY(16deg) translateX(52px) translateY(0) scale(1);
-}
-
-[data-reveal='zoom'] {
-  transform: perspective(900px) rotateX(10deg) rotateY(0deg) translateX(0) translateY(36px) scale(0.88);
-}
-
-[data-reveal].is-revealed {
-  opacity: 1;
-  transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateX(0) translateY(0) scale(1);
-}
-
-/* Reduced-motion: skip all animation */
-@media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
-
-/* ── Card tilt: performance hint ────────────────────────────────────────── */
-.feature-row,
-.showcase-card,
-.compare-card,
-.open-source__item,
-.faq-item,
-.download-item {
-  will-change: transform;
-}
-
-/* ── Product window: parallax baseline ──────────────────────────────────── */
-.product-window {
-  transform-origin: center top;
-  will-change: transform;
-}
-
-/* ── Base site ─────────────────────────────────────────────────────────── */
-.aurora-site {
-  color: #eef5ff;
-  background:
-    radial-gradient(circle at 5% 15%, rgba(74, 227, 195, 0.18), transparent 34%),
-    radial-gradient(circle at 82% 18%, rgba(83, 69, 147, 0.30), transparent 30%),
-    linear-gradient(140deg, #0b0a1a 0%, #171338 52%, #103833 100%);
-}
-
+/* ── Fixed BG ───────────────────────────────────────────────────────────── */
 .site-bg {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 680px 480px at 6% 8%,  rgba(74,227,195,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 560px 400px at 88% 12%, rgba(83,69,147,0.28)  0%, transparent 55%),
+    radial-gradient(ellipse 400px 360px at 18% 78%, rgba(27,132,112,0.11) 0%, transparent 50%),
+    linear-gradient(148deg, #0b0a1a 0%, #171338 54%, #103833 100%);
 }
 
-.orb {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(64px);
-  opacity: 0.68;
-  will-change: transform;
-}
-
-.orb-blue {
-  top: -120px;
-  left: -80px;
-  width: 420px;
-  height: 420px;
-  background: rgba(27, 132, 112, 0.38);
-}
-
-.orb-teal {
-  bottom: 12%;
-  left: 6%;
-  width: 280px;
-  height: 280px;
-  background: rgba(74, 227, 195, 0.20);
-}
-
-.orb-violet {
-  top: 8%;
-  right: -90px;
-  width: 360px;
-  height: 360px;
-  background: rgba(83, 69, 147, 0.32);
-}
-
-.mesh {
-  position: absolute;
-  inset: 0;
+.site-grid {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background-image:
-    linear-gradient(rgba(74, 227, 195, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(74, 227, 195, 0.06) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 85%);
+    linear-gradient(rgba(74,227,195,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,227,195,0.055) 1px, transparent 1px);
+  background-size: 60px 60px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 72%);
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 72%);
 }
 
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  padding: 16px 20px 0;
-}
+.wrap { position: relative; z-index: 1; }
 
-.site-header__inner {
-  max-width: 1360px;
-  margin: 0 auto;
-  padding: 12px 14px;
-  border: 1px solid rgba(74, 227, 195, 0.14);
-  border-radius: 22px;
-  background: rgba(7, 12, 22, 0.70);
-  backdrop-filter: blur(22px) saturate(140%);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  animation: rise-in 0.7s ease both;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.brand__icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
-}
-
-.brand__copy {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.05;
-}
-
-.brand__copy strong {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.brand__copy small {
-  color: rgba(216, 229, 255, 0.72);
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.site-nav {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-}
-
-.site-nav--desktop {
-  display: flex;
-}
-
-.site-nav a,
-.site-footer__links a {
-  color: rgba(227, 237, 255, 0.82);
-  text-decoration: none;
-  transition: color 0.16s ease;
-}
-
-.site-nav a:hover,
-.site-footer__links a:hover,
-.release-link-group a:hover {
-  color: #ffffff;
-}
-
-.site-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.hero {
-  padding: 48px 20px 30px;
-}
-
-.hero__inner,
-.proof-strip__inner,
-.section,
-.site-footer__inner {
-  max-width: 1360px;
-  margin: 0 auto;
-}
-
-.hero__inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 44px;
-  align-items: center;
-  min-height: calc(100svh - 124px);
-}
-
-.eyebrow {
-  display: inline-block;
-  margin: 0 0 14px;
-  color: #4AE3C3;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.20em;
-  text-transform: uppercase;
-}
-
-.hero__copy h1,
-.section-head h2,
-.workspace-story__intro h2,
-.manifesto-card h2,
-.final-cta__shell h2 {
-  margin: 0;
-  font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI Variable Display', sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.055em;
-}
-
-.hero__copy h1 {
-  max-width: 11ch;
-  font-size: clamp(3.7rem, 7vw, 6.8rem);
-  line-height: 0.94;
-  animation: rise-in 0.8s ease both;
-}
-
-.hero__body {
-  max-width: 53ch;
-  margin: 20px 0 0;
-  color: rgba(221, 232, 250, 0.8);
-  font-size: 1.05rem;
-  line-height: 1.75;
-  animation: rise-in 0.9s ease both;
-}
-
-.hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 28px;
-  animation: rise-in 1s ease both;
-}
-
-.hero__meta {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 34px;
-  animation: rise-in 1.1s ease both;
-}
-
-.hero__meta-item {
-  padding: 18px 18px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(74, 227, 195, 0.14);
-  background: rgba(11, 18, 32, 0.60);
-  backdrop-filter: blur(16px);
-}
-
-.hero__meta-item span {
+/* ── Eyebrow ────────────────────────────────────────────────────────────── */
+.ey {
   display: block;
-  color: rgba(160, 183, 227, 0.78);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.hero__meta-item strong {
-  display: block;
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.hero__visual {
-  position: relative;
-  min-height: 720px;
-  display: flex;
-  align-items: center;
-}
-
-.product-window {
-  position: relative;
-  width: min(760px, 100%);
-  margin-left: auto;
-  border-radius: 34px;
-  overflow: hidden;
-  border: 1px solid rgba(74, 227, 195, 0.16);
-  background:
-    linear-gradient(180deg, rgba(14, 25, 40, 0.96) 0%, rgba(8, 16, 28, 0.98) 100%);
-  box-shadow:
-    0 34px 90px rgba(0, 0, 0, 0.42),
-    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
-  animation: float-in-3d 1.2s cubic-bezier(0.23, 1, 0.32, 1) both;
-  transition: box-shadow 0.3s ease;
-}
-
-.product-window:hover {
-  box-shadow:
-    0 48px 110px rgba(0, 0, 0, 0.52),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
-    0 0 80px rgba(27, 132, 112, 0.18);
-}
-
-.product-window__top {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 16px;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(74, 227, 195, 0.12);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.traffic {
-  display: flex;
-  gap: 8px;
-}
-
-.traffic span {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.traffic span:nth-child(1) { background: #ff6d7a; }
-.traffic span:nth-child(2) { background: #f4c15d; }
-.traffic span:nth-child(3) { background: #32d2a3; }
-
-.product-window__title {
-  color: rgba(232, 239, 255, 0.88);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.product-window__badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(27, 132, 112, 0.22);
-  color: #4AE3C3;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.product-window__body {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  min-height: 560px;
-}
-
-.workspace-sidebar {
-  padding: 22px 18px;
-  border-right: 1px solid rgba(74, 227, 195, 0.10);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
-}
-
-.workspace-sidebar__section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 24px;
-  color: rgba(209, 223, 255, 0.78);
-  font-size: 13px;
-}
-
-.workspace-label {
-  color: rgba(143, 170, 224, 0.68);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.workspace-editor {
-  display: flex;
-  flex-direction: column;
-}
-
-.workspace-tabs {
-  display: flex;
-  gap: 8px;
-  padding: 14px 18px 0;
-}
-
-.workspace-tabs span {
-  padding: 8px 12px;
-  border-radius: 14px 14px 0 0;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(208, 220, 248, 0.68);
-  font-size: 12px;
-}
-
-.workspace-tabs .is-active {
-  background: rgba(27, 132, 112, 0.20);
-  color: #b5f5e8;
-}
-
-.workspace-code {
-  flex: 1;
-  padding: 24px 22px 20px;
-  font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', monospace;
-  font-size: 13px;
-  line-height: 1.75;
-  color: rgba(219, 232, 255, 0.92);
-}
-
-.workspace-code__line {
-  white-space: pre-wrap;
-}
-
-.workspace-terminal {
-  margin: 0 18px 18px;
-  border: 1px solid rgba(74, 227, 195, 0.14);
-  border-radius: 20px;
-  overflow: hidden;
-  background: rgba(4, 11, 22, 0.76);
-}
-
-.workspace-terminal__head,
-.workspace-terminal__body {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-}
-
-.workspace-terminal__head {
-  color: rgba(74, 227, 195, 0.72);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-bottom: 1px solid rgba(74, 227, 195, 0.12);
-}
-
-.workspace-terminal__body {
-  flex-direction: column;
-  color: rgba(204, 244, 232, 0.9);
-  font-family: 'SF Mono', 'JetBrains Mono', monospace;
-  font-size: 12px;
-}
-
-.floating-note {
-  position: absolute;
-  max-width: 230px;
-  padding: 18px 18px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(74, 227, 195, 0.16);
-  background: rgba(7, 15, 26, 0.82);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28), 0 0 0 0 rgba(74, 227, 195, 0.06) inset;
-  animation: rise-in 1.2s ease both;
-  will-change: transform;
-}
-
-.floating-note strong {
-  display: block;
-  line-height: 1.45;
-}
-
-.floating-note .eyebrow {
-  margin-bottom: 8px;
-}
-
-.floating-note--left  { left: -18px;  bottom: 92px; }
-.floating-note--right { right: -24px; top: 110px; }
-
-.proof-strip {
-  padding: 12px 20px 0;
-}
-
-.proof-strip__inner {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.proof-strip__inner span {
-  display: flex;
-  justify-content: center;
-  padding: 16px 12px;
-  border-top: 1px solid rgba(74, 227, 195, 0.14);
-  color: rgba(74, 227, 195, 0.72);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.section {
-  padding: 110px 20px 0;
-}
-
-.section-head {
-  max-width: 880px;
-}
-
-.section-head--compact {
-  max-width: 580px;
-}
-
-.section-head h2,
-.workspace-story__intro h2,
-.manifesto-card h2,
-.final-cta__shell h2 {
-  font-size: clamp(2.2rem, 4vw, 4rem);
-  line-height: 0.98;
-}
-
-.editorial-columns {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
-  margin-top: 34px;
-}
-
-.editorial-column {
-  padding-top: 22px;
-  border-top: 1px solid rgba(74, 227, 195, 0.16);
-}
-
-.editorial-column h3,
-.feature-row h3,
-.manifesto-point strong,
-.open-source__item h3,
-.faq-item h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.editorial-column p,
-.feature-row p,
-.workspace-story__intro p,
-.manifesto-point p,
-.download-item p,
-.open-source__item p,
-.faq-item p,
-.release-callout,
-.site-footer p {
-  color: rgba(207, 219, 243, 0.78);
-  line-height: 1.75;
-}
-
-.workspace-story__grid,
-.release-grid,
-.open-source__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: 42px;
-}
-
-.workspace-story__list {
-  display: grid;
-  gap: 18px;
-}
-
-.showcase-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 18px;
-  margin-top: 34px;
-}
-
-.showcase-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
-  padding: 22px;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22);
-}
-
-.showcase-card--wide {
-  grid-row: span 2;
-}
-
-.showcase-card--accent {
-  background:
-    radial-gradient(circle at top right, rgba(83, 69, 147, 0.18), transparent 26%),
-    rgba(255, 255, 255, 0.05);
-}
-
-.showcase-card__visual {
-  min-height: 220px;
-}
-
-.showcase-mockup {
-  height: 100%;
-  min-height: 220px;
-  border-radius: 24px;
-  overflow: hidden;
-  border: 1px solid rgba(74, 227, 195, 0.14);
-  background: linear-gradient(180deg, rgba(12, 22, 38, 0.96), rgba(7, 14, 26, 0.98));
-}
-
-.showcase-mockup__bar {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(74, 227, 195, 0.12);
-  color: rgba(226, 236, 255, 0.84);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.showcase-mockup__bar small {
-  color: rgba(147, 185, 245, 0.72);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.showcase-mockup__body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px 16px;
-  color: rgba(214, 229, 255, 0.84);
-  font-family: 'SF Mono', 'JetBrains Mono', monospace;
-  font-size: 12px;
-  line-height: 1.7;
-}
-
-.showcase-card__copy h3 {
-  margin: 0;
-  font-size: 1.3rem;
-  line-height: 1.35;
-}
-
-.showcase-card__copy p {
-  margin: 10px 0 0;
-  color: rgba(207, 219, 243, 0.78);
-  line-height: 1.75;
-}
-
-.feature-row {
-  display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
-  gap: 18px;
-  padding: 24px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(14px);
-}
-
-.feature-row__index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(27, 132, 112, 0.30), rgba(83, 69, 147, 0.22));
-  color: #4AE3C3;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-}
-
-.manifesto-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 36px;
-  padding: 34px;
-  border-radius: 34px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background:
-    radial-gradient(circle at top right, rgba(83, 69, 147, 0.22), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(27, 132, 112, 0.16), transparent 24%),
-    rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
-}
-
-.compare-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 34px;
-}
-
-.compare-card {
-  padding: 24px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-}
-
-.compare-card h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  line-height: 1.35;
-}
-
-.compare-card p {
-  color: rgba(207, 219, 243, 0.78);
-  line-height: 1.75;
-}
-
-.manifesto-points {
-  display: grid;
-  gap: 18px;
-}
-
-.manifesto-point {
-  padding: 18px 0;
-  border-top: 1px solid rgba(74, 227, 195, 0.12);
-}
-
-.manifesto-point:first-child {
-  border-top: none;
-  padding-top: 0;
-}
-
-.release-grid {
-  margin-top: 34px;
-}
-
-.download-matrix {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.download-item {
-  display: block;
-  padding: 24px;
-  border-radius: 26px;
-  border: 1px solid rgba(74, 227, 195, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  color: inherit;
-  text-decoration: none;
-}
-
-.download-item strong {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 1.15rem;
-}
-
-.release-aside {
-  display: grid;
-  gap: 18px;
-  align-content: start;
-  padding: 26px;
-  border-radius: 28px;
-  border: 1px solid rgba(74, 227, 195, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-}
-
-.release-link-group span {
-  display: block;
-}
-
-.release-link-group a {
-  color: #eef5ff;
-  text-decoration: none;
-  line-height: 1.7;
-  word-break: break-word;
-}
-
-.release-callout {
-  padding: 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.artifact-matrix {
-  margin-top: 22px;
-  border-top: 1px solid rgba(74, 227, 195, 0.14);
-}
-
-.artifact-matrix__head,
-.artifact-matrix__row {
-  display: grid;
-  grid-template-columns: 180px 1.2fr 1fr;
-  gap: 18px;
-  padding: 18px 4px;
-  align-items: start;
-}
-
-.artifact-matrix__head {
-  color: rgba(144, 168, 214, 0.72);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.artifact-matrix__row {
-  border-top: 1px solid rgba(74, 227, 195, 0.10);
-  color: rgba(220, 232, 252, 0.84);
-}
-
-.artifact-matrix__row strong {
-  font-size: 1rem;
-}
-
-.release-flow {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: 28px;
-  margin-top: 30px;
-  padding-top: 28px;
-  border-top: 1px solid rgba(74, 227, 195, 0.12);
-}
-
-.release-flow__intro h3 {
-  margin: 0;
-  font-size: 1.9rem;
-  line-height: 1.05;
-}
-
-.release-flow__steps {
-  display: grid;
-  gap: 14px;
-}
-
-.release-step {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  gap: 16px;
-  padding: 18px 0;
-  border-top: 1px solid rgba(74, 227, 195, 0.10);
-}
-
-.release-step:first-child {
-  border-top: none;
-  padding-top: 0;
-}
-
-.release-step__index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(27, 132, 112, 0.30), rgba(74, 227, 195, 0.18));
-  color: #4AE3C3;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.release-step strong {
-  display: block;
-  font-size: 1.05rem;
-}
-
-.release-step p {
-  margin: 8px 0 0;
-  color: rgba(207, 219, 243, 0.78);
-  line-height: 1.7;
-}
-
-.open-source__items {
-  display: grid;
-  gap: 18px;
-}
-
-.open-source__item {
-  padding: 22px 24px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-}
-
-.faq-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 34px;
-}
-
-.faq-item {
-  padding: 24px;
-  border-top: 1px solid rgba(74, 227, 195, 0.16);
-}
-
-.final-cta {
-  padding-bottom: 92px;
-}
-
-.final-cta__shell {
-  padding: 42px;
-  border-radius: 34px;
-  border: 1px solid rgba(74, 227, 195, 0.18);
-  background:
-    radial-gradient(circle at top right, rgba(27, 132, 112, 0.24), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(83, 69, 147, 0.22), transparent 28%),
-    rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.32), 0 0 60px rgba(27, 132, 112, 0.12);
-}
-
-.final-cta__options {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 24px;
-}
-
-.final-cta__option {
-  padding: 16px 18px;
-  border-radius: 20px;
-  border: 1px solid rgba(74, 227, 195, 0.12);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.final-cta__option strong {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 1rem;
-}
-
-.final-cta__option span {
-  color: rgba(207, 219, 243, 0.78);
-  line-height: 1.7;
-}
-
-.site-footer {
-  padding: 0 20px 34px;
-}
-
-.site-footer__inner {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  padding-top: 28px;
-  border-top: 1px solid rgba(74, 227, 195, 0.14);
-}
-
-.site-footer__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-}
-
-/* ── Keyframes ──────────────────────────────────────────────────────────── */
-@keyframes rise-in {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes float-in-3d {
-  from {
-    opacity: 0;
-    transform: perspective(1400px) rotateX(22deg) rotateY(-4deg) translateY(48px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: perspective(1400px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
-  }
-}
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ac); margin-bottom: 14px;
+}
+
+/* ── Nav ────────────────────────────────────────────────────────────────── */
+.nav { position: sticky; top: 0; z-index: 50; padding: 16px 24px 0; }
+.nav-i {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 10px 14px 10px 12px; border-radius: 20px;
+  border: 1px solid rgba(74,227,195,0.14);
+  background: rgba(8,10,22,0.76);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { width: 34px; height: 34px; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.28); flex-shrink: 0; }
+.brand-name { font-family: 'Space Grotesk', sans-serif; font-size: 14.5px; font-weight: 700; }
+.brand-tag { font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(74,227,195,0.62); }
+
+.nav-links { display: flex; align-items: center; gap: 22px; }
+.nav-links a { font-size: 13.5px; font-weight: 500; color: var(--dim); transition: color .15s; }
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  padding: 8px 18px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 600;
+  background: linear-gradient(135deg, var(--t500), var(--t400));
+  color: #071510; box-shadow: 0 8px 22px rgba(27,132,112,0.30);
+  transition: transform .15s, box-shadow .15s; white-space: nowrap;
+}
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(27,132,112,0.40); }
 
 /* ── Buttons ────────────────────────────────────────────────────────────── */
-.site-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  color: #edf5ff;
-  text-decoration: none;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+.btn-p {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 26px; border-radius: 999px;
+  font-size: 15px; font-weight: 600;
+  background: linear-gradient(135deg, var(--t500) 0%, var(--t400) 100%);
+  color: #071510; box-shadow: 0 12px 32px rgba(27,132,112,0.28);
+  transition: transform .18s, box-shadow .18s;
+}
+.btn-p:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(27,132,112,0.42); }
+
+.btn-g {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 26px; border-radius: 999px;
+  font-size: 15px; font-weight: 600;
+  border: 1px solid var(--bdt); color: var(--dim);
+  transition: border-color .15s, color .15s;
+}
+.btn-g:hover { border-color: var(--ac); color: var(--text); }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+.hero {
+  min-height: calc(100svh - 80px);
+  padding: 44px 24px 36px;
+  display: flex; align-items: center;
+}
+.hero-i {
+  max-width: 1280px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1.08fr;
+  gap: 48px; align-items: center; width: 100%;
 }
 
-.site-btn:hover { transform: translateY(-2px); }
+.hero-copy {}
+.hero-h1 { font-size: clamp(2.8rem, 5.2vw, 5rem); line-height: 0.97; max-width: 14ch; margin-bottom: 20px; }
+.hero-h1 .ac { color: var(--ac); }
+.hero-p { font-size: 1.04rem; line-height: 1.78; color: var(--dim); max-width: 52ch; margin-bottom: 28px; }
+.hero-acts { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 34px; }
 
-.site-btn--primary {
-  background: linear-gradient(135deg, #1B8470 0%, #34d3a0 100%);
-  box-shadow: 0 16px 36px rgba(27, 132, 112, 0.32);
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 13px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: .04em;
+  border: 1px solid rgba(74,227,195,0.22);
+  background: rgba(74,227,195,0.06); color: var(--ac);
+}
+.pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ac); flex-shrink: 0; }
+
+/* ── Editor mockup ──────────────────────────────────────────────────────── */
+.ew {
+  border-radius: 22px; overflow: hidden;
+  border: 1px solid rgba(74,227,195,0.14);
+  background: linear-gradient(180deg, #121b2e 0%, #080e1c 100%);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.50), 0 0 80px rgba(27,132,112,0.10);
+  transform: perspective(1100px) rotateY(-5deg) rotateX(2deg);
+  transition: transform .45s ease;
+  will-change: transform;
+}
+.ew:hover { transform: perspective(1100px) rotateY(-1deg) rotateX(0deg); }
+
+.ew-top {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-bottom: 1px solid rgba(74,227,195,0.09);
+}
+.tl { display: flex; gap: 6px; }
+.tl span { width: 10px; height: 10px; border-radius: 50%; }
+.tl .r { background: #ff6d7a; } .tl .y { background: #f4c15d; } .tl .g { background: #34d3a0; }
+.ew-ttl { font-family: 'DM Mono', 'Consolas', monospace; font-size: 11.5px; color: rgba(220,232,252,0.55); flex: 1; text-align: center; }
+.ew-badge {
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(27,132,112,0.20); color: var(--ac);
+}
+.ew-body { display: grid; grid-template-columns: 174px 1fr; min-height: 400px; }
+
+.ew-sb { padding: 14px 12px; border-right: 1px solid rgba(74,227,195,0.08); }
+.sb-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(74,227,195,0.50); display: block; margin-bottom: 9px;
+}
+.sb-f {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 6px; border-radius: 7px;
+  font-size: 11.5px; color: rgba(205,220,255,0.70);
+  font-family: 'DM Mono', 'Consolas', monospace;
+}
+.sb-f.on { background: rgba(27,132,112,0.18); color: var(--ac); }
+
+.ew-main { display: flex; flex-direction: column; }
+.ew-tabs { display: flex; gap: 3px; padding: 9px 10px 0; border-bottom: 1px solid rgba(74,227,195,0.08); }
+.ew-tab {
+  padding: 5px 11px; border-radius: 7px 7px 0 0;
+  font-size: 10.5px; font-family: 'DM Mono', 'Consolas', monospace;
+  color: rgba(205,220,255,0.50);
+}
+.ew-tab.on { background: rgba(27,132,112,0.18); color: rgba(180,248,232,0.92); }
+
+.ew-code {
+  flex: 1; padding: 14px 14px 8px;
+  font-family: 'DM Mono', 'Consolas', monospace; font-size: 11.5px; line-height: 1.82;
+  color: rgba(218,230,255,0.88);
+}
+.ew-code .kw { color: #c792ea; }
+.ew-code .st { color: #c3e88d; }
+.ew-code .fn { color: #82aaff; }
+.ew-code .ac { color: #4AE3C3; }
+.ew-code .cm { color: rgba(130,170,255,0.42); }
+
+.ew-term {
+  margin: 0 10px 10px;
+  border: 1px solid rgba(74,227,195,0.12); border-radius: 12px; overflow: hidden;
+  background: rgba(4,10,20,0.82);
+}
+.term-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 11px; border-bottom: 1px solid rgba(74,227,195,0.09);
+}
+.term-lbl {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+  color: rgba(74,227,195,0.58);
+}
+.term-body {
+  padding: 9px 11px;
+  font-family: 'DM Mono', 'Consolas', monospace; font-size: 10.5px; line-height: 1.72;
+  color: rgba(200,242,224,0.85);
 }
 
-.site-btn--outline {
-  border-color: rgba(74, 227, 195, 0.24);
-  background: rgba(255, 255, 255, 0.03);
+/* ── Proof strip ────────────────────────────────────────────────────────── */
+.proof { padding: 10px 24px 0; }
+.proof-i {
+  max-width: 1280px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  border-top: 1px solid rgba(74,227,195,0.13);
+}
+.proof-it {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 18px 10px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+  color: rgba(74,227,195,0.66);
+}
+.proof-it svg { flex-shrink: 0; }
+
+/* ── Section ────────────────────────────────────────────────────────────── */
+.sec { padding: 96px 24px 0; }
+.sec-i { max-width: 1280px; margin: 0 auto; }
+.sec-hd { margin-bottom: 46px; }
+.sec-hd h2 { font-size: clamp(1.9rem, 3.2vw, 3.2rem); max-width: 820px; margin-bottom: 14px; }
+.sec-hd p { font-size: 1.03rem; color: var(--dim); line-height: 1.78; max-width: 58ch; }
+
+/* ── Pillar cards ───────────────────────────────────────────────────────── */
+.pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.pc {
+  padding: 26px 22px; border-radius: 28px;
+  border: 1px solid var(--bd); background: var(--g1);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: border-color .2s, background .2s, transform .22s;
+}
+.pc:hover { border-color: var(--bdt); background: var(--g2); transform: translateY(-3px); }
+.pc-icon {
+  width: 42px; height: 42px; border-radius: 13px;
+  background: linear-gradient(135deg, rgba(27,132,112,0.28), rgba(83,69,147,0.18));
+  border: 1px solid rgba(74,227,195,0.12);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; color: var(--ac);
+}
+.pc-icon :deep(svg) { width: 18px; height: 18px; }
+.pc h3 { font-size: 1.06rem; line-height: 1.38; margin-bottom: 9px; }
+.pc p { font-size: .9rem; color: var(--dim); line-height: 1.72; }
+
+/* ── Feature rows ───────────────────────────────────────────────────────── */
+.frows { display: grid; gap: 12px; }
+.fr {
+  display: grid; grid-template-columns: 58px 1fr;
+  gap: 20px; padding: 22px; align-items: start;
+  border-radius: 20px;
+  border: 1px solid var(--bd); background: var(--g1);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: border-color .2s, background .2s, transform .2s;
+}
+.fr:hover { border-color: var(--bdt); background: var(--g2); transform: translateX(4px); }
+.fn-num {
+  width: 50px; height: 50px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(27,132,112,0.26), rgba(83,69,147,0.20));
+  border: 1px solid rgba(74,227,195,0.14);
+  font-family: 'DM Mono', 'Consolas', monospace; font-size: 12.5px; font-weight: 700;
+  color: var(--ac); letter-spacing: .06em; flex-shrink: 0;
+}
+.fr h3 { font-size: 1.02rem; margin-bottom: 6px; line-height: 1.38; }
+.fr p { font-size: .88rem; color: var(--dim); line-height: 1.72; }
+
+/* ── Showcase ───────────────────────────────────────────────────────────── */
+.sg {
+  display: grid;
+  grid-template-columns: 1.24fr 0.76fr;
+  grid-template-rows: auto auto;
+  gap: 16px; margin-top: 46px;
+}
+.sc {
+  padding: 22px; border-radius: 28px;
+  border: 1px solid var(--bd); background: var(--g1);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: border-color .2s, transform .22s;
+}
+.sc:hover { border-color: var(--bdt); }
+.sc.tall { grid-row: span 2; display: flex; flex-direction: column; }
+.sc.accent { background: linear-gradient(140deg, rgba(83,69,147,0.16), rgba(27,132,112,0.10)), var(--g1); }
+
+.sm {
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid rgba(74,227,195,0.11);
+  background: linear-gradient(180deg, #0f1c2e, #080e1c);
+  margin-bottom: 16px; flex: 1;
+}
+.sm-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 13px; border-bottom: 1px solid rgba(74,227,195,0.09);
+  font-size: 10.5px; font-weight: 600; color: rgba(218,234,255,0.78);
+}
+.sm-bar small { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: rgba(74,227,195,0.60); }
+.sm-body {
+  padding: 14px 13px;
+  font-family: 'DM Mono', 'Consolas', monospace; font-size: 11.5px; line-height: 1.82;
+  color: rgba(210,228,255,0.82);
+}
+.sm-body :deep(.d) { color: rgba(74,227,195,0.52); }
+.sm-body :deep(.h) { color: var(--ac); }
+
+.sc h3 { font-size: 1.15rem; margin-bottom: 7px; line-height: 1.32; }
+.sc p { font-size: .9rem; color: var(--dim); line-height: 1.72; }
+
+/* ── Tools grid ─────────────────────────────────────────────────────────── */
+.tg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 46px; }
+.tc {
+  padding: 18px; border-radius: 20px;
+  border: 1px solid var(--bd); background: var(--g1);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: border-color .2s, transform .2s;
+}
+.tc:hover { border-color: var(--bdt); transform: translateY(-2px); }
+.tc.hi { border-color: var(--bdt); background: rgba(74,227,195,0.04); }
+.tc h4 { font-size: .93rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.tc.hi h4 { color: var(--ac); }
+.tc-items { display: flex; flex-direction: column; gap: 4px; }
+.tc-item {
+  font-size: 10.5px; color: rgba(74,227,195,0.78);
+  font-family: 'DM Mono', 'Consolas', monospace;
+  display: flex; align-items: center; gap: 5px;
+}
+.tc-item::before { content: '›'; color: var(--ac); font-size: 12px; line-height: 1; }
+
+/* ── Downloads ──────────────────────────────────────────────────────────── */
+.dg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 46px; }
+.dc-card {
+  display: block; color: inherit;
+  padding: 26px 22px; border-radius: 28px;
+  border: 1px solid var(--bdt);
+  background: rgba(255,255,255,0.038);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: background .2s, transform .22s;
+}
+.dc-card:hover { background: rgba(74,227,195,0.058); transform: translateY(-3px); }
+.dc-plat { font-size: 10.5px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--ac); margin-bottom: 9px; }
+.dc-card h3 { font-size: 1.08rem; margin-bottom: 7px; }
+.dc-card p { font-size: .88rem; color: var(--dim); line-height: 1.66; margin-bottom: 14px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  padding: 3px 9px; border-radius: 6px;
+  font-size: 9.5px; font-weight: 700; font-family: 'DM Mono', 'Consolas', monospace;
+  background: rgba(74,227,195,0.09);
+  color: rgba(74,227,195,0.82);
+  border: 1px solid rgba(74,227,195,0.15);
 }
 
-.site-btn--large {
-  min-height: 54px;
-  padding: 0 22px;
-  font-size: 15px;
+/* ── Pipeline ───────────────────────────────────────────────────────────── */
+.pipeline {
+  display: flex; align-items: center;
+  gap: 0; margin-top: 36px; padding: 30px;
+  border-radius: 28px;
+  border: 1px solid var(--bd); background: var(--g1);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.pipe-wrap { display: contents; }
+.ps { flex: 1; text-align: center; padding: 10px; }
+.ps-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 11px;
+  background: rgba(27,132,112,0.22);
+  color: var(--ac); font-family: 'DM Mono', 'Consolas', monospace;
+  font-size: 11.5px; font-weight: 700; margin-bottom: 9px;
+  border: 1px solid rgba(74,227,195,0.15);
+}
+.ps h4 { font-size: .93rem; margin-bottom: 5px; }
+.ps p { font-size: .82rem; color: var(--dim); line-height: 1.6; }
+.pa { color: rgba(74,227,195,0.38); font-size: 22px; padding: 0 8px; flex-shrink: 0; }
+
+/* ── FAQ ────────────────────────────────────────────────────────────────── */
+.faq { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 46px; }
+.faq-it { padding: 22px; border-top: 1px solid rgba(74,227,195,0.14); }
+.faq-it h3 { font-size: .98rem; font-weight: 700; margin-bottom: 9px; line-height: 1.42; }
+.faq-it p { font-size: .88rem; color: var(--dim); line-height: 1.78; }
+
+/* ── CTA ────────────────────────────────────────────────────────────────── */
+.cta-wrap { padding: 96px 24px 80px; }
+.cta-card {
+  max-width: 1280px; margin: 0 auto;
+  padding: 60px 52px; border-radius: 40px;
+  border: 1px solid rgba(74,227,195,0.18);
+  background:
+    radial-gradient(ellipse 55% 70% at 2% 10%, rgba(27,132,112,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 98% 90%, rgba(83,69,147,0.18) 0%, transparent 55%),
+    rgba(255,255,255,0.046);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 0 90px rgba(27,132,112,0.12), 0 40px 100px rgba(0,0,0,0.32);
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 40px;
+}
+.cta-card h2 { font-size: clamp(1.8rem, 2.8vw, 2.6rem); margin-bottom: 12px; }
+.cta-card p { font-size: 1rem; color: var(--dim); line-height: 1.74; max-width: 54ch; }
+.cta-acts { display: flex; flex-direction: column; gap: 9px; align-items: flex-end; }
+.cta-note { font-size: 10.5px; color: rgba(74,227,195,0.56); text-align: center; letter-spacing: .05em; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.footer { padding: 0 24px 34px; }
+.footer-i {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+  padding-top: 26px; border-top: 1px solid rgba(74,227,195,0.10);
+}
+.footer-brand strong { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 14.5px; margin-bottom: 3px; }
+.footer-brand p { font-size: 12.5px; color: var(--dim); }
+.footer-links { display: flex; flex-wrap: wrap; gap: 16px; }
+.footer-links a { font-size: 12.5px; color: var(--dim); transition: color .15s; }
+.footer-links a:hover { color: var(--text); }
+
+/* ── Scroll reveal ──────────────────────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: perspective(900px) rotateX(16deg) rotateY(0deg) translateY(48px) scale(1);
+  transition:
+    opacity  0.72s cubic-bezier(0.23, 1, 0.32, 1),
+    transform 0.72s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: opacity, transform;
+}
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
-@media (max-width: 1180px) {
-  .hero__inner,
-  .workspace-story__grid,
-  .release-grid,
-  .open-source__grid,
-  .manifesto-card {
-    grid-template-columns: 1fr;
-  }
-
-  .hero__visual { min-height: auto; }
-  .floating-note { display: none; }
-
-  .download-matrix,
-  .faq-list,
-  .editorial-columns,
-  .showcase-grid,
-  .compare-grid,
-  .final-cta__options {
-    grid-template-columns: 1fr;
-  }
-
-  .release-flow { grid-template-columns: 1fr; }
-  .proof-strip__inner { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1024px) {
+  .hero-i, .cta-card { grid-template-columns: 1fr; }
+  .ew { display: none; }
+  .cta-acts { align-items: flex-start; }
 }
 
-@media (max-width: 900px) {
-  .site-header { padding: 14px 14px 0; }
-  .site-header__inner { padding: 10px 12px; }
-  .brand__copy small { display: none; }
-  .hero { padding: 36px 14px 20px; }
-
-  .section,
-  .site-footer,
-  .proof-strip {
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-
-  .hero__copy h1 {
-    max-width: 12ch;
-    font-size: clamp(3rem, 13vw, 4.8rem);
-  }
-
-  .hero__meta { grid-template-columns: 1fr; }
-
-  .product-window__body { grid-template-columns: 1fr; }
-
-  .workspace-sidebar {
-    border-right: none;
-    border-bottom: 1px solid rgba(173, 198, 255, 0.1);
-  }
-
-  .proof-strip__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-  .manifesto-card,
-  .final-cta__shell { padding: 26px; }
-
-  .artifact-matrix__head,
-  .artifact-matrix__row {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .site-footer__inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 640px) {
-  .site-nav--desktop    { display: none; }
-  .site-header__actions { display: none; }
-
-  .hero__actions { width: 100%; }
-  .hero__actions .site-btn { width: 100%; }
-
-  .workspace-tabs { flex-wrap: wrap; }
-
-  .feature-row {
-    grid-template-columns: 1fr;
-  }
-
-  .feature-row__index {
-    width: 48px;
-    height: 48px;
-  }
-
-  .proof-strip__inner { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .pillars, .dg, .tg, .sg { grid-template-columns: 1fr; }
+  .faq { grid-template-columns: 1fr; }
+  .proof-i { grid-template-columns: repeat(3, 1fr); }
+  .nav-links { display: none; }
+  .pipeline { flex-direction: column; }
+  .pa { transform: rotate(90deg); }
+  .sc.tall { grid-row: auto; }
+  .hero-h1 { font-size: 2.6rem; }
 }
 </style>

@@ -1,0 +1,9 @@
+# Electron app — not needed for the website build
+electron/
+src/
+assets/
+build/
+scripts/
+tests/
+release/
+dist/
