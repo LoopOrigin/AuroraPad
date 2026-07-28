@@ -134,7 +134,7 @@
       <section id="why" class="section section--editorial">
         <div class="section-head" data-reveal="up">
           <p class="eyebrow">Why AuroraPad</p>
-          <h2>Built for developers who want a sharper desktop editor without losing project depth.</h2>
+          <h2>Monaco editor, SSH/SFTP, Git, terminal, and 30+ built-in tools — packaged as one desktop app.</h2>
         </div>
 
         <div class="editorial-columns">
@@ -155,11 +155,11 @@
       <section id="workspace" class="section workspace-story">
         <div class="workspace-story__grid">
           <div class="workspace-story__intro" data-reveal="left">
-            <p class="eyebrow">Workspace</p>
-            <h2>Editing, navigation, terminal context, and commands in one calm desktop surface.</h2>
+            <p class="eyebrow">Features</p>
+            <h2>Everything covered. Nothing to install.</h2>
             <p>
-              AuroraPad is shaped around the real loop of opening a repo, moving through files,
-              searching across the project, making changes, and running commands without breaking flow.
+              Editor, search, terminal, SSH, SFTP, Git, and 30+ editing tools are all built in.
+              Open a folder and every feature is immediately available — no extensions, no marketplace, no setup.
             </p>
           </div>
 
@@ -185,7 +185,7 @@
       <section id="showcase" class="section showcase">
         <div class="section-head" data-reveal="up">
           <p class="eyebrow">Showcase</p>
-          <h2>A closer look at the moments that make AuroraPad feel like a modern desktop tool.</h2>
+          <h2>Command palette, SSH connections, and SFTP — three features that replace three separate apps.</h2>
         </div>
 
         <div class="showcase-grid">
@@ -221,7 +221,7 @@
         <div class="manifesto-card" data-reveal="zoom">
           <div>
             <p class="eyebrow">What Makes It Different</p>
-            <h2>More grounded than a generic editor shell, lighter than a full IDE, and packaged like a real product.</h2>
+            <h2>SSH, SFTP, Git, and 30+ tools built in — not extensions. Ships as a real installer for all three platforms.</h2>
           </div>
           <div class="manifesto-points">
             <div v-for="point in manifestoPoints" :key="point.title" class="manifesto-point">
@@ -235,7 +235,7 @@
       <section class="section compare-section">
         <div class="section-head" data-reveal="up">
           <p class="eyebrow">Positioning</p>
-          <h2>Made for the space between a bare text editor and a full-blown IDE.</h2>
+          <h2>More capable than a text editor. Faster to open than an IDE. Ships as a real desktop product.</h2>
         </div>
 
         <div class="compare-grid">
@@ -256,7 +256,7 @@
       <section id="releases" class="section release-section">
         <div class="section-head" data-reveal="up">
           <p class="eyebrow">Releases</p>
-          <h2>Clear download paths and release automation that match the product.</h2>
+          <h2>One tag. Three platforms. Installer, portable, DMG, AppImage — all built and published automatically.</h2>
         </div>
 
         <div class="release-grid">
@@ -330,7 +330,7 @@
         <div class="open-source__grid">
           <div class="section-head section-head--compact" data-reveal="left">
             <p class="eyebrow">Project System</p>
-            <h2>The editor, release flow, and product website are built as one connected system.</h2>
+            <h2>App, CI pipeline, and website — one repo, one release, always in sync.</h2>
           </div>
 
           <div class="open-source__items">
@@ -352,7 +352,7 @@
       <section id="faq" class="section faq">
         <div class="section-head" data-reveal="up">
           <p class="eyebrow">FAQ</p>
-          <h2>Questions people usually ask before trying a new editor.</h2>
+          <h2>Common questions about features, remote support, plugins, and releases.</h2>
         </div>
 
         <div class="faq-list">
@@ -371,8 +371,8 @@
 
       <section class="section final-cta">
         <div class="final-cta__shell" data-reveal="zoom">
-          <p class="eyebrow">Try AuroraPad</p>
-          <h2>Download the latest build and shape the editor around your own workflow.</h2>
+          <p class="eyebrow">Download AuroraPad</p>
+          <h2>Monaco editor · SSH/SFTP · Git · terminal · 30+ built-in tools. Free. No account required.</h2>
           <div class="final-cta__options">
             <div v-for="item in finalOptions" :key="item.title" class="final-cta__option">
               <strong>{{ item.title }}</strong>
@@ -516,7 +516,7 @@ function setupCardTilt() {
       const dx   = (e.clientX - cx) / (rect.width  / 2)
       const dy   = (e.clientY - cy) / (rect.height / 2)
       card.style.transform  = `perspective(900px) rotateY(${dx * 7}deg) rotateX(${-dy * 5}deg) translateZ(14px) scale(1.015)`
-      card.style.boxShadow  = `0 28px 64px rgba(0,0,0,0.32), 0 0 0 1px rgba(173,198,255,0.18)`
+      card.style.boxShadow  = `0 28px 64px rgba(0,0,0,0.32), 0 0 0 1px rgba(74,227,195,0.18)`
     })
     card.addEventListener('mouseleave', () => {
       card.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.55s ease'
@@ -552,161 +552,170 @@ onUnmounted(() => {
 
 // ── Static data ────────────────────────────────────────────────────────────
 const heroMeta = [
-  { label: 'Platforms', value: 'Windows, macOS, Linux' },
-  { label: 'Core stack', value: 'Electron, Vue, Monaco' },
-  { label: 'Release flow', value: 'Tagged builds with CI' },
+  { label: 'Platforms', value: 'Windows · macOS · Linux' },
+  { label: 'Remote', value: 'SSH · SFTP · FTP · FTPS' },
+  { label: 'Built-in tools', value: '8 skill packs · 30+ transforms' },
 ]
 
 const editorLines = [
-  'release:',
-  '  semanticVersioning: automatic',
-  '  tags: generated-by-ci',
-  '  binaries:',
-  '    windows: ready',
-  '    macos: ready',
-  '    linux: ready',
+  'editor:   Monaco  // same core as VS Code',
+  '  languages: 100+,  autoSave: true',
+  '  formatOnSave: true,  bracketColors: true',
   '',
-  'workspace:',
-  '  search: enabled',
-  '  terminalDock: integrated',
-  '  builtInSkills:',
-  '    - developer-tools',
-  '    - text-tools',
-  '    - selection-tools',
+  'remote:',
+  '  protocols: [SSH, SFTP, FTP, FTPS, SCP]',
+  '  dualPane: true   // local ↔ remote',
+  '  portForwarding: true',
+  '',
+  'git:  stage · commit · branch · diff',
+  'terminal:  zsh · bash · PowerShell · WSL',
+  'plugins:  8 built-in + external .js support',
 ]
 
 const proofItems = [
-  'Monaco editing',
-  'Workspace search',
-  'Command palette',
+  'Monaco editor',
+  'SSH & SFTP',
+  'Git integration',
   'Integrated terminal',
-  'Built-in skills',
-  'Cross-platform packaging',
+  '30+ built-in tools',
+  'Cross-platform CI releases',
 ]
 
 const pillars = [
   {
-    kicker: 'Focused',
-    title: 'Fast enough for everyday editing without feeling stripped down.',
-    body: 'AuroraPad is designed to keep opening, searching, editing, and saving feeling immediate instead of heavy.',
+    kicker: 'VS Code editor core',
+    title: 'Monaco — 100+ languages, zero configuration.',
+    body: 'Syntax highlighting, IntelliSense, bracket colorization, minimap, find & replace, word wrap, format-on-save, and whitespace visibility are all on by default. No extension marketplace needed.',
   },
   {
-    kicker: 'Project-aware',
-    title: 'Structured for repository work, not just single files.',
-    body: 'Project search, session restore, terminal context, release automation, and persistent preferences extend it beyond a simple text editor.',
+    kicker: 'Remote-ready',
+    title: 'SSH, SFTP, FTP, and FTPS — no separate client required.',
+    body: 'Save server profiles with key or password auth. Browse remote files in a dual-pane view, transfer with a queue, forward ports, and open an SSH terminal — all inside the editor.',
   },
   {
-    kicker: 'Extensible',
-    title: 'Open to plugin skills and workflow shaping.',
-    body: 'Built-in tools and JavaScript plugins make it practical to adapt AuroraPad to the way you like to work.',
+    kicker: 'Batteries included',
+    title: '8 built-in skill packs with 30+ tools on first launch.',
+    body: 'Developer Tools, Text Tools, Selection Tools, Whitespace Tools, Sort Lines, Smart Edit, and more are installed by default. Add your own with a plain JavaScript file in the plugins folder.',
   },
 ]
 
 const features = [
   {
     index: '01',
-    kicker: 'Editor core',
-    title: 'Monaco editing with desktop-native controls.',
-    body: 'Language-aware editing, minimap, wrapping, whitespace visibility, bookmarks, split view, font controls, and session persistence are built into the workspace.',
+    kicker: 'Monaco editor',
+    title: 'Language-aware editing with every setting you actually use.',
+    body: 'Syntax highlighting for 100+ languages, auto-save, format-on-save, tab-size (2/4/8), bracket pair colorization, word wrap, whitespace visibility, minimap, line highlighting, and font size — all persistent across sessions.',
   },
   {
     index: '02',
-    kicker: 'Workspace flow',
-    title: 'Navigation and search built around repositories.',
-    body: 'Open a folder, move through the tree, jump with the command palette, and search across the project without leaving the editor rhythm.',
+    kicker: 'Project navigation',
+    title: 'File tree, tabs, command palette, and whole-project search.',
+    body: 'Open a folder to get a full file tree. Find in Files searches across every file in the project — not just the open buffer. The command palette (Ctrl+P) jumps to any file or action instantly. Recent files are tracked per workspace.',
   },
   {
     index: '03',
-    kicker: 'Terminal context',
-    title: 'Integrated terminals that respect the active project.',
-    body: 'Terminal sessions open in context, expose available shell profiles, and keep command execution close to the files you are editing.',
+    kicker: 'Integrated terminal',
+    title: 'Multiple shells and sessions, docked below the editor.',
+    body: 'Open zsh, bash, PowerShell, Git Bash, or WSL from the terminal dock. Run multiple sessions in tabs, switch with Ctrl+Tab, and keep shell work next to the files you\'re editing without switching windows.',
   },
   {
     index: '04',
-    kicker: 'Shipping path',
-    title: 'Release management is part of the product story.',
-    body: 'AuroraPad ships with semantic versioning, GitHub release automation, and platform-specific build generation for Windows, macOS, and Linux.',
+    kicker: 'SSH & SFTP',
+    title: 'Full remote workflow: profiles, dual-pane browser, port forwarding.',
+    body: 'Save server profiles grouped by environment. Connect with SSH key or password, browse remote files side-by-side with local files, upload/download with a transfer queue, forward ports, and open an SSH terminal tab.',
+  },
+  {
+    index: '05',
+    kicker: 'Git integration',
+    title: 'Stage, commit, and track changes from the sidebar.',
+    body: 'The Git panel shows staged and unstaged files with M/A badges. Write a commit message and commit without leaving the editor. Current branch shows in the status bar. Modified files are marked in the file tree.',
+  },
+  {
+    index: '06',
+    kicker: 'Built-in skill packs',
+    title: '30+ editing tools installed and ready on first launch.',
+    body: 'Developer Tools (JSON pretty/minify, Base64, URL encode/decode), Text Tools (title case, slugify, stats), Selection Tools (quote wrapping, reverse lines), Sort Lines, Remove Empty Lines, Whitespace Tools (trim, compress, tabs↔spaces), Smart Edit, and Insert Datetime.',
   },
 ]
 
 const showcaseCards = [
   {
-    kicker: 'Command flow',
-    title: 'A command palette that behaves like a workspace launcher.',
-    body: 'Jump to files, actions, and editor controls from one place instead of hunting through menus.',
+    kicker: 'Command palette',
+    title: 'Every file, action, and setting — one keystroke away.',
+    body: 'Ctrl+P opens the palette. Jump to any file in the project, run a built-in skill, toggle editor settings, or open any screen without touching the mouse.',
     mockupTitle: 'Command Palette',
-    mockupMeta: 'Cmd/Ctrl + P',
+    mockupMeta: 'Ctrl+P / Cmd+P',
     className: 'showcase-card--wide',
-    lines: ['> open release.yml', '> toggle sidebar', '> find in files', '> open plugins manager'],
+    lines: ['> open release.yml', '> find in project: "remoteConnect"', '> JSON: Pretty Print', '> toggle word wrap', '> open ssh terminal'],
   },
   {
-    kicker: 'Built-in skills',
-    title: 'Useful tools are there immediately, not buried behind setup.',
-    body: 'Text transforms, developer helpers, and selection tools make the editor practical from the first run.',
-    mockupTitle: 'Built-in Skills',
-    mockupMeta: 'ready',
+    kicker: 'SSH connections',
+    title: 'Server profiles with groups, tags, and live status.',
+    body: 'Profiles grouped by environment. Connect with key or password auth, see live connection status, and launch SFTP or an SSH terminal in one click.',
+    mockupTitle: 'SSH Connections',
+    mockupMeta: 'production · 3 servers',
     className: 'showcase-card--accent',
-    lines: ['developer-tools', 'text-tools', 'selection-tools', 'plugin-ready architecture'],
+    lines: ['api.prod.example.com', '→ connected · key auth', 'db.staging.example.com', '→ online · password auth'],
   },
   {
-    kicker: 'Terminal dock',
-    title: 'Run commands where the project already lives.',
-    body: 'Keep shell work in-context with visible profiles, active sessions, and cleaner terminal handoff.',
-    mockupTitle: 'Terminal Dock',
-    mockupMeta: 'project-aware',
+    kicker: 'SFTP file manager',
+    title: 'Local and remote panes side by side with a transfer queue.',
+    body: 'Upload, download, rename, delete, and create folders. Open remote files directly in the editor. FTP, FTPS, and SCP also supported.',
+    mockupTitle: 'SFTP',
+    mockupMeta: 'local ↔ remote',
     className: '',
-    lines: ['$ npm run build', '$ npm run electron:dev', 'zsh • powershell • bash', 'session state: ready'],
+    lines: ['LOCAL  /src/api/', 'REMOTE /var/www/api/', '↑ auth.js    2.4 KB  done', '↑ router.js  8.1 KB  uploading…'],
   },
 ]
 
 const manifestoPoints = [
   {
-    title: 'Desktop-first polish',
-    body: 'The interface is tuned like a real desktop app rather than a browser view wrapped in Electron.',
+    title: 'No extensions required',
+    body: 'SSH, SFTP, Git, terminals, project search, and 30+ editing tools are built in — not installed as extensions after the fact.',
   },
   {
-    title: 'Workflow over feature clutter',
-    body: 'The goal is a better editing loop, not a bloated panel maze.',
+    title: 'Cross-platform from one pipeline',
+    body: 'Windows installer + portable EXE, macOS DMG (Intel & Apple Silicon), and Linux AppImage are all built from a single CI pipeline on every tagged release.',
   },
   {
-    title: 'Open-source transparency',
-    body: 'The release flow, website, and product direction stay visible in one connected product surface.',
+    title: 'Persistent across sessions',
+    body: 'Theme, font size, active panels, shell preference, SSH profiles, and recent files are saved. The editor re-opens exactly where you left off.',
   },
 ]
 
 const comparisonItems = [
   {
-    kicker: 'Lighter than an IDE',
-    title: 'Open quickly and stay focused on editing.',
-    body: 'AuroraPad is aimed at people who want project capability without carrying the visual and mental weight of a heavyweight IDE all day.',
+    kicker: 'Lighter than a full IDE',
+    title: 'Opens fast, stays focused, no plugin marketplace to manage.',
+    body: 'AuroraPad covers the most common dev workflows — edit, search, terminal, SSH/SFTP, Git — without the memory footprint, extension sprawl, or startup lag of a full IDE.',
   },
   {
-    kicker: 'Richer than a scratch editor',
-    title: 'Keep project search, terminal context, and release awareness close.',
-    body: 'It is built for repositories, not just loose files, so the surrounding workflow feels intentional instead of bolted on.',
+    kicker: 'Richer than a text editor',
+    title: 'SSH/SFTP, Git, and 30+ tools are built in, not bolted on.',
+    body: 'Bare editors give you syntax highlighting. AuroraPad adds remote connections, a dual-pane file manager, Git workflow, an integrated terminal, and a full skill library — without any setup.',
   },
   {
-    kicker: 'More product-minded',
-    title: 'Ship, explain, and iterate from the same product surface.',
-    body: 'The app, release flow, and website move together, which makes AuroraPad easier to evolve as an actual software product.',
+    kicker: 'A complete desktop product',
+    title: 'App, release pipeline, and website ship from the same repo.',
+    body: 'Every tagged commit produces signed-ready binaries for all three platforms via GitHub Actions. The product website lives in the same repo so documentation stays in sync.',
   },
 ]
 
 const downloads = [
   {
     kicker: 'Windows',
-    title: 'Installer and portable builds',
-    body: 'Grab packaged Windows releases directly from GitHub release assets.',
+    title: 'NSIS installer + portable EXE',
+    body: 'Run the installer for a standard install or use the portable EXE with no installation needed. Both ship in every release.',
   },
   {
     kicker: 'macOS',
-    title: 'Native Apple Silicon packages',
-    body: 'Download signed-style release artifacts built for a smoother desktop install flow.',
+    title: 'DMG for Intel and Apple Silicon',
+    body: 'Separate x64 and arm64 DMG packages. Open, drag to Applications, done. No Homebrew or extra steps.',
   },
   {
     kicker: 'Linux',
-    title: 'AppImage and archive output',
-    body: 'Run AuroraPad on Linux without turning the project into a complex setup task.',
+    title: 'AppImage + tar.gz archive',
+    body: 'The AppImage runs on any distro without installation. The archive is for custom setups or packaging into your own dev environment.',
   },
 ]
 
@@ -731,66 +740,78 @@ const artifactRows = [
 const releaseSteps = [
   {
     index: '01',
-    title: 'Version resolves from release history',
-    body: 'CI computes the next semantic version and tags the release so builds stay consistent with the project timeline.',
+    title: 'Tag a commit to start the pipeline',
+    body: 'Push a version tag (v0.x.x) to trigger the release workflow. CI resolves the version, builds all three platforms in parallel, and attaches the artifacts.',
   },
   {
     index: '02',
-    title: 'Cross-platform artifacts are generated',
-    body: 'Windows, macOS, and Linux packages are built in automation so downloads are ready for real users, not just developers.',
+    title: 'Three platforms build in parallel',
+    body: 'GitHub Actions runs Windows, macOS, and Linux jobs concurrently. Each job installs dependencies, rebuilds native modules against Electron\'s ABI, and packages the app.',
   },
   {
     index: '03',
-    title: 'GitHub release becomes the download source',
-    body: 'Packaged binaries are attached to the release, and the website points users toward those intended assets first.',
+    title: 'Binaries publish to GitHub Releases',
+    body: 'The NSIS installer, portable EXE, DMG (x64 + arm64), AppImage, and tar.gz all attach to the same tagged release. This website links directly to those assets.',
   },
 ]
 
 const projectItems = [
   {
-    kicker: 'App',
-    title: 'Desktop editor',
-    body: 'The main AuroraPad application is built with Vue, Electron, and Monaco, with persistent preferences and workflow-focused tooling.',
+    kicker: 'Desktop app',
+    title: 'Electron 41 · Vue 3 · Monaco · Vuetify 4',
+    body: 'The editor, terminal dock, SSH/SFTP client, Git panel, settings screen, and plugin system are all in one Electron shell. Native modules (node-pty, keytar) rebuild against Electron\'s ABI on every install.',
   },
   {
-    kicker: 'CI',
-    title: 'Semantic releases',
-    body: 'Versioning, tags, and packaged binaries are driven by automation so releases stay reproducible and easier to reason about.',
+    kicker: 'CI pipeline',
+    title: 'GitHub Actions — build, security scan, release',
+    body: 'Three workflows: build artifacts on every push, security scan on PRs, and a full release pipeline on tags. Native modules are rebuilt correctly on each platform runner.',
   },
   {
-    kicker: 'Web',
-    title: 'Product website in the same repo',
-    body: 'The marketing site lives inside the project so the product story stays aligned with the actual app and release state.',
+    kicker: 'Product website',
+    title: 'Nuxt 4 static site — same repo, same deploy',
+    body: 'This website is a Nuxt 4 app that lives inside the AuroraPad repo. It generates to a static site and deploys alongside the desktop app so documentation never drifts from the actual product.',
   },
 ]
 
 const faqItems = [
   {
-    q: 'Is AuroraPad meant to replace a full IDE?',
-    a: 'It is designed more as a fast, capable desktop editor for focused project work. The goal is to stay lighter than a full IDE while covering the workflow depth many lightweight editors miss.',
+    q: 'Does it replace VS Code or a full IDE?',
+    a: 'It covers the most common workflows — editing, project search, SSH/SFTP, terminal, Git — without the extension sprawl or memory overhead. If you need a full debugger, LSP-powered refactoring, or a large extension ecosystem, VS Code is still the better fit.',
   },
   {
-    q: 'Can I inspect or modify the project myself?',
-    a: 'Yes. AuroraPad is open source, with the desktop app, release workflow, and website developed together.',
+    q: 'What remote protocols are supported?',
+    a: 'SSH (key or password auth), SFTP, FTP, FTPS, and SCP. Server profiles are saved with encrypted credentials via the system keychain and can be imported or exported.',
   },
   {
-    q: 'How do downloads work?',
-    a: 'The intended downloads are the packaged binaries attached to GitHub Releases for Windows, macOS, and Linux.',
+    q: 'How do I add my own tools?',
+    a: 'Drop a JavaScript file in the plugins folder. It appears in the Plugin menu immediately. The plugin API exposes the editor content, current selection, cursor position, and file path — no build step required.',
+  },
+  {
+    q: 'Which shells does the terminal support?',
+    a: 'zsh, bash (macOS/Linux), PowerShell, Git Bash, and WSL (Windows). The default shell is detected automatically. You can switch per session from the terminal dock.',
+  },
+  {
+    q: 'How does the release pipeline work?',
+    a: 'Push a version tag. GitHub Actions builds Windows (NSIS installer + portable), macOS (x64 + arm64 DMG), and Linux (AppImage + tar.gz) in parallel and attaches all artifacts to the GitHub Release automatically.',
+  },
+  {
+    q: 'Are preferences saved between sessions?',
+    a: 'Yes. Theme, font size, word wrap, tab size, active panels, shell preference, SSH profiles, and recent files all persist using electron-store. The editor re-opens to the last workspace and layout.',
   },
 ]
 
 const finalOptions = [
   {
-    title: 'Download a build',
-    body: 'Start with the latest packaged release for your platform.',
+    title: 'Windows',
+    body: 'NSIS installer or portable EXE — no extra setup.',
   },
   {
-    title: 'Track releases',
-    body: 'Use the latest packaged release for your platform and follow product updates from the website.',
+    title: 'macOS',
+    body: 'DMG for Intel and Apple Silicon.',
   },
   {
-    title: 'Adapt the workflow',
-    body: 'Use built-in skills, plugins, and project tooling to shape AuroraPad around your own routine.',
+    title: 'Linux',
+    body: 'AppImage runs on any distro without installation.',
   },
 ]
 </script>
@@ -860,10 +881,9 @@ const finalOptions = [
 .aurora-site {
   color: #eef5ff;
   background:
-    radial-gradient(circle at 15% 18%, rgba(15, 99, 233, 0.24), transparent 22%),
-    radial-gradient(circle at 84% 16%, rgba(122, 56, 235, 0.24), transparent 24%),
-    radial-gradient(circle at 18% 82%, rgba(16, 185, 199, 0.18), transparent 22%),
-    #050d1c;
+    radial-gradient(circle at 5% 15%, rgba(74, 227, 195, 0.18), transparent 34%),
+    radial-gradient(circle at 82% 18%, rgba(83, 69, 147, 0.30), transparent 30%),
+    linear-gradient(140deg, #0b0a1a 0%, #171338 52%, #103833 100%);
 }
 
 .site-bg {
@@ -886,7 +906,7 @@ const finalOptions = [
   left: -80px;
   width: 420px;
   height: 420px;
-  background: rgba(15, 99, 233, 0.36);
+  background: rgba(27, 132, 112, 0.38);
 }
 
 .orb-teal {
@@ -894,7 +914,7 @@ const finalOptions = [
   left: 6%;
   width: 280px;
   height: 280px;
-  background: rgba(16, 185, 199, 0.22);
+  background: rgba(74, 227, 195, 0.20);
 }
 
 .orb-violet {
@@ -902,15 +922,15 @@ const finalOptions = [
   right: -90px;
   width: 360px;
   height: 360px;
-  background: rgba(122, 56, 235, 0.26);
+  background: rgba(83, 69, 147, 0.32);
 }
 
 .mesh {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(74, 227, 195, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 227, 195, 0.06) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 85%);
 }
@@ -926,9 +946,9 @@ const finalOptions = [
   max-width: 1360px;
   margin: 0 auto;
   padding: 12px 14px;
-  border: 1px solid rgba(171, 196, 255, 0.14);
+  border: 1px solid rgba(74, 227, 195, 0.14);
   border-radius: 22px;
-  background: rgba(7, 15, 30, 0.66);
+  background: rgba(7, 12, 22, 0.70);
   backdrop-filter: blur(22px) saturate(140%);
   display: flex;
   align-items: center;
@@ -1022,10 +1042,10 @@ const finalOptions = [
 .eyebrow {
   display: inline-block;
   margin: 0 0 14px;
-  color: #91dfff;
+  color: #4AE3C3;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
 }
 
@@ -1075,8 +1095,8 @@ const finalOptions = [
 .hero__meta-item {
   padding: 18px 18px 16px;
   border-radius: 20px;
-  border: 1px solid rgba(168, 194, 255, 0.14);
-  background: rgba(11, 20, 39, 0.52);
+  border: 1px solid rgba(74, 227, 195, 0.14);
+  background: rgba(11, 18, 32, 0.60);
   backdrop-filter: blur(16px);
 }
 
@@ -1109,11 +1129,11 @@ const finalOptions = [
   margin-left: auto;
   border-radius: 34px;
   overflow: hidden;
-  border: 1px solid rgba(173, 198, 255, 0.16);
+  border: 1px solid rgba(74, 227, 195, 0.16);
   background:
-    linear-gradient(180deg, rgba(19, 29, 54, 0.96) 0%, rgba(9, 18, 36, 0.98) 100%);
+    linear-gradient(180deg, rgba(14, 25, 40, 0.96) 0%, rgba(8, 16, 28, 0.98) 100%);
   box-shadow:
-    0 34px 90px rgba(0, 0, 0, 0.38),
+    0 34px 90px rgba(0, 0, 0, 0.42),
     0 0 0 1px rgba(255, 255, 255, 0.02) inset;
   animation: float-in-3d 1.2s cubic-bezier(0.23, 1, 0.32, 1) both;
   transition: box-shadow 0.3s ease;
@@ -1121,9 +1141,9 @@ const finalOptions = [
 
 .product-window:hover {
   box-shadow:
-    0 48px 110px rgba(0, 0, 0, 0.48),
+    0 48px 110px rgba(0, 0, 0, 0.52),
     0 0 0 1px rgba(255, 255, 255, 0.04) inset,
-    0 0 80px rgba(15, 99, 233, 0.1);
+    0 0 80px rgba(27, 132, 112, 0.18);
 }
 
 .product-window__top {
@@ -1132,7 +1152,7 @@ const finalOptions = [
   gap: 16px;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(173, 198, 255, 0.12);
+  border-bottom: 1px solid rgba(74, 227, 195, 0.12);
   background: rgba(255, 255, 255, 0.02);
 }
 
@@ -1161,8 +1181,8 @@ const finalOptions = [
 .product-window__badge {
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(15, 99, 233, 0.18);
-  color: #a9d7ff;
+  background: rgba(27, 132, 112, 0.22);
+  color: #4AE3C3;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1177,7 +1197,7 @@ const finalOptions = [
 
 .workspace-sidebar {
   padding: 22px 18px;
-  border-right: 1px solid rgba(173, 198, 255, 0.1);
+  border-right: 1px solid rgba(74, 227, 195, 0.10);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
 }
 
@@ -1218,8 +1238,8 @@ const finalOptions = [
 }
 
 .workspace-tabs .is-active {
-  background: rgba(15, 99, 233, 0.16);
-  color: #dfeeff;
+  background: rgba(27, 132, 112, 0.20);
+  color: #b5f5e8;
 }
 
 .workspace-code {
@@ -1237,10 +1257,10 @@ const finalOptions = [
 
 .workspace-terminal {
   margin: 0 18px 18px;
-  border: 1px solid rgba(132, 159, 219, 0.16);
+  border: 1px solid rgba(74, 227, 195, 0.14);
   border-radius: 20px;
   overflow: hidden;
-  background: rgba(4, 11, 24, 0.7);
+  background: rgba(4, 11, 22, 0.76);
 }
 
 .workspace-terminal__head,
@@ -1252,11 +1272,11 @@ const finalOptions = [
 }
 
 .workspace-terminal__head {
-  color: rgba(149, 181, 237, 0.72);
+  color: rgba(74, 227, 195, 0.72);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-bottom: 1px solid rgba(132, 159, 219, 0.14);
+  border-bottom: 1px solid rgba(74, 227, 195, 0.12);
 }
 
 .workspace-terminal__body {
@@ -1271,10 +1291,10 @@ const finalOptions = [
   max-width: 230px;
   padding: 18px 18px 16px;
   border-radius: 20px;
-  border: 1px solid rgba(173, 198, 255, 0.14);
-  background: rgba(7, 17, 34, 0.78);
+  border: 1px solid rgba(74, 227, 195, 0.16);
+  background: rgba(7, 15, 26, 0.82);
   backdrop-filter: blur(18px);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28), 0 0 0 0 rgba(74, 227, 195, 0.06) inset;
   animation: rise-in 1.2s ease both;
   will-change: transform;
 }
@@ -1305,8 +1325,8 @@ const finalOptions = [
   display: flex;
   justify-content: center;
   padding: 16px 12px;
-  border-top: 1px solid rgba(173, 198, 255, 0.14);
-  color: rgba(201, 216, 245, 0.72);
+  border-top: 1px solid rgba(74, 227, 195, 0.14);
+  color: rgba(74, 227, 195, 0.72);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1341,7 +1361,7 @@ const finalOptions = [
 
 .editorial-column {
   padding-top: 22px;
-  border-top: 1px solid rgba(173, 198, 255, 0.14);
+  border-top: 1px solid rgba(74, 227, 195, 0.16);
 }
 
 .editorial-column h3,
@@ -1394,9 +1414,10 @@ const finalOptions = [
   gap: 18px;
   padding: 22px;
   border-radius: 30px;
-  border: 1px solid rgba(173, 198, 255, 0.13);
-  background: rgba(9, 18, 35, 0.56);
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22);
 }
 
 .showcase-card--wide {
@@ -1405,8 +1426,8 @@ const finalOptions = [
 
 .showcase-card--accent {
   background:
-    radial-gradient(circle at top right, rgba(122, 56, 235, 0.14), transparent 26%),
-    rgba(9, 18, 35, 0.58);
+    radial-gradient(circle at top right, rgba(83, 69, 147, 0.18), transparent 26%),
+    rgba(255, 255, 255, 0.05);
 }
 
 .showcase-card__visual {
@@ -1418,8 +1439,8 @@ const finalOptions = [
   min-height: 220px;
   border-radius: 24px;
   overflow: hidden;
-  border: 1px solid rgba(173, 198, 255, 0.14);
-  background: linear-gradient(180deg, rgba(18, 30, 58, 0.96), rgba(8, 16, 32, 0.98));
+  border: 1px solid rgba(74, 227, 195, 0.14);
+  background: linear-gradient(180deg, rgba(12, 22, 38, 0.96), rgba(7, 14, 26, 0.98));
 }
 
 .showcase-mockup__bar {
@@ -1427,7 +1448,7 @@ const finalOptions = [
   justify-content: space-between;
   gap: 14px;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(173, 198, 255, 0.12);
+  border-bottom: 1px solid rgba(74, 227, 195, 0.12);
   color: rgba(226, 236, 255, 0.84);
   font-size: 12px;
   font-weight: 600;
@@ -1469,8 +1490,8 @@ const finalOptions = [
   gap: 18px;
   padding: 24px;
   border-radius: 26px;
-  border: 1px solid rgba(173, 198, 255, 0.13);
-  background: rgba(9, 18, 35, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(14px);
 }
 
@@ -1481,8 +1502,8 @@ const finalOptions = [
   width: 56px;
   height: 56px;
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(15, 99, 233, 0.24), rgba(122, 56, 235, 0.18));
-  color: #ebf3ff;
+  background: linear-gradient(180deg, rgba(27, 132, 112, 0.30), rgba(83, 69, 147, 0.22));
+  color: #4AE3C3;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -1493,12 +1514,13 @@ const finalOptions = [
   gap: 36px;
   padding: 34px;
   border-radius: 34px;
-  border: 1px solid rgba(173, 198, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   background:
-    radial-gradient(circle at top right, rgba(122, 56, 235, 0.12), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(16, 185, 199, 0.1), transparent 24%),
-    rgba(8, 18, 35, 0.66);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+    radial-gradient(circle at top right, rgba(83, 69, 147, 0.22), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(27, 132, 112, 0.16), transparent 24%),
+    rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
 
 .compare-grid {
@@ -1511,8 +1533,9 @@ const finalOptions = [
 .compare-card {
   padding: 24px;
   border-radius: 26px;
-  border: 1px solid rgba(173, 198, 255, 0.13);
-  background: linear-gradient(180deg, rgba(10, 19, 36, 0.62), rgba(8, 16, 32, 0.46));
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 .compare-card h3 {
@@ -1533,7 +1556,7 @@ const finalOptions = [
 
 .manifesto-point {
   padding: 18px 0;
-  border-top: 1px solid rgba(173, 198, 255, 0.12);
+  border-top: 1px solid rgba(74, 227, 195, 0.12);
 }
 
 .manifesto-point:first-child {
@@ -1555,8 +1578,9 @@ const finalOptions = [
   display: block;
   padding: 24px;
   border-radius: 26px;
-  border: 1px solid rgba(173, 198, 255, 0.14);
-  background: rgba(10, 19, 36, 0.58);
+  border: 1px solid rgba(74, 227, 195, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
   color: inherit;
   text-decoration: none;
 }
@@ -1573,8 +1597,9 @@ const finalOptions = [
   align-content: start;
   padding: 26px;
   border-radius: 28px;
-  border: 1px solid rgba(173, 198, 255, 0.13);
-  background: rgba(8, 18, 35, 0.52);
+  border: 1px solid rgba(74, 227, 195, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 .release-link-group span {
@@ -1596,7 +1621,7 @@ const finalOptions = [
 
 .artifact-matrix {
   margin-top: 22px;
-  border-top: 1px solid rgba(173, 198, 255, 0.14);
+  border-top: 1px solid rgba(74, 227, 195, 0.14);
 }
 
 .artifact-matrix__head,
@@ -1616,7 +1641,7 @@ const finalOptions = [
 }
 
 .artifact-matrix__row {
-  border-top: 1px solid rgba(173, 198, 255, 0.1);
+  border-top: 1px solid rgba(74, 227, 195, 0.10);
   color: rgba(220, 232, 252, 0.84);
 }
 
@@ -1630,7 +1655,7 @@ const finalOptions = [
   gap: 28px;
   margin-top: 30px;
   padding-top: 28px;
-  border-top: 1px solid rgba(173, 198, 255, 0.12);
+  border-top: 1px solid rgba(74, 227, 195, 0.12);
 }
 
 .release-flow__intro h3 {
@@ -1649,7 +1674,7 @@ const finalOptions = [
   grid-template-columns: 48px minmax(0, 1fr);
   gap: 16px;
   padding: 18px 0;
-  border-top: 1px solid rgba(173, 198, 255, 0.1);
+  border-top: 1px solid rgba(74, 227, 195, 0.10);
 }
 
 .release-step:first-child {
@@ -1664,8 +1689,8 @@ const finalOptions = [
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(15, 99, 233, 0.24), rgba(16, 185, 199, 0.18));
-  color: #ebf3ff;
+  background: linear-gradient(180deg, rgba(27, 132, 112, 0.30), rgba(74, 227, 195, 0.18));
+  color: #4AE3C3;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1690,20 +1715,21 @@ const finalOptions = [
 .open-source__item {
   padding: 22px 24px;
   border-radius: 24px;
-  border: 1px solid rgba(173, 198, 255, 0.13);
-  background: rgba(10, 19, 36, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 .faq-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
   margin-top: 34px;
 }
 
 .faq-item {
   padding: 24px;
-  border-top: 1px solid rgba(173, 198, 255, 0.18);
+  border-top: 1px solid rgba(74, 227, 195, 0.16);
 }
 
 .final-cta {
@@ -1713,12 +1739,13 @@ const finalOptions = [
 .final-cta__shell {
   padding: 42px;
   border-radius: 34px;
-  border: 1px solid rgba(173, 198, 255, 0.16);
+  border: 1px solid rgba(74, 227, 195, 0.18);
   background:
-    radial-gradient(circle at top right, rgba(15, 99, 233, 0.2), transparent 26%),
-    radial-gradient(circle at bottom left, rgba(122, 56, 235, 0.18), transparent 24%),
-    rgba(10, 19, 36, 0.72);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
+    radial-gradient(circle at top right, rgba(27, 132, 112, 0.24), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(83, 69, 147, 0.22), transparent 28%),
+    rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.32), 0 0 60px rgba(27, 132, 112, 0.12);
 }
 
 .final-cta__options {
@@ -1731,8 +1758,8 @@ const finalOptions = [
 .final-cta__option {
   padding: 16px 18px;
   border-radius: 20px;
-  border: 1px solid rgba(173, 198, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(74, 227, 195, 0.12);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .final-cta__option strong {
@@ -1756,7 +1783,7 @@ const finalOptions = [
   justify-content: space-between;
   gap: 20px;
   padding-top: 28px;
-  border-top: 1px solid rgba(173, 198, 255, 0.14);
+  border-top: 1px solid rgba(74, 227, 195, 0.14);
 }
 
 .site-footer__links {
@@ -1801,13 +1828,13 @@ const finalOptions = [
 .site-btn:hover { transform: translateY(-2px); }
 
 .site-btn--primary {
-  background: linear-gradient(135deg, #0f63e9 0%, #7a38eb 100%);
-  box-shadow: 0 16px 36px rgba(15, 99, 233, 0.28);
+  background: linear-gradient(135deg, #1B8470 0%, #34d3a0 100%);
+  box-shadow: 0 16px 36px rgba(27, 132, 112, 0.32);
 }
 
 .site-btn--outline {
-  border-color: rgba(169, 197, 255, 0.24);
-  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(74, 227, 195, 0.24);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .site-btn--large {
