@@ -26,8 +26,8 @@
               <v-text-field
                 v-model="mask"
                 label="Filters"
-                placeholder="*.*"
-                hint="Semicolon-separated masks, e.g. *.js;*.ts;*.vue"
+                placeholder="* (all files)"
+                hint="Semicolon-separated masks, e.g. *.js;*.ts;*.vue — leave blank or use * for all files including extensionless ones"
                 persistent-hint
               />
               <div class="find-root-row">
@@ -102,7 +102,7 @@ const emit = defineEmits(['close', 'open-result'])
 
 const pattern = ref('')
 const root = ref('')
-const mask = ref('*.*')
+const mask = ref('*')
 const matchCase = ref(false)
 const useRegex = ref(false)
 const results = ref([])

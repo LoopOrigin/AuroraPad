@@ -17,9 +17,9 @@ export const usePluginsStore = defineStore('plugins', () => {
     }
   }
 
-  async function loadUserPlugins() {
+  async function loadUserPlugins(pluginNames = null) {
     if (!window.electronAPI?.listUserPlugins || !window.electronAPI?.readUserPlugin) return
-    const names = await window.electronAPI.listUserPlugins()
+    const names = Array.isArray(pluginNames) ? pluginNames : await window.electronAPI.listUserPlugins()
     for (const name of names) {
       try {
         const content = await window.electronAPI.readUserPlugin(name)

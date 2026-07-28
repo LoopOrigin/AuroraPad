@@ -9,17 +9,15 @@ This file captures the most important follow-up issues found while reviewing the
 - Hardened Find/Replace in Files against invalid regular expressions.
 - Improved session persistence coverage for unsaved tab content and metadata changes.
 - Made `Run...` commands execute from the active file directory or open workspace when available.
+- Changed Find in Files default file mask from `*.*` to `*` so extensionless files (Dockerfile, .env, Makefile, etc.) are included by default.
+- Added right-click context menu to the tab bar: Close, Close Others (with dirty-check confirm), Copy Path, Reveal in File Manager.
+- Implemented file change detection: chokidar now watches individual open files; clean tabs auto-reload silently; dirty tabs show a dismissible reload notification. Self-saves are suppressed to avoid false positives.
 
 ## Open Issues
 
-- [ ] Persist editor preferences beyond theme.
-  File: `src/stores/settings.js`
-  Word wrap, line numbers, sidebar visibility, font size, whitespace visibility, current-line highlight, and minimap state reset between launches even though they behave like preferences.
+- [x] ~~Persist editor preferences beyond theme.~~ All preferences (word wrap, line numbers, sidebar visibility, font size, whitespace, current-line highlight, minimap) are already stored via `useStorage` in `src/stores/settings.js` and persist across launches.
 
-- [ ] Support extensionless files in Find/Replace in Files defaults.
-  File: `src/components/FindInFiles.vue`
-  File: `electron/main/index.js`
-  The default mask is `*.*`, which skips common files like `Dockerfile`, `.env`, `Makefile`, and other extensionless project files unless the user notices and changes the filter.
+- [x] ~~Support extensionless files in Find/Replace in Files defaults.~~ Default mask changed from `*.*` to `*` in both `src/components/FindInFiles.vue` and both IPC handlers in `electron/main/index.js`.
 
 - [ ] Expose platform-specific terminal entries more carefully.
   File: `electron/main/index.js`

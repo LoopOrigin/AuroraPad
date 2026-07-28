@@ -4,6 +4,7 @@
       <MenuBar
         v-if="!isMacPlatform"
         :menus="menuBarMenus"
+        :primary-menu-ids="topMenuPrimaryIds"
         @new="menuNew"
         @open="menuOpenFile"
         @close-tab="menuCloseTab"
@@ -17,6 +18,8 @@
       :has-editor="!!tabsStore.activeTab"
       :can-save-all="tabsStore.hasDirty"
       :word-wrap="settingsStore.wordWrap"
+      :eol-mode="activeTabEolMode"
+      @convert-eol="cycleEol"
       @new="menuNew"
       @open="menuOpenFile"
       @save="menuSave"
@@ -35,105 +38,214 @@
       @preferences="openPreferences"
     />
     <div class="app-body">
-    <aside class="sidebar" :class="{ collapsed: !settingsStore.sidebarVisible }">
-      <FileTree @open-file="openFileByPath" />
-      <div class="sidebar-section-title">
-        <span>Recent</span>
-        <button v-if="settingsStore.recentFiles.length" type="button" @click="clearRecent">Clear</button>
-      </div>
-      <ul class="recent-files-list">
-        <li
-          v-for="path in settingsStore.recentFiles.slice(0, 10)"
-          :key="path"
-          :title="path"
-          @click="openFileByPath(path)"
-        >
-          {{ path.split(/[/\\]/).pop() }}
-        </li>
-        <li v-if="!settingsStore.recentFiles.length" class="recent-files-empty">
-          Recently opened files will appear here.
-        </li>
-      </ul>
-    </aside>
-    <div class="editor-area">
-      <TabBar />
-      <div class="editor-container" :class="{ 'editor-container-split': splitViewEnabled }">
-        <template v-if="tabsStore.activeTab">
-          <div class="editor-pane primary-pane">
-            <div
-              :data-tab-id="primaryTab?.id"
-              class="monaco-editor-wrapper"
-            >
-              <MonacoEditor
-                ref="monacoEditorRef"
-                :model-value="primaryTab?.content || ''"
-                :language="primaryTab?.language || 'plaintext'"
-                :theme="monacoTheme"
-                :word-wrap="settingsStore.wordWrap"
-                :line-numbers="settingsStore.lineNumbers"
-                :font-size="settingsStore.fontSize"
-                :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
-                :highlight-current-line="settingsStore.highlightCurrentLine"
-                :bookmarks="primaryTab?.bookmarks || []"
-                :show-minimap="settingsStore.showMinimap"
-                @update:model-value="val => onEditorContentChange('primary', val)"
-                @cursor-change="pos => onCursorChange('primary', pos)"
-              />
+    <nav class="activity-bar" aria-label="Activity bar">
+
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'editor' && settingsStore.activeSidePanel === 'explorer' && settingsStore.sidebarVisible }"
+        title="Explorer (Ctrl+B)"
+        @click="activateExplorer"
+      >
+        <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'editor' && settingsStore.activeSidePanel === 'search' && settingsStore.sidebarVisible }"
+        title="Search (Ctrl+Shift+F)"
+        @click="activateSearch"
+      >
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'editor' && settingsStore.activeSidePanel === 'git' && settingsStore.sidebarVisible }"
+        title="Source Control"
+        @click="activateGit"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M11.75 2.5a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0zm.75 3c-.98 0-1.81.626-2.12 1.5H7.93A2.5 2.5 0 0 0 5.5 9.25v1.5a.75.75 0 0 0 1.5 0v-1.5a1 1 0 0 1 1-1h2.37c.31.874 1.14 1.5 2.12 1.5a2.25 2.25 0 0 0 0-4.5zM2.75 5.5a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0zm.75 2.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5z"/>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'connections' }"
+        title="SSH Connections"
+        @click="settingsStore.setActiveScreen('connections'); loadRemoteProfiles()"
+      >
+        <i class="fa-solid fa-server" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'sftp' }"
+        title="SFTP File Manager"
+        @click="settingsStore.setActiveScreen('sftp')"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M7 16V8m0 0l-3 3m3-3 3 3M17 8v8m0 0 3-3m-3 3-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': showTerminal }"
+        title="Terminal (Ctrl+`)"
+        @click="openTerminalPanel"
+      >
+        <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+      </button>
+      <div class="activity-bar-spacer"></div>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'settings' }"
+        title="Settings"
+        @click="settingsStore.setActiveScreen('settings')"
+      >
+        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+      </button>
+    </nav>
+
+    <!-- main-content: screens column + terminal dock at bottom -->
+    <div class="main-content">
+      <div class="screen-area">
+        <!-- Non-editor screens — kept mounted (v-show) for state persistence -->
+        <ConnectionsScreen
+          v-show="settingsStore.activeScreen === 'connections'"
+          :profiles="remoteProfiles"
+          :loading="connectionsLoading"
+          :active-connection-id="fileTreeStore.remoteConnection?.profileId || ''"
+          :connecting-id="connectingProfileId"
+          :notif="connectionsNotif"
+          @new-connection="openNewConnectionModal(null)"
+          @connect="connectRemoteProfile"
+          @disconnect="disconnectRemoteWorkspace"
+          @edit="openNewConnectionModal"
+          @delete="requestDeleteRemoteProfile"
+          @dismiss-notif="connectionsNotif = { type: '', msg: '' }"
+        />
+        <SftpScreen
+          v-show="settingsStore.activeScreen === 'sftp'"
+          :sessions="sftpSessions"
+          @disconnect-session="onSftpSessionDisconnect"
+          @new-session="settingsStore.setActiveScreen('connections'); loadRemoteProfiles()"
+          @open-in-editor="openFileByPath"
+          @open-ssh-terminal="onSftpOpenSshTerminal"
+        />
+        <SettingsScreen
+          v-show="settingsStore.activeScreen === 'settings'"
+          @go-connections="settingsStore.setActiveScreen('connections')"
+        />
+
+        <!-- Editor screen: kept mounted (v-show) for Monaco state -->
+        <div class="editor-screen" v-show="settingsStore.activeScreen === 'editor'">
+          <aside class="sidebar" :class="{ collapsed: !settingsStore.sidebarVisible }">
+            <template v-if="settingsStore.activeSidePanel === 'explorer'">
+              <FileTree @open-file="openFileByPath" @move-entry="moveRemoteEntry" />
+              <div class="sidebar-section-title">
+                <span>Recent</span>
+                <button v-if="settingsStore.recentFiles.length" type="button" @click="clearRecent">Clear</button>
+              </div>
+              <ul class="recent-files-list">
+                <li v-for="path in settingsStore.recentFiles.slice(0, 10)" :key="path" :title="path" @click="openFileByPath(path)">
+                  {{ path.split(/[/\\]/).pop() }}
+                </li>
+                <li v-if="!settingsStore.recentFiles.length" class="recent-files-empty">Recently opened files will appear here.</li>
+              </ul>
+            </template>
+            <SearchPanel v-else-if="settingsStore.activeSidePanel === 'search'" @open-result="openFindInFilesResult" />
+            <GitPanel v-else-if="settingsStore.activeSidePanel === 'git'" @open-file="openFileByPath" @open-folder="menuOpenFolder" />
+          </aside>
+          <div class="editor-area">
+            <TabBar />
+            <div v-if="tabsStore.activeTab" class="breadcrumb-row" aria-label="File path">
+              <template v-for="(seg, idx) in activeBreadcrumbs" :key="idx">
+                <span v-if="idx > 0" class="breadcrumb-sep">›</span>
+                <span :class="['breadcrumb-segment', idx === activeBreadcrumbs.length - 1 ? 'current' : '']">{{ seg }}</span>
+              </template>
             </div>
-          </div>
-          <div v-if="splitViewEnabled" class="editor-pane secondary-pane">
-            <div
-              :data-tab-id="(secondaryTab || primaryTab)?.id + '-secondary'"
-              class="monaco-editor-wrapper"
-            >
-              <MonacoEditor
-                ref="monacoEditorSecondaryRef"
-                :model-value="(secondaryTab || primaryTab)?.content || ''"
-                :language="(secondaryTab || primaryTab)?.language || 'plaintext'"
-                :theme="monacoTheme"
-                :word-wrap="settingsStore.wordWrap"
-                :line-numbers="settingsStore.lineNumbers"
-                :font-size="settingsStore.fontSize"
-                :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
-                :highlight-current-line="settingsStore.highlightCurrentLine"
-                :bookmarks="(secondaryTab || primaryTab)?.bookmarks || []"
-                :show-minimap="settingsStore.showMinimap"
-                @update:model-value="val => onEditorContentChange('secondary', val)"
-              />
+            <div class="editor-container" :class="{ 'editor-container-split': splitViewEnabled }">
+              <template v-if="tabsStore.activeTab">
+                <div class="editor-pane primary-pane">
+                  <div :data-tab-id="primaryTab?.id" class="monaco-editor-wrapper">
+                    <MonacoEditor
+                      ref="monacoEditorRef"
+                      :model-value="primaryTab?.content || ''"
+                      :language="primaryTab?.language || 'plaintext'"
+                      :theme="monacoTheme"
+                      :word-wrap="settingsStore.wordWrap"
+                      :line-numbers="settingsStore.lineNumbers"
+                      :font-size="settingsStore.fontSize"
+                      :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
+                      :highlight-current-line="settingsStore.highlightCurrentLine"
+                      :bookmarks="primaryTab?.bookmarks || []"
+                      :show-minimap="settingsStore.showMinimap"
+                      @update:model-value="val => onEditorContentChange('primary', val)"
+                      @cursor-change="pos => onCursorChange('primary', pos)"
+                    />
+                  </div>
+                </div>
+                <div v-if="splitViewEnabled" class="editor-pane secondary-pane">
+                  <div :data-tab-id="(secondaryTab || primaryTab)?.id + '-secondary'" class="monaco-editor-wrapper">
+                    <MonacoEditor
+                      ref="monacoEditorSecondaryRef"
+                      :model-value="(secondaryTab || primaryTab)?.content || ''"
+                      :language="(secondaryTab || primaryTab)?.language || 'plaintext'"
+                      :theme="monacoTheme"
+                      :word-wrap="settingsStore.wordWrap"
+                      :line-numbers="settingsStore.lineNumbers"
+                      :font-size="settingsStore.fontSize"
+                      :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
+                      :highlight-current-line="settingsStore.highlightCurrentLine"
+                      :bookmarks="(secondaryTab || primaryTab)?.bookmarks || []"
+                      :show-minimap="settingsStore.showMinimap"
+                      @update:model-value="val => onEditorContentChange('secondary', val)"
+                    />
+                  </div>
+                </div>
+              </template>
+              <div v-else class="empty-state">
+                <div class="empty-state-badge">AuroraPad</div>
+                <h2>No file open</h2>
+                <p>Open a file, load a folder, or start a scratch note.</p>
+                <div class="empty-state-platform">
+                  <span>{{ platformInfo.revealInFolderLabel }}</span>
+                  <span>{{ platformInfo.terminalAppLabel }}</span>
+                  <span>{{ platformInfo.platform }}</span>
+                </div>
+                <div class="empty-state-actions">
+                  <button type="button" @click="menuOpenFile">Open File</button>
+                  <button type="button" @click="menuOpenFolder">Open Folder</button>
+                  <button type="button" class="secondary" @click="menuNew">New File</button>
+                </div>
+                <div class="empty-state-tips">
+                  <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+P</kbd> Command Palette</span>
+                  <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+Shift+F</kbd> Find in Files</span>
+                </div>
+              </div>
             </div>
+            <StatusBar
+              v-if="settingsStore.statusBarVisible"
+              :active-screen="settingsStore.activeScreen"
+              @go-to-line="handleMenu('menu:go-to-line')"
+              @go-sftp="settingsStore.setActiveScreen('sftp')"
+            />
           </div>
-        </template>
-        <div v-else class="empty-state">
-          <div class="empty-state-badge">AuroraPad</div>
-          <h2>No file open</h2>
-          <p>Open a file, load a folder, or start a scratch note.</p>
-          <div class="empty-state-platform">
-            <span>{{ platformInfo.revealInFolderLabel }}</span>
-            <span>{{ platformInfo.terminalAppLabel }}</span>
-            <span>{{ platformInfo.platform }}</span>
-          </div>
-          <div class="empty-state-actions">
-            <button type="button" @click="menuOpenFile">Open File</button>
-            <button type="button" @click="menuOpenFolder">Open Folder</button>
-            <button type="button" class="secondary" @click="menuNew">New File</button>
-          </div>
-          <div class="empty-state-tips">
-            <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+P</kbd> Command Palette</span>
-            <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+Shift+F</kbd> Find in Files</span>
-          </div>
-        </div>
-      </div>
-      <StatusBar
-        v-if="settingsStore.statusBarVisible"
-        @go-to-line="handleMenu('menu:go-to-line')"
-      />
+        </div><!-- end editor-screen -->
+      </div><!-- end screen-area -->
+
+      <!-- Terminal dock — visible on ALL screens, pinned to bottom -->
       <TerminalDock
         v-if="showTerminal"
         ref="terminalDockRef"
         :platform-info="platformInfo"
         @close="showTerminal = false"
       />
-    </div>
+    </div><!-- end main-content -->
     </div>
     <v-dialog v-model="showPluginManager" max-width="760">
       <v-card class="aurora-dialog">
@@ -145,6 +257,9 @@
         <v-card-text class="dialog-body">
           <div class="dialog-intro">
             AuroraPad uses built-in skills plus user JavaScript plugins. Drop `.js` plugins into the plugins folder to extend the app.
+          </div>
+          <div class="dialog-security-note">
+            User plugins are trusted local code and can run with desktop-level access. Only enable plugins you wrote yourself or fully trust.
           </div>
           <v-list class="dialog-list" bg-color="transparent">
             <v-list-item
@@ -177,6 +292,167 @@
           </v-btn>
           <v-spacer />
           <v-btn color="primary" @click="showPluginManager = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showRemoteManager" max-width="1020">
+      <v-card
+        class="aurora-dialog remote-manager-dialog"
+        @keydown.capture="handleRemoteManagerClipboardShortcut"
+        @focusin.capture="trackRemoteManagerFocus"
+      >
+        <v-toolbar color="transparent" density="comfortable">
+          <v-toolbar-title>
+            Remote Servers
+            <div class="remote-dialog-subtitle">Manage SSH/SFTP/FTP profiles and connect quickly.</div>
+          </v-toolbar-title>
+          <v-spacer />
+          <v-chip size="small" variant="tonal" :color="keychainAvailable ? 'success' : 'warning'">
+            {{ keychainAvailable ? 'Keychain Ready' : 'Keychain Unavailable' }}
+          </v-chip>
+          <v-btn
+            variant="flat"
+            size="small"
+            class="remote-dialog-close-btn"
+            title="Close"
+            @click="showRemoteManager = false"
+          >
+            <span class="remote-close-mark" aria-hidden="true">×</span>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text class="dialog-body">
+          <v-row dense class="remote-manager-grid">
+            <v-col cols="12" md="5">
+              <div class="settings-group remote-manager-panel remote-manager-profiles">
+                <div class="settings-group-title">Saved Profiles</div>
+                <v-list class="dialog-list remote-profile-list" bg-color="transparent">
+                  <v-list-item
+                    v-for="profile in remoteProfiles"
+                    :key="profile.id"
+                    class="dialog-list-item remote-profile-item"
+                    :class="{ active: remoteForm.id === profile.id }"
+                    @click="editRemoteProfile(profile)"
+                  >
+                    <template #prepend>
+                      <v-avatar size="28" variant="tonal" class="remote-profile-avatar">
+                        <v-icon :icon="profile.protocol === 'sftp' ? 'mdi-ssh' : (profile.protocol === 'ftps' ? 'mdi-lock' : 'mdi-lan-connect')" size="15" />
+                      </v-avatar>
+                    </template>
+                    <v-list-item-title>{{ profile.name }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ profile.protocol.toUpperCase() }} • {{ profile.username }}@{{ profile.host }}:{{ profile.port }}</v-list-item-subtitle>
+                    <template #append>
+                      <div class="remote-profile-actions">
+                        <v-btn size="x-small" variant="tonal" color="primary" @click.stop="connectRemoteProfile(profile)">Connect</v-btn>
+                        <v-btn size="x-small" variant="text" @click.stop="editRemoteProfile(profile)">Edit</v-btn>
+                        <v-btn size="x-small" variant="text" color="error" @click.stop="requestDeleteRemoteProfile(profile)">Remove</v-btn>
+                      </div>
+                    </template>
+                  </v-list-item>
+                </v-list>
+                <div v-if="!remoteProfiles.length" class="dialog-intro remote-empty-state">
+                  <v-icon icon="mdi-server-network-off" size="18" />
+                  <span>No profiles yet. Create one on the right.</span>
+                </div>
+              </div>
+            </v-col>
+            <v-col cols="12" md="7">
+              <div class="settings-group remote-manager-panel remote-manager-editor">
+                <div class="settings-group-title">Profile Editor</div>
+                <div class="remote-form-fields">
+                <v-text-field v-model="remoteForm.name" label="Profile Name" placeholder="Production Server" />
+                <v-row dense class="remote-form-row">
+                  <v-col cols="12" sm="6">
+                    <v-select
+                      v-model="remoteForm.protocol"
+                      :items="remoteProtocolOptions"
+                      label="Protocol"
+                    />
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-select
+                      v-model="remoteForm.authType"
+                      :items="remoteAuthOptions"
+                      label="Auth Type"
+                      :disabled="remoteForm.protocol !== 'sftp'"
+                    />
+                  </v-col>
+                </v-row>
+                <v-row dense class="remote-form-row">
+                  <v-col cols="12" sm="8"><v-text-field v-model="remoteForm.host" label="Host" placeholder="example.com" /></v-col>
+                  <v-col cols="12" sm="4"><v-text-field v-model="remoteForm.port" type="number" label="Port" /></v-col>
+                </v-row>
+                <v-text-field v-model="remoteForm.username" label="Username" />
+                <v-text-field v-model="remoteForm.remoteRoot" label="Default Remote Root" placeholder="/" />
+                <v-text-field
+                  v-if="remoteForm.protocol === 'sftp' && remoteForm.authType === 'privateKey'"
+                  v-model="remoteForm.privateKeyPath"
+                  label="Private Key Path"
+                  placeholder="~/.ssh/id_rsa"
+                />
+                <v-text-field
+                  v-if="remoteForm.authType === 'password' || remoteForm.protocol !== 'sftp'"
+                  v-model="remoteForm.secretPassword"
+                  type="password"
+                  label="Password (optional unless connecting)"
+                />
+                <v-text-field
+                  v-if="remoteForm.protocol === 'sftp' && remoteForm.authType === 'privateKey'"
+                  v-model="remoteForm.secretPassphrase"
+                  type="password"
+                  label="Key Passphrase (optional)"
+                />
+                <v-switch
+                  :model-value="remoteForm.saveSecret"
+                  :disabled="!keychainAvailable"
+                  label="Save secret to OS keychain"
+                  @update:model-value="remoteForm.saveSecret = !!$event"
+                />
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions class="dialog-actions remote-manager-actions">
+          <div class="remote-actions-left">
+            <v-btn variant="tonal" class="remote-action-btn" @click="resetRemoteForm">New Profile</v-btn>
+            <v-btn variant="tonal" class="remote-action-btn" @click="importRemoteProfiles">Import</v-btn>
+            <v-btn variant="tonal" class="remote-action-btn" @click="exportRemoteProfiles">Export</v-btn>
+          </div>
+          <div class="remote-actions-right">
+            <v-btn variant="tonal" class="remote-action-btn" @click="showRemoteManager = false">Close</v-btn>
+            <v-btn color="secondary" variant="tonal" class="remote-action-btn" @click="loadRemoteProfiles">Refresh</v-btn>
+            <v-btn color="info" variant="tonal" class="remote-action-btn" @click="testRemoteConnection">Test Connection</v-btn>
+            <v-btn color="primary" variant="flat" class="remote-action-btn remote-action-btn-primary" @click="saveRemoteProfile">Save Profile</v-btn>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showDeleteRemoteProfileDialog" max-width="520">
+      <v-card class="aurora-dialog remote-delete-dialog">
+        <v-toolbar color="transparent" density="comfortable">
+          <v-toolbar-title>Remove Profile</v-toolbar-title>
+          <v-spacer />
+          <v-btn variant="flat" size="small" class="remote-dialog-close-btn" @click="cancelDeleteRemoteProfile">
+            <span class="remote-close-mark" aria-hidden="true">×</span>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text class="dialog-body">
+          <div class="remote-delete-callout">
+            <v-icon icon="mdi-alert-circle-outline" color="error" size="22" />
+            <div>
+              <div class="remote-delete-title">Delete this server profile?</div>
+              <div class="remote-delete-text">
+                <strong>{{ pendingDeleteRemoteProfile?.name || 'Selected profile' }}</strong> will be removed from AuroraPad.
+                Saved keychain secret will also be deleted.
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="dialog-actions remote-delete-actions">
+          <div class="remote-actions-right">
+            <v-btn variant="tonal" class="remote-action-btn" @click="cancelDeleteRemoteProfile">Cancel</v-btn>
+            <v-btn color="error" variant="flat" class="remote-action-btn" @click="confirmDeleteRemoteProfile">Remove</v-btn>
+          </div>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -261,6 +537,38 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <NewConnectionModal
+      v-model="showNewConnectionModal"
+      :edit-profile="editingProfile"
+      :keychain-available="keychainAvailable"
+      @saved="onConnectionSaved"
+      @connected="onConnectionConnected"
+    />
+
+    <!-- Inline secret prompt (replaces prompt() for SSH connect) -->
+    <Teleport to="body">
+      <div v-if="secretPrompt.visible" class="app-secret-backdrop">
+        <div class="app-secret-box">
+          <div class="app-secret-title">Authentication Required</div>
+          <label class="app-secret-label">{{ secretPrompt.label }}</label>
+          <input
+            ref="secretPromptInputRef"
+            v-model="secretPrompt.value"
+            type="password"
+            class="app-secret-input"
+            placeholder="Enter secret…"
+            autofocus
+            @keydown.enter="confirmSecretPrompt"
+            @keydown.escape="cancelSecretPrompt"
+            @vue:mounted="el => el?.focus()"
+          />
+          <div class="app-secret-actions">
+            <button type="button" class="app-secret-cancel" @click="cancelSecretPrompt">Cancel</button>
+            <button type="button" class="app-secret-ok" @click="confirmSecretPrompt">Connect</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
     <CommandPalette
       v-if="showCommandPalette"
       :recent-only="commandPaletteRecentOnly"
@@ -275,6 +583,7 @@
       @sort-tabs-name="tabsStore.sortTabsByName()"
       @sort-tabs-path="tabsStore.sortTabsByPath()"
       @sort-tabs-type="tabsStore.sortTabsByType()"
+      @connect-server="openRemoteManager"
     />
     <FindInFiles
       :visible="showFindInFiles"
@@ -282,6 +591,34 @@
       @close="showFindInFiles = false"
       @open-result="openFindInFilesResult"
     />
+
+    <!-- File changed on disk notification -->
+    <v-snackbar
+      v-if="fileChangedNotification"
+      :model-value="true"
+      location="bottom right"
+      :timeout="-1"
+      color="surface-variant"
+      elevation="8"
+      rounded="lg"
+      class="file-changed-snackbar"
+    >
+      <span>
+        <strong>{{ fileChangedNotification.name }}</strong>
+        {{ fileChangedNotification.deleted ? ' was deleted from disk.' : ' was changed on disk.' }}
+      </span>
+      <template #actions>
+        <v-btn
+          v-if="!fileChangedNotification.deleted"
+          variant="text"
+          color="primary"
+          @click="acceptFileChangedOnDisk"
+        >
+          Reload
+        </v-btn>
+        <v-btn variant="text" @click="fileChangedNotification = null">Dismiss</v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -301,6 +638,12 @@ import Toolbar from './components/Toolbar.vue'
 import MenuBar from './components/MenuBar.vue'
 import FindInFiles from './components/FindInFiles.vue'
 import TerminalDock from './components/TerminalDock.vue'
+import ConnectionsScreen from './components/screens/ConnectionsScreen.vue'
+import SftpScreen from './components/screens/SftpScreen.vue'
+import SettingsScreen from './components/screens/SettingsScreen.vue'
+import SearchPanel from './components/sidebar/SearchPanel.vue'
+import GitPanel from './components/sidebar/GitPanel.vue'
+import NewConnectionModal from './components/modals/NewConnectionModal.vue'
 
 const tabsStore = useTabsStore()
 const settingsStore = useSettingsStore()
@@ -311,6 +654,9 @@ const monacoEditorSecondaryRef = ref(null)
 const showCommandPalette = ref(false)
 const commandPaletteRecentOnly = ref(false)
 const showPluginManager = ref(false)
+const fileChangedNotification = ref(null)
+const showRemoteManager = ref(false)
+const showDeleteRemoteProfileDialog = ref(false)
 const showFindInFiles = ref(false)
 const showTerminal = ref(false)
 const terminalDockRef = ref(null)
@@ -318,9 +664,73 @@ const splitViewEnabled = ref(false)
 const secondaryTabId = ref(null)
 const lastRunCommand = ref('')
 const platformInfo = ref(createFallbackPlatformInfo())
+const keychainAvailable = ref(false)
+const remoteProfiles = ref([])
+const remoteManagerLastEditable = ref(null)
+const remoteProtocolOptions = [
+  { title: 'SFTP (SSH)', value: 'sftp' },
+  { title: 'FTP', value: 'ftp' },
+  { title: 'FTPS', value: 'ftps' },
+]
+const remoteAuthOptions = [
+  { title: 'Password', value: 'password' },
+  { title: 'Private Key', value: 'privateKey' },
+]
+const remoteForm = ref(createRemoteProfileForm())
+const pendingDeleteRemoteProfile = ref(null)
+const remoteConnectionTestBusy = ref(false)
+const showNewConnectionModal = ref(false)
+const editingProfile = ref(null)
+const sftpSessions = ref([]) // [{connectionId, profileId, host, username, name, rootPath, ...}]
+const connectionsLoading = ref(false)
+const connectingProfileId = ref('')
+const connectionsNotif = ref({ type: '', msg: '' })
+const secretPrompt = ref({ visible: false, label: '', value: '' })
+let secretPromptResolve = null
 let autoSaveInterval = null
 
+function openSecretPrompt(label) {
+  return new Promise((resolve) => {
+    secretPromptResolve = resolve
+    secretPrompt.value = { visible: true, label, value: '' }
+  })
+}
+function confirmSecretPrompt() {
+  const v = secretPrompt.value.value
+  secretPrompt.value.visible = false
+  secretPromptResolve?.(v || null)
+  secretPromptResolve = null
+}
+function cancelSecretPrompt() {
+  secretPrompt.value.visible = false
+  secretPromptResolve?.(null)
+  secretPromptResolve = null
+}
+
 const primaryTab = computed(() => tabsStore.activeTab)
+
+const activeBreadcrumbs = computed(() => {
+  const tab = tabsStore.activeTab
+  if (!tab) return []
+  const path = tab.path || tab.name || ''
+  return path.split(/[/\\]/).filter(Boolean)
+})
+
+const activeTabEolMode = computed(() => {
+  const tab = tabsStore.activeTab
+  if (!tab) return 'LF'
+  return tab.eol === 'crlf' ? 'CRLF' : tab.eol === 'cr' ? 'CR' : 'LF'
+})
+
+function cycleEol() {
+  const tab = tabsStore.activeTab
+  if (!tab) return
+  const cycleMap = { 'lf': 'crlf', 'crlf': 'cr', 'cr': 'lf' }
+  const current = tab.eol || 'lf'
+  const next = cycleMap[current] || 'lf'
+  convertEol(next)
+}
+
 const secondaryTab = computed(() => {
   if (!secondaryTabId.value) return null
   return tabsStore.tabs.find(t => t.id === secondaryTabId.value) || null
@@ -334,6 +744,8 @@ const monacoTheme = computed(() => {
       return 'aurora-monokai'
     case 'solarized-dark':
       return 'aurora-solarized-dark'
+    case 'material-ocean':
+      return 'aurora-material-ocean'
     default:
       return 'vs'
   }
@@ -342,11 +754,30 @@ const showPreferences = ref(false)
 const themeOptions = [
   { title: 'Aurora Light', value: 'light' },
   { title: 'Aurora Dark', value: 'dark' },
+  { title: 'Material Ocean', value: 'material-ocean' },
   { title: 'Monokai Dark', value: 'monokai' },
   { title: 'Solarized Dark', value: 'solarized-dark' },
 ]
 
 const isMacPlatform = computed(() => platformInfo.value.isMac)
+
+function createRemoteProfileForm() {
+  return {
+    id: '',
+    name: '',
+    protocol: 'sftp',
+    authType: 'password',
+    host: '',
+    port: 22,
+    username: '',
+    remoteRoot: '/',
+    privateKeyPath: '',
+    saveSecret: true,
+    secretPassword: '',
+    secretPassphrase: '',
+    tags: [],
+  }
+}
 
 function createFallbackPlatformInfo() {
   const ua = navigator.userAgent.toLowerCase()
@@ -384,16 +815,382 @@ function isTerminalProfileAvailable(profileId) {
 }
 
 function openTerminalSession(shell = platformInfo.value.defaultShellProfile || 'default', cwd = '') {
-  const nextShell = isTerminalProfileAvailable(shell)
+  const nextShell = String(shell).startsWith('ssh:')
     ? shell
-    : (platformInfo.value.defaultShellProfile || 'default')
+    : (isTerminalProfileAvailable(shell)
+    ? shell
+    : (platformInfo.value.defaultShellProfile || 'default'))
   showTerminal.value = true
   setTimeout(() => {
-    terminalDockRef.value?.newSession?.(nextShell, cwd)
+    terminalDockRef.value?.newSession?.(nextShell, cwd, {
+      title: String(shell).startsWith('ssh:') ? 'SSH Session' : undefined,
+    })
   }, 100)
 }
 
+function isRemoteTab(tab) {
+  return !!tab?.remote?.connectionId
+}
+
+function makeRemoteUri(connectionId, remotePath) {
+  const safePath = String(remotePath || '/').startsWith('/') ? remotePath : `/${remotePath || ''}`
+  return `remote://${connectionId}${safePath}`
+}
+
+function parseRemoteUri(uri) {
+  if (!String(uri || '').startsWith('remote://')) return null
+  const raw = uri.replace('remote://', '')
+  const slashIndex = raw.indexOf('/')
+  if (slashIndex === -1) return null
+  return {
+    connectionId: raw.slice(0, slashIndex),
+    remotePath: raw.slice(slashIndex) || '/',
+  }
+}
+
+async function loadRemoteProfiles() {
+  if (!window.electronAPI?.remoteListProfiles) return
+  const result = await window.electronAPI.remoteListProfiles()
+  if (result?.error) {
+    alert(`Failed to load remote profiles: ${result.error}`)
+    return
+  }
+  keychainAvailable.value = !!result?.keychainAvailable
+  remoteProfiles.value = Array.isArray(result?.profiles) ? result.profiles : []
+}
+
+function resetRemoteForm() {
+  remoteForm.value = createRemoteProfileForm()
+}
+
+function editRemoteProfile(profile) {
+  remoteForm.value = {
+    id: profile.id,
+    name: profile.name || '',
+    protocol: profile.protocol || 'sftp',
+    authType: profile.authType || 'password',
+    host: profile.host || '',
+    port: profile.port || (profile.protocol === 'sftp' ? 22 : 21),
+    username: profile.username || '',
+    remoteRoot: profile.remoteRoot || '/',
+    privateKeyPath: profile.privateKeyPath || '',
+    saveSecret: keychainAvailable.value,
+    secretPassword: '',
+    secretPassphrase: '',
+    tags: Array.isArray(profile.tags) ? [...profile.tags] : [],
+  }
+}
+
+function buildRemoteProfilePayload() {
+  const f = remoteForm.value
+  return {
+    id: f.id || undefined,
+    name: f.name || `${String(f.username || '').trim()}@${String(f.host || '').trim()}`,
+    protocol: f.protocol,
+    authType: f.protocol === 'sftp' ? f.authType : 'password',
+    host: String(f.host || '').trim(),
+    port: Number(f.port) || (f.protocol === 'sftp' ? 22 : 21),
+    username: String(f.username || '').trim(),
+    remoteRoot: f.remoteRoot || '/',
+    privateKeyPath: f.privateKeyPath || '',
+    saveSecret: !!f.saveSecret && keychainAvailable.value,
+    clearSavedSecret: !f.saveSecret || !keychainAvailable.value,
+    tags: Array.isArray(f.tags) ? f.tags : [],
+    secret: {
+      password: f.secretPassword || '',
+      passphrase: f.secretPassphrase || '',
+    },
+  }
+}
+
+async function saveRemoteProfile() {
+  if (!window.electronAPI?.remoteSaveProfile) return
+  const payload = buildRemoteProfilePayload()
+  if (!payload.host || !payload.username) {
+    alert('Host and username are required.')
+    return
+  }
+
+  const result = await window.electronAPI.remoteSaveProfile(payload)
+  if (result?.error) {
+    alert(`Failed to save profile: ${result.error}`)
+    return
+  }
+  await loadRemoteProfiles()
+  editRemoteProfile(result.profile)
+}
+
+async function testRemoteConnection() {
+  if (!window.electronAPI?.remoteTestConnection || remoteConnectionTestBusy.value) return
+  const payload = buildRemoteProfilePayload()
+  if (!payload.host || !payload.username) {
+    alert('Host and username are required.')
+    return
+  }
+
+  remoteConnectionTestBusy.value = true
+  try {
+    let result = await window.electronAPI.remoteTestConnection(payload)
+    if (result?.code === 'SECRET_REQUIRED') {
+      const promptLabel = result.secretType === 'passphrase' ? 'passphrase' : 'password'
+      const secretValue = prompt(`Enter ${promptLabel} for ${payload.name}:`, '')
+      if (!secretValue) return
+      result = await window.electronAPI.remoteTestConnection({
+        ...payload,
+        secret: result.secretType === 'passphrase'
+          ? { ...payload.secret, passphrase: secretValue }
+          : { ...payload.secret, password: secretValue, passphrase: payload.secret.passphrase || secretValue },
+      })
+    }
+
+    if (result?.error) {
+      alert(`Connection test failed: ${result.error}`)
+      return
+    }
+
+    alert(`Connection successful.\n\nProtocol: ${String(result.protocol || '').toUpperCase()}\nHost: ${result.username}@${result.host}:${result.port}\nRemote root: ${result.rootPath || '/'}`)
+  } finally {
+    remoteConnectionTestBusy.value = false
+  }
+}
+
+async function exportRemoteProfiles() {
+  if (!window.electronAPI?.remoteExportProfiles) return
+  const result = await window.electronAPI.remoteExportProfiles()
+  if (result?.canceled) return
+  if (result?.error) {
+    alert(`Failed to export remote profiles: ${result.error}`)
+    return
+  }
+  alert(`Exported ${result.count} profile(s) to:\n${result.path}\n\nSecrets stored in the OS keychain are not included in exports.`)
+}
+
+async function importRemoteProfiles() {
+  if (!window.electronAPI?.remoteImportProfiles) return
+  const result = await window.electronAPI.remoteImportProfiles()
+  if (result?.canceled) return
+  if (result?.error) {
+    alert(`Failed to import remote profiles: ${result.error}`)
+    return
+  }
+  keychainAvailable.value = !!result?.keychainAvailable
+  remoteProfiles.value = Array.isArray(result?.profiles) ? result.profiles : remoteProfiles.value
+  if (!remoteForm.value.id && remoteProfiles.value.length) {
+    editRemoteProfile(remoteProfiles.value[0])
+  }
+  alert(`Imported ${result.count} profile(s) from:\n${result.path}\n\nPasswords and passphrases are not imported automatically.`)
+}
+
+function requestDeleteRemoteProfile(profile) {
+  pendingDeleteRemoteProfile.value = profile
+  showDeleteRemoteProfileDialog.value = true
+}
+
+function cancelDeleteRemoteProfile() {
+  showDeleteRemoteProfileDialog.value = false
+  pendingDeleteRemoteProfile.value = null
+}
+
+async function confirmDeleteRemoteProfile() {
+  const profile = pendingDeleteRemoteProfile.value
+  if (!profile || !window.electronAPI?.remoteDeleteProfile) return
+  const result = await window.electronAPI.remoteDeleteProfile(profile.id)
+  if (result?.error) {
+    alert(`Failed to delete profile: ${result.error}`)
+    return
+  }
+  cancelDeleteRemoteProfile()
+  await loadRemoteProfiles()
+  if (remoteForm.value.id === profile.id) resetRemoteForm()
+}
+
+async function connectRemoteProfile(profile) {
+  if (!window.electronAPI?.remoteConnect) return
+  connectionsNotif.value = { type: '', msg: '' }
+  connectionsLoading.value = true
+  connectingProfileId.value = profile.id
+  try {
+    let result = await window.electronAPI.remoteConnect(profile.id, {})
+    if (result?.code === 'SECRET_REQUIRED') {
+      connectionsLoading.value = false
+      const label = result.secretType === 'passphrase'
+        ? `Key passphrase for ${profile.name}`
+        : `Password for ${profile.username}@${profile.host}`
+      const secretValue = await openSecretPrompt(label)
+      if (!secretValue) { connectingProfileId.value = ''; return }
+      connectionsLoading.value = true
+      const secretInput = result.secretType === 'passphrase'
+        ? { passphrase: secretValue }
+        : { password: secretValue, passphrase: secretValue }
+      result = await window.electronAPI.remoteConnect(profile.id, secretInput)
+    }
+    if (result?.error) {
+      connectionsNotif.value = { type: 'error', msg: `Failed to connect: ${result.error}` }
+      return
+    }
+    fileTreeStore.setRemoteWorkspace(result.connection)
+    const treeLoad = await fileTreeStore.loadTree(result.connection.rootPath || '/')
+    if (treeLoad?.error) {
+      await window.electronAPI?.remoteDisconnect?.(result.connection.connectionId)
+      fileTreeStore.clearRemoteWorkspace()
+      connectionsNotif.value = {
+        type: 'error',
+        msg: `Connected to ${profile.name} but could not open remote root: ${treeLoad.error}`,
+      }
+      return
+    }
+    const conn = { ...result.connection, name: profile.name || profile.host }
+    if (!sftpSessions.value.find(s => s.connectionId === conn.connectionId)) {
+      sftpSessions.value.push(conn)
+    }
+    settingsStore.setSidebarVisible(true)
+    settingsStore.setActiveScreen('sftp')
+    showRemoteManager.value = false
+  } finally {
+    connectionsLoading.value = false
+    connectingProfileId.value = ''
+  }
+}
+
+async function disconnectRemoteWorkspace() {
+  const connectionId = fileTreeStore.remoteConnection?.connectionId
+  if (!connectionId) return
+  if (window.electronAPI?.remoteDisconnect) {
+    await window.electronAPI.remoteDisconnect(connectionId)
+  }
+  const remoteTabs = tabsStore.tabs.filter(tab => isRemoteTab(tab))
+  remoteTabs.forEach(tab => tabsStore.closeTab(tab.id))
+  fileTreeStore.clearRemoteWorkspace()
+}
+
+function openTerminalPanel() {
+  showTerminal.value = !showTerminal.value
+  if (showTerminal.value) setTimeout(() => terminalDockRef.value?.focus?.(), 100)
+}
+
+function onSftpSessionDisconnect(session) {
+  sftpSessions.value = sftpSessions.value.filter(s => s.connectionId !== session.connectionId)
+  window.electronAPI?.remoteDisconnect?.(session.connectionId)
+  if (fileTreeStore.remoteConnection?.connectionId === session.connectionId) {
+    const remoteTabs = tabsStore.tabs.filter(tab => tab.remote?.connectionId === session.connectionId)
+    remoteTabs.forEach(tab => tabsStore.closeTab(tab.id))
+    fileTreeStore.clearRemoteWorkspace()
+  }
+}
+
+function activateExplorer() {
+  settingsStore.setActiveScreen('editor')
+  settingsStore.setActiveSidePanel('explorer')
+  settingsStore.setSidebarVisible(true)
+}
+
+function activateSearch() {
+  settingsStore.setActiveScreen('editor')
+  settingsStore.setActiveSidePanel('search')
+  settingsStore.setSidebarVisible(true)
+}
+
+function activateGit() {
+  settingsStore.setActiveScreen('editor')
+  settingsStore.setActiveSidePanel('git')
+  settingsStore.setSidebarVisible(true)
+  // Refresh git status for the folder already open in the file explorer
+  if (fileTreeStore.openFolderPath && fileTreeStore.workspaceMode === 'local') {
+    fileTreeStore.refreshGitStatus()
+  }
+}
+
+function openNewConnectionModal(profile = null) {
+  editingProfile.value = profile || null
+  showNewConnectionModal.value = true
+}
+
+async function onConnectionSaved(profile) {
+  await loadRemoteProfiles()
+}
+
+async function onConnectionConnected(result) {
+  fileTreeStore.setRemoteWorkspace(result.connection)
+  await fileTreeStore.loadTree(result.connection.rootPath || '/')
+  const conn = { ...result.connection, name: result.connection.host }
+  if (!sftpSessions.value.find(s => s.connectionId === conn.connectionId)) {
+    sftpSessions.value.push(conn)
+  }
+  settingsStore.setSidebarVisible(true)
+  settingsStore.setActiveScreen('sftp')
+}
+
+async function openRemoteManager(presetProtocol = '') {
+  if (!window.electronAPI?.remoteListProfiles) {
+    alert('Remote connections are only available in the AuroraPad desktop app.')
+    return
+  }
+  showRemoteManager.value = true
+  await loadRemoteProfiles()
+  if (presetProtocol) {
+    resetRemoteForm()
+    remoteForm.value.protocol = presetProtocol
+    remoteForm.value.port = presetProtocol === 'sftp' ? 22 : 21
+    remoteForm.value.authType = presetProtocol === 'sftp' ? 'password' : 'password'
+    remoteForm.value.saveSecret = keychainAvailable.value
+    return
+  }
+  if (!remoteForm.value.id && remoteProfiles.value.length) {
+    editRemoteProfile(remoteProfiles.value[0])
+  }
+}
+
+async function openRemoteSshTerminal() {
+  const connectionId = fileTreeStore.remoteConnection?.connectionId
+  if (!connectionId) {
+    alert('Connect to an SFTP server first, then open SSH terminal from Remote menu.')
+    return
+  }
+  if (fileTreeStore.remoteConnection?.protocol !== 'sftp') {
+    alert('SSH terminal is only available for SFTP/SSH connections.')
+    return
+  }
+  if (!window.electronAPI?.remoteOpenSshTerminal) return
+  const cwd = fileTreeStore.openFolderPath || '/'
+  const result = await window.electronAPI.remoteOpenSshTerminal(connectionId, cwd)
+  if (result?.error) {
+    alert(`Unable to open SSH terminal: ${result.error}`)
+    return
+  }
+  showTerminal.value = true
+  setTimeout(() => {
+    terminalDockRef.value?.newSession?.(result.shell, result.cwd || cwd, { title: result.title || 'SSH Session' })
+  }, 100)
+}
+
+async function onSftpOpenSshTerminal(session) {
+  if (!session?.connectionId || !window.electronAPI?.remoteOpenSshTerminal) return
+  const result = await window.electronAPI.remoteOpenSshTerminal(session.connectionId, session.rootPath || '/')
+  if (result?.error) {
+    alert(`Unable to open SSH terminal: ${result.error}`)
+    return
+  }
+  showTerminal.value = true
+  await new Promise(r => setTimeout(r, 100))
+  terminalDockRef.value?.newSession?.(result.shell, result.cwd || '/', { title: result.title || `SSH • ${session.name || session.host}` })
+}
+
+async function moveRemoteEntry(payload) {
+  const connectionId = fileTreeStore.remoteConnection?.connectionId
+  if (!connectionId || !window.electronAPI?.remoteMovePath) return
+  const result = await window.electronAPI.remoteMovePath(connectionId, payload.fromPath, payload.toPath)
+  if (result?.error) {
+    alert(`Move failed: ${result.error}`)
+    return
+  }
+  if (fileTreeStore.openFolderPath) {
+    await fileTreeStore.loadTree(fileTreeStore.openFolderPath)
+  }
+}
+
 // Notepad++ menu order: File, Edit, Search, View, Encoding, Language, Settings, Plugins, Window, Help
+const topMenuPrimaryIds = ['file', 'remote', 'edit', 'search', 'window', 'settings', 'help']
+
 const menuBarMenus = computed(() => [
   {
     id: 'file',
@@ -417,13 +1214,30 @@ const menuBarMenus = computed(() => [
       { type: 'separator' },
       { label: 'Reload from Disk', action: 'menu:reload-from-disk', enabled: !!tabsStore.activeTab?.path },
       { type: 'separator' },
-      { label: `Open Containing Folder in ${platformInfo.value.revealInFolderLabel}`, action: 'menu:open-containing-folder:explorer', enabled: !!tabsStore.activeTab?.path },
-      { label: `Open Containing Folder in ${platformInfo.value.terminalAppLabel}`, action: 'menu:open-containing-folder:cmd', enabled: !!tabsStore.activeTab?.path },
-      { label: 'Open Containing Folder as Workspace', action: 'menu:open-containing-folder:faw', enabled: !!tabsStore.activeTab?.path },
-      { label: 'Open in Default Viewer', action: 'menu:open-in-default-viewer', enabled: !!tabsStore.activeTab?.path },
+      { label: `Open Containing Folder in ${platformInfo.value.revealInFolderLabel}`, action: 'menu:open-containing-folder:explorer', enabled: !!tabsStore.activeTab?.path && !isRemoteTab(tabsStore.activeTab) },
+      { label: `Open Containing Folder in ${platformInfo.value.terminalAppLabel}`, action: 'menu:open-containing-folder:cmd', enabled: !!tabsStore.activeTab?.path && !isRemoteTab(tabsStore.activeTab) },
+      { label: 'Open Containing Folder as Workspace', action: 'menu:open-containing-folder:faw', enabled: !!tabsStore.activeTab?.path && !isRemoteTab(tabsStore.activeTab) },
+      { label: 'Open in Default Viewer', action: 'menu:open-in-default-viewer', enabled: !!tabsStore.activeTab?.path && !isRemoteTab(tabsStore.activeTab) },
       { type: 'separator' },
       { label: 'Open Recent...', action: 'menu:open-recent-dialog', enabled: settingsStore.recentFiles.length > 0 },
       { label: 'Exit', shortcut: isMacPlatform ? 'Cmd+Q' : 'Alt+F4', action: 'menu:exit' },
+    ],
+  },
+  {
+    id: 'remote',
+    label: 'Remote',
+    items: [
+      { label: 'Remote Manager...', action: 'menu:remote-manager' },
+      { label: 'Connect Server...', action: 'menu:connect-server' },
+      { label: 'Disconnect Server', action: 'menu:disconnect-server', enabled: fileTreeStore.workspaceMode === 'remote' },
+      { label: 'Open SSH Terminal', action: 'menu:open-ssh-terminal', enabled: fileTreeStore.workspaceMode === 'remote' && fileTreeStore.remoteConnection?.protocol === 'sftp' },
+      { type: 'separator' },
+      { label: 'Import Profiles...', action: 'menu:remote-import' },
+      { label: 'Export Profiles...', action: 'menu:remote-export', enabled: remoteProfiles.value.length > 0 },
+      { type: 'separator' },
+      { label: 'New SFTP Profile', action: 'menu:remote-new-sftp' },
+      { label: 'New FTP Profile', action: 'menu:remote-new-ftp' },
+      { label: 'New FTPS Profile', action: 'menu:remote-new-ftps' },
     ],
   },
   {
@@ -481,7 +1295,7 @@ const menuBarMenus = computed(() => [
       { label: 'Find Previous', shortcut: 'Shift+F3', action: 'menu:find-prev' },
       { label: 'Go to Line...', shortcut: isMacPlatform ? 'Cmd+G' : 'Ctrl+G', action: 'menu:go-to-line' },
       { type: 'separator' },
-      { label: 'Find in Files…', shortcut: isMacPlatform ? 'Cmd+Shift+F' : 'Ctrl+Shift+F', action: 'menu:find-in-files' },
+      { label: 'Find in Files…', shortcut: isMacPlatform ? 'Cmd+Shift+F' : 'Ctrl+Shift+F', action: 'menu:find-in-files', enabled: fileTreeStore.workspaceMode !== 'remote' },
       { type: 'separator' },
       { label: 'Command Palette', shortcut: isMacPlatform ? 'Cmd+P' : 'Ctrl+P', action: 'menu:command-palette' },
     ],
@@ -652,8 +1466,10 @@ onMounted(async () => {
     } catch {}
   }
   settingsStore.loadRecentFilesFromMain()
+  loadRemoteProfiles()
   setupMenuListeners()
   setupFolderWatcher()
+  setupFileChangeWatcher()
   setupPlugins()
   setupKeyboardShortcuts()
   restoreSession()
@@ -679,7 +1495,8 @@ function setupKeyboardShortcuts() {
       (target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
         target.isContentEditable ||
-        target.closest?.('.monaco-editor'))
+        target.getAttribute?.('role') === 'textbox' ||
+        target.closest?.('.monaco-editor, .v-input, .v-field, .v-overlay'))
     ) {
       // Let focused text inputs/editors handle typing and shortcuts
       return
@@ -813,6 +1630,146 @@ function setupKeyboardShortcuts() {
   onBeforeUnmount(() => window.removeEventListener('keydown', keydown))
 }
 
+function getFocusedEditableElement() {
+  const active = document.activeElement
+  if (!active) return null
+  if (active.matches?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]')) return active
+  const nested = active.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]')
+  if (nested) return nested
+  if (active.closest?.('.v-input, .v-field, .v-overlay')) {
+    return active.closest('.v-input, .v-field, .v-overlay')?.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]') || remoteManagerLastEditable.value || null
+  }
+  return remoteManagerLastEditable.value || null
+}
+
+function trackRemoteManagerFocus(event) {
+  const target = event?.target
+  if (
+    target instanceof HTMLInputElement
+    || target instanceof HTMLTextAreaElement
+    || target?.isContentEditable
+    || target?.matches?.('[role="textbox"]')
+  ) {
+    remoteManagerLastEditable.value = target
+    return
+  }
+
+  const nested = target?.querySelector?.('input, textarea, [contenteditable="true"], [contenteditable=""], [role="textbox"]')
+  if (nested) remoteManagerLastEditable.value = nested
+}
+
+function insertTextIntoEditable(editable, text) {
+  if (
+    editable instanceof HTMLInputElement
+    || editable instanceof HTMLTextAreaElement
+  ) {
+    const start = editable.selectionStart ?? editable.value.length
+    const end = editable.selectionEnd ?? editable.value.length
+    const nextValue = `${editable.value.slice(0, start)}${text}${editable.value.slice(end)}`
+    editable.value = nextValue
+    const caret = start + text.length
+    editable.setSelectionRange?.(caret, caret)
+    editable.dispatchEvent(new Event('input', { bubbles: true }))
+    editable.dispatchEvent(new Event('change', { bubbles: true }))
+    return true
+  }
+
+  if (editable?.isContentEditable) {
+    try {
+      document.execCommand('insertText', false, text)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  return false
+}
+
+async function runClipboardActionOnFocusedInput(action, preferredEditable = null) {
+  const editable = preferredEditable || getFocusedEditableElement()
+  if (!editable) return false
+  editable.focus?.()
+
+  if (
+    editable instanceof HTMLInputElement
+    || editable instanceof HTMLTextAreaElement
+  ) {
+    const start = editable.selectionStart ?? 0
+    const end = editable.selectionEnd ?? 0
+    const selectedText = editable.value.slice(start, end)
+
+    if (action === 'copy') {
+      await window.electronAPI?.writeClipboardText?.(selectedText)
+      return true
+    }
+
+    if (action === 'cut') {
+      await window.electronAPI?.writeClipboardText?.(selectedText)
+      const nextValue = `${editable.value.slice(0, start)}${editable.value.slice(end)}`
+      editable.value = nextValue
+      editable.setSelectionRange?.(start, start)
+      editable.dispatchEvent(new Event('input', { bubbles: true }))
+      editable.dispatchEvent(new Event('change', { bubbles: true }))
+      return true
+    }
+
+    if (action === 'paste') {
+      const text = await window.electronAPI?.readClipboardText?.()
+      return insertTextIntoEditable(editable, text || '')
+    }
+  }
+
+  if (action === 'paste') {
+    const text = await window.electronAPI?.readClipboardText?.()
+    if (typeof text === 'string') {
+      return insertTextIntoEditable(editable, text)
+    }
+  }
+
+  try {
+    return document.execCommand(action)
+  } catch {
+    return false
+  }
+}
+
+async function handleRemoteManagerClipboardShortcut(event) {
+  if (!showRemoteManager.value) return
+  const mod = isMacPlatform ? event.metaKey : event.ctrlKey
+  if (!mod || event.altKey) return
+
+  const key = String(event.key || '').toLowerCase()
+  const actions = {
+    c: 'copy',
+    x: 'cut',
+    v: 'paste',
+  }
+
+  if (actions[key]) {
+    event.preventDefault()
+    if (await runClipboardActionOnFocusedInput(actions[key])) {
+      event.stopPropagation()
+    }
+    return
+  }
+
+  if (key === 'a') {
+    const editable = getFocusedEditableElement()
+    if (!editable) return
+    editable.focus?.()
+    if (typeof editable.select === 'function') {
+      editable.select()
+    } else {
+      try {
+        document.execCommand('selectAll')
+      } catch {}
+    }
+    event.preventDefault()
+    event.stopPropagation()
+  }
+}
+
 function cycleTab(direction) {
   const list = tabsStore.tabs
   if (!list.length) return
@@ -824,7 +1781,20 @@ function cycleTab(direction) {
 
 async function setupPlugins() {
   pluginsStore.loadBuiltInPlugins()
-  await pluginsStore.loadUserPlugins()
+  const userPluginNames = await window.electronAPI?.listUserPlugins?.() || []
+  if (userPluginNames.length) {
+    if (!settingsStore.trustLocalPlugins) {
+      const shouldEnable = confirm(
+        'AuroraPad found local JavaScript plugins. These plugins are trusted local code and may run commands or access files on this machine.\n\nPress OK to enable local plugins for future launches, or Cancel to keep them disabled.'
+      )
+      if (shouldEnable) {
+        settingsStore.setTrustLocalPlugins(true)
+      }
+    }
+    if (settingsStore.trustLocalPlugins) {
+      await pluginsStore.loadUserPlugins(userPluginNames)
+    }
+  }
   if (window.electronAPI?.sendPluginMenuStructure) {
     window.electronAPI.sendPluginMenuStructure(pluginsStore.getMenuStructureForMain())
   }
@@ -849,6 +1819,59 @@ function setupFolderWatcher() {
   })
 }
 
+// Unwatch local files when their tab is closed
+watch(
+  () => tabsStore.tabs.map(t => t.path).filter(Boolean),
+  (current, previous) => {
+    if (!window.electronAPI?.unwatchFile || !previous) return
+    for (const path of previous) {
+      if (!current.includes(path)) {
+        window.electronAPI.unwatchFile(path)
+      }
+    }
+  }
+)
+
+function setupFileChangeWatcher() {
+  if (!window.electronAPI?.onFileChangedExternally) return
+  window.electronAPI.onFileChangedExternally(async ({ path, deleted }) => {
+    const tab = tabsStore.tabs.find(t => t.path === path && !isRemoteTab(t))
+    if (!tab) return
+    if (!deleted && !tab.isDirty) {
+      // Auto-reload clean tabs silently
+      const result = await window.electronAPI.readFile(path, tab.encoding || 'utf8')
+      if (!result.error) {
+        tabsStore.updateTab(tab.id, {
+          content: result.content,
+          encoding: result.encoding || tab.encoding,
+          isDirty: false,
+          bookmarks: [],
+        })
+      }
+      return
+    }
+    // Dirty or deleted: show notification
+    const name = path.split(/[/\\]/).pop() || path
+    fileChangedNotification.value = { path, name, tabId: tab.id, deleted: !!deleted }
+  })
+}
+
+async function acceptFileChangedOnDisk() {
+  const n = fileChangedNotification.value
+  fileChangedNotification.value = null
+  if (!n?.path) return
+  const tab = tabsStore.getTab(n.tabId)
+  if (!tab) return
+  const result = await window.electronAPI.readFile(n.path, tab.encoding || 'utf8')
+  if (result.error) return
+  tabsStore.updateTab(tab.id, {
+    content: result.content,
+    encoding: result.encoding || tab.encoding,
+    isDirty: false,
+    bookmarks: [],
+  })
+}
+
 const SESSION_MAX_TABS = 30
 let sessionSaveTimeout = null
 
@@ -857,8 +1880,25 @@ async function restoreSession() {
   const session = await window.electronAPI.getSession()
   if (!session?.tabs?.length) return
 
-  if (session.openFolderPath) {
-    fileTreeStore.setOpenFolder(session.openFolderPath)
+  if (session.workspaceMode === 'remote' && session.remoteConnection?.profileId) {
+    const shouldReconnect = confirm('Reconnect to the previous remote server session?')
+    if (shouldReconnect && window.electronAPI?.remoteConnect) {
+      let connected = await window.electronAPI.remoteConnect(session.remoteConnection.profileId, {})
+      if (connected?.code === 'SECRET_REQUIRED') {
+        const secretValue = prompt('Enter password/passphrase to reconnect remote session:', '')
+        if (secretValue) {
+          connected = await window.electronAPI.remoteConnect(session.remoteConnection.profileId, {
+            password: secretValue,
+            passphrase: secretValue,
+          })
+        }
+      }
+      if (!connected?.error) {
+        fileTreeStore.setRemoteWorkspace(connected.connection)
+      }
+    }
+  } else if (session.openFolderPath) {
+    fileTreeStore.setLocalWorkspace(session.openFolderPath)
     await window.electronAPI.watchFolder(session.openFolderPath).catch(() => {})
   }
 
@@ -875,7 +1915,20 @@ async function restoreSession() {
       bookmarks: t.bookmarks || [],
       isDirty: false,
     }
-    if (t.path) {
+    if (t.remote?.path && window.electronAPI?.remoteReadFile) {
+      const connectionId = fileTreeStore.remoteConnection?.connectionId
+      if (!connectionId) continue
+      const result = await window.electronAPI.remoteReadFile(connectionId, t.remote.path, opts.encoding)
+      if (result.error) continue
+      opts.path = makeRemoteUri(connectionId, t.remote.path)
+      opts.remote = {
+        ...t.remote,
+        connectionId,
+        version: result.version || t.remote.version || null,
+      }
+      opts.content = result.content
+      opts.encoding = result.encoding || opts.encoding
+    } else if (t.path) {
       const result = await window.electronAPI.readFile(t.path, opts.encoding)
       if (result.error) continue
       opts.path = t.path
@@ -910,6 +1963,12 @@ function saveSession() {
   if (!window.electronAPI?.setSession) return
   const tabs = tabsStore.tabs.slice(0, SESSION_MAX_TABS).map(t => ({
     path: t.path ?? null,
+    remote: t.remote ? {
+      profileId: t.remote.profileId || fileTreeStore.remoteConnection?.profileId || null,
+      connectionId: t.remote.connectionId || null,
+      path: t.remote.path || null,
+      version: t.remote.version || null,
+    } : null,
     name: t.name ?? null,
     content: t.path ? undefined : (t.content ?? ''),
     cursorPosition: {
@@ -925,6 +1984,13 @@ function saveSession() {
   window.electronAPI.setSession({
     tabs,
     activeIndex,
+    workspaceMode: fileTreeStore.workspaceMode,
+    remoteConnection: fileTreeStore.remoteConnection
+      ? {
+          profileId: fileTreeStore.remoteConnection.profileId,
+          rootPath: fileTreeStore.remoteConnection.rootPath,
+        }
+      : null,
     openFolderPath: fileTreeStore.openFolderPath || null,
   })
 }
@@ -938,7 +2004,7 @@ function setupSessionPersistence() {
   }
 
   watch(() => [tabsStore.tabs.length, tabsStore.activeTabId], scheduleSave)
-  watch(() => fileTreeStore.openFolderPath, (val) => {
+  watch(() => [fileTreeStore.openFolderPath, fileTreeStore.workspaceMode, fileTreeStore.remoteConnection?.connectionId], ([val]) => {
     // Automatically show the sidebar when a folder is opened
     if (val) {
       settingsStore.setSidebarVisible(true)
@@ -948,6 +2014,7 @@ function setupSessionPersistence() {
   watch(() => tabsStore.tabs.map(t => ({
     id: t.id,
     path: t.path,
+    remote: t.remote,
     name: t.name,
     content: t.path ? null : t.content,
     cursorPosition: t.cursorPosition,
@@ -963,13 +2030,29 @@ function setupSessionPersistence() {
 function setupAutoSave() {
   if (autoSaveInterval) clearInterval(autoSaveInterval)
   autoSaveInterval = window.setInterval(async () => {
-    if (!settingsStore.autoSave || !window.electronAPI?.writeFile) return
+    if (!settingsStore.autoSave) return
     const dirtySavedTabs = tabsStore.tabs.filter(tab => tab.isDirty && tab.path)
     for (const tab of dirtySavedTabs) {
       const content = applyEol(tab.content, tab.eol || 'crlf')
-      const result = await window.electronAPI.writeFile(tab.path, content, tab.encoding)
+      const result = isRemoteTab(tab)
+        ? await window.electronAPI?.remoteWriteFile?.(
+          tab.remote.connectionId,
+          tab.remote.path,
+          content,
+          tab.encoding,
+          tab.remote.version || null
+        )
+        : await window.electronAPI?.writeFile?.(tab.path, content, tab.encoding)
       if (!result?.error) {
         tabsStore.setDirty(tab.id, false)
+        if (isRemoteTab(tab) && result.version) {
+          tabsStore.updateTab(tab.id, {
+            remote: {
+              ...tab.remote,
+              version: result.version,
+            },
+          })
+        }
       }
     }
   }, 15000)
@@ -983,6 +2066,9 @@ function setupAutoSave() {
 }
 
 function getCommandWorkingDirectory() {
+  if (fileTreeStore.workspaceMode === 'remote') {
+    return undefined
+  }
   if (tabsStore.activeTab?.path) {
     return tabsStore.activeTab.path.replace(/[\\/][^\\/]+$/, '')
   }
@@ -1010,7 +2096,8 @@ function setupMenuListeners() {
 
   // Add explicit IPC-only channels and variants
   const explicit = [
-    'menu:new', 'menu:open-file', 'menu:open-folder', 'menu:save', 'menu:save-all', 'menu:save-as',
+    'menu:new', 'menu:open-file', 'menu:open-folder', 'menu:connect-server', 'menu:disconnect-server', 'menu:open-ssh-terminal', 'menu:remote-manager', 'menu:remote-new-sftp', 'menu:remote-new-ftp', 'menu:remote-new-ftps', 'menu:save', 'menu:save-all', 'menu:save-as',
+    'menu:remote-import', 'menu:remote-export',
     'menu:close-tab', 'menu:close-all', 'menu:close-others', 'menu:close-all-unchanged',
     'menu:undo', 'menu:redo', 'menu:cut', 'menu:copy', 'menu:paste',
     'menu:find', 'menu:replace', 'menu:find-next', 'menu:find-prev', 'menu:go-to-line',
@@ -1164,7 +2251,7 @@ function onMenuBarAction(action, item) {
     return true
   }
   if (action === 'menu:preferences') {
-    showPreferences.value = true
+    settingsStore.setActiveScreen('settings')
     return true
   }
   if (action === 'menu:exit') {
@@ -1206,7 +2293,7 @@ function menuCloseAllUnchanged() {
   tabsStore.closeAllUnchanged()
 }
 
-function handleMenu(channel, ...args) {
+async function handleMenu(channel, ...args) {
   // Try to let onMenuBarAction handle it first for unified logic
   if (onMenuBarAction(channel, args[0])) return
 
@@ -1219,6 +2306,38 @@ function handleMenu(channel, ...args) {
       break
     case 'menu:open-folder':
       menuOpenFolder()
+      break
+    case 'menu:connect-server':
+      settingsStore.setActiveScreen('connections')
+      loadRemoteProfiles()
+      break
+    case 'menu:remote-manager':
+      settingsStore.setActiveScreen('connections')
+      loadRemoteProfiles()
+      break
+    case 'menu:remote-new-sftp':
+      settingsStore.setActiveScreen('connections')
+      openNewConnectionModal(null)
+      break
+    case 'menu:remote-new-ftp':
+      settingsStore.setActiveScreen('connections')
+      openNewConnectionModal(null)
+      break
+    case 'menu:remote-new-ftps':
+      settingsStore.setActiveScreen('connections')
+      break
+    case 'menu:remote-import':
+      showRemoteManager.value = true
+      importRemoteProfiles()
+      break
+    case 'menu:remote-export':
+      exportRemoteProfiles()
+      break
+    case 'menu:disconnect-server':
+      disconnectRemoteWorkspace()
+      break
+    case 'menu:open-ssh-terminal':
+      openRemoteSshTerminal()
       break
     case 'menu:save':
       menuSave()
@@ -1255,13 +2374,19 @@ function handleMenu(channel, ...args) {
       monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'redo')
       break
     case 'menu:cut':
-      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCutAction')
+      if (!await runClipboardActionOnFocusedInput('cut')) {
+        monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCutAction')
+      }
       break
     case 'menu:copy':
-      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCopyAction')
+      if (!await runClipboardActionOnFocusedInput('copy')) {
+        monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardCopyAction')
+      }
       break
     case 'menu:paste':
-      monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardPasteAction')
+      if (!await runClipboardActionOnFocusedInput('paste')) {
+        monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.clipboardPasteAction')
+      }
       break
     case 'menu:find':
       setTimeout(() => monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'actions.find'), 100)
@@ -1270,7 +2395,11 @@ function handleMenu(channel, ...args) {
       setTimeout(() => monacoEditorRef.value?.getEditor()?.trigger('keyboard', 'editor.action.startFindReplaceAction'), 100)
       break
     case 'menu:find-in-files':
-      showFindInFiles.value = true
+      if (fileTreeStore.workspaceMode === 'remote') {
+        alert('Find in Files is currently available for local workspaces only.')
+        break
+      }
+      activateSearch()
       break
     case 'menu:open-recent-dialog':
       commandPaletteRecentOnly.value = true
@@ -1400,7 +2529,7 @@ function handleMenu(channel, ...args) {
       showPluginManager.value = true
       break
     case 'menu:preferences':
-      showPreferences.value = true
+      settingsStore.setActiveScreen('settings')
       break
     case 'menu:reload-from-disk':
       reloadFromDisk()
@@ -1491,15 +2620,53 @@ async function menuOpenFile() {
 
 async function menuOpenFolder() {
   if (!window.electronAPI) return
+  if (fileTreeStore.workspaceMode === 'remote') {
+    await disconnectRemoteWorkspace()
+  }
   const path = await window.electronAPI.openFolderDialog()
   if (path) {
-    fileTreeStore.setOpenFolder(path)
+    fileTreeStore.setLocalWorkspace(path)
     await window.electronAPI.watchFolder(path)
   }
 }
 
 async function openFileByPath(filePath) {
   if (!window.electronAPI) return
+  const uri = parseRemoteUri(filePath)
+  const activeConnectionId = fileTreeStore.remoteConnection?.connectionId
+  const shouldOpenRemote = !!uri
+    || (fileTreeStore.workspaceMode === 'remote' && !!activeConnectionId && String(filePath || '').startsWith('/'))
+
+  if (shouldOpenRemote) {
+    const connectionId = uri?.connectionId || activeConnectionId
+    const remotePath = uri?.remotePath || filePath
+    if (!connectionId || !window.electronAPI?.remoteReadFile) {
+      alert('Remote connection is not available for this file.')
+      return
+    }
+    const result = await window.electronAPI.remoteReadFile(connectionId, remotePath)
+    if (result.error) {
+      if (result.binary) alert('Binary files cannot be opened as text.')
+      else alert('Failed to read remote file: ' + result.error)
+      return
+    }
+    tabsStore.addTab({
+      path: makeRemoteUri(connectionId, remotePath),
+      remote: {
+        connectionId,
+        profileId: fileTreeStore.remoteConnection?.profileId || null,
+        path: remotePath,
+        version: result.version || null,
+      },
+      name: remotePath.split('/').pop() || remotePath,
+      content: result.content,
+      encoding: result.encoding || 'utf8',
+      language: tabsStore.inferLanguage?.(remotePath, result.content),
+      isDirty: false,
+    })
+    return
+  }
+
   const result = await window.electronAPI.readFile(filePath)
   if (result.error) {
     if (result.binary) alert('Binary files cannot be opened as text.')
@@ -1513,47 +2680,110 @@ async function openFileByPath(filePath) {
     language: tabsStore.inferLanguage?.(filePath, result.content),
     isDirty: false,
   })
+  window.electronAPI?.watchFile?.(filePath)
+}
+
+async function saveLocalTab(tab, { saveAs = false, copyOnly = false } = {}) {
+  let path = tab.path
+  if (!path || saveAs || copyOnly) {
+    path = await window.electronAPI?.saveFileDialog(path, tab.name)
+    if (!path) return { skipped: true }
+  }
+  const content = applyEol(tab.content, tab.eol || 'crlf')
+  const result = await window.electronAPI.writeFile(path, content, tab.encoding)
+  if (result.error) return result
+  if (!copyOnly) {
+    tabsStore.updateTab(tab.id, {
+      path,
+      name: path.split(/[/\\]/).pop(),
+      language: tabsStore.inferLanguage?.(path, tab.content),
+      isDirty: false,
+    })
+  }
+  return { ok: true }
+}
+
+async function saveRemoteTab(tab, { saveAs = false, copyOnly = false } = {}) {
+  const connectionId = tab.remote?.connectionId
+  if (!connectionId || !window.electronAPI?.remoteWriteFile) {
+    return { error: 'Remote connection is unavailable' }
+  }
+
+  let remotePath = tab.remote?.path
+  if (!remotePath || saveAs || copyOnly) {
+    remotePath = prompt('Remote destination path:', remotePath || '/')
+    if (!remotePath) return { skipped: true }
+  }
+
+  const content = applyEol(tab.content, tab.eol || 'crlf')
+  const expectedVersion = saveAs || copyOnly ? null : (tab.remote?.version || null)
+  const result = await window.electronAPI.remoteWriteFile(
+    connectionId,
+    remotePath,
+    content,
+    tab.encoding,
+    expectedVersion
+  )
+
+  if (result.error && result.code === 'VERSION_CONFLICT') {
+    const overwrite = confirm('Remote file changed on server. Overwrite it?')
+    if (!overwrite) return { error: 'Save canceled due to conflict' }
+    const forceResult = await window.electronAPI.remoteWriteFile(connectionId, remotePath, content, tab.encoding, null)
+    if (forceResult.error) return forceResult
+    if (!copyOnly) {
+      tabsStore.updateTab(tab.id, {
+        path: makeRemoteUri(connectionId, remotePath),
+        name: remotePath.split('/').pop() || remotePath,
+        language: tabsStore.inferLanguage?.(remotePath, tab.content),
+        isDirty: false,
+        remote: {
+          ...tab.remote,
+          path: remotePath,
+          version: forceResult.version || null,
+        },
+      })
+    }
+    return { ok: true }
+  }
+
+  if (result.error) return result
+
+  if (!copyOnly) {
+    tabsStore.updateTab(tab.id, {
+      path: makeRemoteUri(connectionId, remotePath),
+      name: remotePath.split('/').pop() || remotePath,
+      language: tabsStore.inferLanguage?.(remotePath, tab.content),
+      isDirty: false,
+      remote: {
+        ...tab.remote,
+        path: remotePath,
+        version: result.version || null,
+      },
+    })
+  }
+  return { ok: true }
 }
 
 async function menuSave() {
   const tab = tabsStore.activeTab
   if (!tab || !tab.isDirty) return
-  let path = tab.path
-  if (!path) {
-    path = await window.electronAPI?.saveFileDialog(null, tab.name)
-    if (!path) return
-    tabsStore.updateTab(tab.id, {
-      path,
-      name: path.split(/[/\\]/).pop(),
-      language: tabsStore.inferLanguage?.(path, tab.content),
-    })
-  }
-  const content = applyEol(tab.content, tab.eol || 'crlf')
-  const result = await window.electronAPI.writeFile(path, content, tab.encoding)
+  const result = isRemoteTab(tab)
+    ? await saveRemoteTab(tab)
+    : await saveLocalTab(tab)
   if (result.error) {
     alert('Save failed: ' + result.error)
     return
   }
-  tabsStore.setDirty(tab.id, false)
 }
 
 async function menuSaveAll() {
   const dirtyTabs = tabsStore.tabs.filter(t => t.isDirty)
   for (const tab of dirtyTabs) {
-    let path = tab.path
-    if (!path) {
-      path = await window.electronAPI?.saveFileDialog(null, tab.name)
-      if (!path) continue
-      tabsStore.updateTab(tab.id, {
-        path,
-        name: path.split(/[/\\]/).pop(),
-        language: tabsStore.inferLanguage?.(path, tab.content),
-      })
-    }
-    const content = applyEol(tab.content, tab.eol || 'crlf')
-    const result = await window.electronAPI.writeFile(path, content, tab.encoding)
-    if (!result.error) {
-      tabsStore.setDirty(tab.id, false)
+    const result = isRemoteTab(tab)
+      ? await saveRemoteTab(tab)
+      : await saveLocalTab(tab)
+    if (result?.error) {
+      alert(`Save failed for ${tab.name}: ${result.error}`)
     }
   }
 }
@@ -1587,29 +2817,20 @@ async function openFindInFilesResult(result) {
 async function menuSaveAs() {
   const tab = tabsStore.activeTab
   if (!tab) return
-  const path = await window.electronAPI?.saveFileDialog(tab.path, tab.name)
-  if (!path) return
-  const content = applyEol(tab.content, tab.eol || 'crlf')
-  const result = await window.electronAPI.writeFile(path, content, tab.encoding)
+  const result = isRemoteTab(tab)
+    ? await saveRemoteTab(tab, { saveAs: true })
+    : await saveLocalTab(tab, { saveAs: true })
   if (result.error) {
     alert('Save failed: ' + result.error)
-    return
   }
-  tabsStore.updateTab(tab.id, {
-    path,
-    name: path.split(/[/\\]/).pop(),
-    language: tabsStore.inferLanguage?.(path, tab.content),
-    isDirty: false,
-  })
 }
 
 async function menuSaveCopyAs() {
   const tab = tabsStore.activeTab
   if (!tab) return
-  const path = await window.electronAPI?.saveFileDialog(tab.path, tab.name)
-  if (!path) return
-  const content = applyEol(tab.content, tab.eol || 'crlf')
-  const result = await window.electronAPI.writeFile(path, content, tab.encoding)
+  const result = isRemoteTab(tab)
+    ? await saveRemoteTab(tab, { copyOnly: true })
+    : await saveLocalTab(tab, { copyOnly: true })
   if (result.error) {
     alert('Save failed: ' + result.error)
   }
@@ -1619,7 +2840,9 @@ async function reloadFromDisk() {
   const tab = tabsStore.activeTab
   if (!tab?.path) return
   if (tab.isDirty && !confirm('Reload from disk and lose unsaved changes?')) return
-  const result = await window.electronAPI.readFile(tab.path, tab.encoding || 'utf8')
+  const result = isRemoteTab(tab)
+    ? await window.electronAPI.remoteReadFile(tab.remote.connectionId, tab.remote.path, tab.encoding || 'utf8')
+    : await window.electronAPI.readFile(tab.path, tab.encoding || 'utf8')
   if (result.error) {
     alert('Failed to reload file: ' + result.error)
     return
@@ -1629,16 +2852,26 @@ async function reloadFromDisk() {
     encoding: result.encoding || tab.encoding,
     isDirty: false,
     bookmarks: [],
+    remote: isRemoteTab(tab)
+      ? {
+          ...tab.remote,
+          version: result.version || tab.remote.version,
+        }
+      : tab.remote,
   })
 }
 
 async function openContainingFolder(kind) {
   const tab = tabsStore.activeTab
   if (!tab?.path) return
+  if (isRemoteTab(tab)) {
+    alert('Open Containing Folder is only available for local files.')
+    return
+  }
   const full = tab.path
   const dir = full.replace(/[\\/][^\\/]+$/, '')
   if (kind === 'faw') {
-    fileTreeStore.setOpenFolder(dir)
+    fileTreeStore.setLocalWorkspace(dir)
     await window.electronAPI.watchFolder(dir)
     return
   }
@@ -1657,6 +2890,10 @@ async function openContainingFolder(kind) {
 async function openInDefaultViewer() {
   const tab = tabsStore.activeTab
   if (!tab?.path) return
+  if (isRemoteTab(tab)) {
+    alert('Open in Default Viewer is only available for local files.')
+    return
+  }
   const result = await window.electronAPI.openInDefaultViewer(tab.path)
   if (result?.error) {
     alert('Failed to open in default viewer: ' + result.error)
@@ -1690,7 +2927,7 @@ async function openPluginsFolder() {
 }
 
 function openPreferences() {
-  showPreferences.value = true
+  settingsStore.setActiveScreen('settings')
 }
 
 async function runHashTool(action) {
@@ -1708,8 +2945,16 @@ async function runHashTool(action) {
 }
 
 async function runCommandPrompt() {
+  if (fileTreeStore.workspaceMode === 'remote') {
+    alert('Run Command is only available for local workspace context.')
+    return
+  }
   const cmd = prompt('Run command (will execute on your machine):', lastRunCommand.value || '')
   if (!cmd) return
+  const shouldRun = confirm(
+    `Run this command locally?\n\n${cmd}\n\nAuroraPad will execute it with your current user permissions.`
+  )
+  if (!shouldRun) return
   lastRunCommand.value = cmd
   const result = await window.electronAPI.runCommand(cmd, getCommandWorkingDirectory())
   if (result?.error) {
@@ -1720,10 +2965,18 @@ async function runCommandPrompt() {
 }
 
 async function runLastCommand() {
+  if (fileTreeStore.workspaceMode === 'remote') {
+    alert('Run Command is only available for local workspace context.')
+    return
+  }
   if (!lastRunCommand.value) {
     alert('No previous command to run.')
     return
   }
+  const shouldRun = confirm(
+    `Run the last local command again?\n\n${lastRunCommand.value}\n\nAuroraPad will execute it with your current user permissions.`
+  )
+  if (!shouldRun) return
   const result = await window.electronAPI.runCommand(lastRunCommand.value, getCommandWorkingDirectory())
   if (result?.error) {
     alert(`Command failed:\n${result.error}\n\nSTDOUT:\n${result.stdout || ''}\n\nSTDERR:\n${result.stderr || ''}`)

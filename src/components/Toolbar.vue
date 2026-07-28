@@ -131,6 +131,16 @@
     </button>
     <button
       type="button"
+      class="toolbar-btn toolbar-eol-btn"
+      :title="`EOL: ${eolLabel} — click to convert to ${nextEolLabel}`"
+      :disabled="!hasEditor"
+      @click="emit('convert-eol')"
+    >
+      {{ eolLabel }}
+    </button>
+    <span class="toolbar-sep"></span>
+    <button
+      type="button"
       class="toolbar-btn"
       title="Preferences"
       @click="emit('preferences')"
@@ -143,11 +153,19 @@
 <script setup>
 import { computed } from 'vue'
 
-defineProps({
+const props = defineProps({
   canSave: { type: Boolean, default: false },
   hasEditor: { type: Boolean, default: false },
   canSaveAll: { type: Boolean, default: false },
   wordWrap: { type: Boolean, default: false },
+  eolMode: { type: String, default: 'LF' },
+})
+
+const eolLabel = computed(() => props.eolMode || 'LF')
+const nextEolLabel = computed(() => {
+  if (props.eolMode === 'LF') return 'CRLF'
+  if (props.eolMode === 'CRLF') return 'CR'
+  return 'LF'
 })
 
 const isMac = navigator.userAgent.toLowerCase().includes('mac')
@@ -169,6 +187,18 @@ const emit = defineEmits([
   'go-to-line',
   'zoom-in',
   'zoom-out',
+  'convert-eol',
   'preferences',
 ])
 </script>
+
+<style scoped>
+.toolbar-eol-btn {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  min-width: 36px;
+  padding: 0 6px;
+  font-family: monospace;
+}
+</style>

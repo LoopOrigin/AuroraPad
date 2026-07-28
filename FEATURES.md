@@ -13,11 +13,11 @@ Track what’s done vs pending. Update this file as features are implemented.
 | ✅ | Close Tab, Exit | File > Close / Exit |
 | ✅ | Recent files list (sidebar) | Basic recent list; N++ also has File > Recent Files |
 | ✅ | **Session restore** | Reopen last session: tabs, cursor positions, open folder |
-| 🔲 | Close All, Close All BUT This, Close All Unchanged | Tab bar “Close Multiple Tabs” equivalents |
-| 🔲 | Save a Copy As… | File > Save a Copy As… |
-| 🔲 | Reload from disk | File > Reload from Disk, with overwrite warning |
+| ✅ | Close All, Close All BUT This, Close All Unchanged | Menu: File > Close All / Close All Unchanged |
+| ✅ | Save a Copy As… | File > Save a Copy As… |
+| ✅ | Reload from disk | File > Reload from Disk, with dirty-check warning |
 | 🔲 | Print, Print Preview | File > Print / Print Now |
-| 🔲 | Open in Default Viewer / Containing Folder | File > Open in Default Viewer, open folder in Explorer / cmd |
+| ✅ | Open in Default Viewer / Containing Folder | File > Open in Default Viewer, open in Explorer/Finder/cmd |
 | 🔲 | Open / Move in New Instance | File > Open in New Instance / Move to New Instance |
 
 ---
@@ -32,16 +32,16 @@ Track what’s done vs pending. Update this file as features are implemented.
 | ✅ | Move Line Up/Down, Join Lines | |
 | ✅ | Toggle Comment | |
 | ✅ | Lowercase / UPPERCASE | Basic case conversion |
-| 🔲 | **Indent / Unindent** | Block indent (Tab / Shift+Tab) |
-| 🔲 | **Trim trailing spaces** | Per line or entire document |
-| 🔲 | **EOL conversion menu** | Edit > EOL Conversion (CRLF / LF / CR) |
+| ✅ | **Indent / Unindent** | Tab / Shift+Tab — Monaco built-in |
+| ✅ | **Trim trailing spaces** | Whitespace Tools plugin |
+| ✅ | **EOL conversion menu** | Edit > EOL Conversion (CRLF / LF / CR) |
 | 🔲 | Column (block) selection | Alt+drag, Alt+Shift+arrows |
 | ✅ | **Bookmarks** | Toggle (Ctrl+F2), Next (F2), Previous (Shift+F2), Clear all |
-| 🔲 | Multi-cursor / multi-edit | Atom / VS Code-style multiple cursors and selections |
-| 🔲 | Sort lines (asc/desc, unique) | Edit > Line Operations |
+| ✅ | Multi-cursor / multi-edit | insertCursorAbove/Below, addSelectionToNextFindMatch |
+| ✅ | Sort lines (asc/desc) | Sort Lines plugin |
+| ✅ | Remove blank lines | Remove Empty Lines plugin |
 | 🔲 | TAB / space conversion | Edit > Blank Operations (TAB to Space, Space to TAB) |
 | 🔲 | Comment / Uncomment block, stream comment | Separate from line comment |
-| 🔲 | Auto-indent, join / split lines, remove blank lines | Additional Line / Blank operations |
 
 ---
 
@@ -53,7 +53,7 @@ Track what’s done vs pending. Update this file as features are implemented.
 | ✅ | Find Next / Previous (F3, Shift+F3) | |
 | ✅ | Go to Line | Search > Go to… |
 | ✅ | Basic bookmarks | Included in Edit section |
-| 🔲 | **Find in Files** | Search in folder, file masks, replace in files |
+| ✅ | **Find in Files** | Search in folder, file masks, replace in files — Ctrl+Shift+F |
 | 🔲 | Mark / highlight all occurrences | Search > Mark |
 | 🔲 | Incremental search | Search > Incremental Search |
 | 🔲 | Find in current / all open docs | Search > Find in Current Document / All Opened Documents |
@@ -70,12 +70,12 @@ Track what’s done vs pending. Update this file as features are implemented.
 | ✅ | Zoom In/Out, Reset zoom | |
 | ✅ | Toggle sidebar | |
 | ✅ | Theme (Light/Dark) | |
-| 🔲 | **Split view** | Vertical/horizontal split, clone doc to other pane |
-| 🔲 | **Minimap / document map toggle** | Show/hide extra overview |
-| 🔲 | Show whitespace / EOL / indent guides | View > Show Symbol, Show Indent Guide |
+| ✅ | **Split view** | View > Split View; edit two files side-by-side |
+| ✅ | **Minimap / document map toggle** | View > Show Minimap |
+| ✅ | Show whitespace / EOL | View > Show Whitespace |
 | 🔲 | Fold / unfold, collapse / expand all | View > Folding |
 | 🔲 | Full screen, Always on top | View > Always on Top, etc. |
-| 🔲 | Toggle toolbar, tab bar, status bar | View > Hide / show UI elements |
+| ✅ | Toggle toolbar, status bar | View menu toggles for toolbar and status bar |
 
 ---
 
@@ -97,15 +97,15 @@ Track what’s done vs pending. Update this file as features are implemented.
 
 | Status | Feature | Notes |
 |--------|---------|--------|
-| 🔲 | Preferences dialog | Settings > Preferences (General, Editing, New Document, MISC, etc.) |
-| 🔲 | Style Configurator | Settings > Style Configurator |
-| 🔲 | Shortcut Mapper | Settings > Shortcut Mapper for keybindings |
+| ✅ | Preferences dialog | Settings > Preferences — word wrap, line numbers, font size, theme, autosave, minimap |
+| 🔲 | Style Configurator | Per-token color overrides |
+| 🔲 | Shortcut Mapper | Change shortcuts via GUI |
 | 🔲 | Import / Export config | Settings > Import / Export |
-| 🔲 | **Tools: hash generation** | Tools > MD5 / SHA-1 / SHA-256 / SHA-512 |
+| ✅ | **Tools: hash generation** | Tools > Hash (MD5 / SHA-1 / SHA-256 / SHA-512) |
 | 🔲 | **Macro: Start / Stop / Playback** | Record and replay actions |
 | 🔲 | Save & run named macros | Macro > Save Current Recorded Macro… |
-| 🔲 | **Run** | Run external command/tool on current file |
-| 🔲 | Run last command | Run > Run Last |
+| ✅ | **Run** | Run > Run / Run Last — execute current file or custom command |
+| ✅ | Run last command | Run > Run Last |
 
 ---
 
@@ -128,11 +128,11 @@ Track what’s done vs pending. Update this file as features are implemented.
 | Status | Feature | Notes |
 |--------|---------|--------|
 | 🔲 | Document switcher (Ctrl+Tab MRU) | Window > Document List / MRU-style switching |
-| 🔲 | Sort tabs by name / path / type | Window menu equivalents |
+| ✅ | Sort tabs by name / path / type | Window > Sort Tabs and Command Palette |
 | 🔲 | Move/clone to other view | Window > Move/Clone Current Document |
 | 🔲 | Pin / color tabs | Tab bar context features |
-| 🔲 | **Autosave / backup** | Temp files or periodic save |
-| 🔲 | **File change detection** | Reload prompt when file changed on disk |
+| ✅ | **Autosave / backup** | View > Preferences > Auto-Save |
+| ✅ | **File change detection** | Auto-reload clean tabs; prompt for dirty tabs |
 | ✅ | **Session restore** | (see File & Session) |
 | 🔲 | System tray integration | Minimize/close to tray, Find in Files from tray |
 
@@ -148,7 +148,7 @@ High-level visual and behavior improvements beyond core features.
 | 🔲 | Consistent light/dark theming | Ensure all panels and menus respect theme |
 | 🔲 | Improved empty states | Clear guidance when no folder/file is open |
 | 🔲 | Keyboard accessibility review | All major actions reachable via shortcuts |
-| 🔲 | Context menus on tabs and editor | Close others, copy path, etc. |
+| ✅ | Context menus on tabs | Right-click: Close, Close Others, Copy Path, Reveal in File Manager |
 | 🔲 | Smooth icon set and app branding | Finalize toolbar, menu, app, and tray icons |
 | 🔲 | High-DPI / scaling checks | Crisp UI on 125–200% scaling |
 
@@ -160,7 +160,7 @@ These are not in classic Notepad++, but are common in editors like Atom, VS Code
 
 | Status | Feature | Notes |
 |--------|---------|--------|
-| 🔲 | Integrated terminal | Run shells/commands inside AuroraPad (like VS Code Terminal) |
+| ✅ | Integrated terminal | TerminalDock: multi-session xterm.js + node-pty, SSH terminal for remote |
 | 🔲 | Built-in Git view | Source control panel: status, commits, diffs, staging |
 | 🔲 | Go to Definition / Peek Definition | Jump to symbol definition, inline peek panel |
 | 🔲 | Go to Symbol in File / Workspace | Quick symbol search (functions, classes, etc.) |
@@ -178,4 +178,4 @@ These are not in classic Notepad++, but are common in editors like Atom, VS Code
 - ✅ Done  
 - 🔲 Pending  
 
-*Last updated: when features are implemented.*
+*Last updated: 2026-07-20 — corrected many 🔲 items already implemented; added tab context menus, file change detection, and extensionless Find in Files.*
