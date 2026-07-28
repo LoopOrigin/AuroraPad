@@ -114,7 +114,7 @@ jobs:
         run: rm -rf node_modules/cpu-features
 
       - name: Rebuild native modules
-        run: npx electron-rebuild -f -w node-pty-prebuilt-multiarch keytar
+        run: npx electron-rebuild -f -w node-pty keytar
 
       - name: Run security scan
         run: npm run security:scan

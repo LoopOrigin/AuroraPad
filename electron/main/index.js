@@ -15,7 +15,7 @@ const Store = require('electron-store')
 const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
-const pty = require('node-pty-prebuilt-multiarch')
+const pty = require('node-pty')
 const { RemoteConnectionManager } = require('./remote-manager')
 
 const store = new Store()

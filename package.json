@@ -23,7 +23,7 @@
     "electron:build:linux": "npm run assets:generate-icons && vite build && node scripts/run-electron-builder.js --publish never --linux AppImage tar.gz --x64",
     "electron:build:mac": "npm run assets:generate-icons && vite build && node scripts/run-electron-builder.js --publish never --mac dmg zip",
     "start": "electron .",
-    "postinstall": "electron-rebuild -f -w node-pty-prebuilt-multiarch keytar"
+    "postinstall": "electron-rebuild -f -w node-pty keytar"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.3.1",
@@ -39,7 +39,7 @@
     "jschardet": "^3.1.4",
     "keytar": "^7.9.0",
     "monaco-editor": "^0.47.0",
-    "node-pty-prebuilt-multiarch": "^0.10.1-pre.5",
+    "node-pty": "^1.1.0",
     "pinia": "^3.0.4",
     "ssh2-sftp-client": "^12.1.1",
     "vite-plugin-vuetify": "^2.1.3",
