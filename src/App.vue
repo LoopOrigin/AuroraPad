@@ -120,10 +120,13 @@
           :loading="connectionsLoading"
           :active-connection-id="fileTreeStore.remoteConnection?.profileId || ''"
           :connecting-id="connectingProfileId"
+          :notif="connectionsNotif"
           @new-connection="openNewConnectionModal(null)"
           @connect="connectRemoteProfile"
+          @disconnect="disconnectRemoteWorkspace"
           @edit="openNewConnectionModal"
           @delete="requestDeleteRemoteProfile"
+          @dismiss-notif="connectionsNotif = { type: '', msg: '' }"
         />
         <SftpScreen
           v-show="settingsStore.activeScreen === 'sftp'"
@@ -155,7 +158,7 @@
               </ul>
             </template>
             <SearchPanel v-else-if="settingsStore.activeSidePanel === 'search'" @open-result="openFindInFilesResult" />
-            <GitPanel v-else-if="settingsStore.activeSidePanel === 'git'" @open-file="openFileByPath" />
+            <GitPanel v-else-if="settingsStore.activeSidePanel === 'git'" @open-file="openFileByPath" @open-folder="menuOpenFolder" />
           </aside>
           <div class="editor-area">
             <TabBar />
@@ -541,6 +544,31 @@
       @saved="onConnectionSaved"
       @connected="onConnectionConnected"
     />
+
+    <!-- Inline secret prompt (replaces prompt() for SSH connect) -->
+    <Teleport to="body">
+      <div v-if="secretPrompt.visible" class="app-secret-backdrop">
+        <div class="app-secret-box">
+          <div class="app-secret-title">Authentication Required</div>
+          <label class="app-secret-label">{{ secretPrompt.label }}</label>
+          <input
+            ref="secretPromptInputRef"
+            v-model="secretPrompt.value"
+            type="password"
+            class="app-secret-input"
+            placeholder="Enter secret…"
+            autofocus
+            @keydown.enter="confirmSecretPrompt"
+            @keydown.escape="cancelSecretPrompt"
+            @vue:mounted="el => el?.focus()"
+          />
+          <div class="app-secret-actions">
+            <button type="button" class="app-secret-cancel" @click="cancelSecretPrompt">Cancel</button>
+            <button type="button" class="app-secret-ok" @click="confirmSecretPrompt">Connect</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
     <CommandPalette
       v-if="showCommandPalette"
       :recent-only="commandPaletteRecentOnly"
@@ -656,7 +684,28 @@ const editingProfile = ref(null)
 const sftpSessions = ref([]) // [{connectionId, profileId, host, username, name, rootPath, ...}]
 const connectionsLoading = ref(false)
 const connectingProfileId = ref('')
+const connectionsNotif = ref({ type: '', msg: '' })
+const secretPrompt = ref({ visible: false, label: '', value: '' })
+let secretPromptResolve = null
 let autoSaveInterval = null
+
+function openSecretPrompt(label) {
+  return new Promise((resolve) => {
+    secretPromptResolve = resolve
+    secretPrompt.value = { visible: true, label, value: '' }
+  })
+}
+function confirmSecretPrompt() {
+  const v = secretPrompt.value.value
+  secretPrompt.value.visible = false
+  secretPromptResolve?.(v || null)
+  secretPromptResolve = null
+}
+function cancelSecretPrompt() {
+  secretPrompt.value.visible = false
+  secretPromptResolve?.(null)
+  secretPromptResolve = null
+}
 
 const primaryTab = computed(() => tabsStore.activeTab)
 
@@ -726,6 +775,7 @@ function createRemoteProfileForm() {
     saveSecret: true,
     secretPassword: '',
     secretPassphrase: '',
+    tags: [],
   }
 }
 
@@ -827,6 +877,7 @@ function editRemoteProfile(profile) {
     saveSecret: keychainAvailable.value,
     secretPassword: '',
     secretPassphrase: '',
+    tags: Array.isArray(profile.tags) ? [...profile.tags] : [],
   }
 }
 
@@ -844,6 +895,7 @@ function buildRemoteProfilePayload() {
     privateKeyPath: f.privateKeyPath || '',
     saveSecret: !!f.saveSecret && keychainAvailable.value,
     clearSavedSecret: !f.saveSecret || !keychainAvailable.value,
+    tags: Array.isArray(f.tags) ? f.tags : [],
     secret: {
       password: f.secretPassword || '',
       passphrase: f.secretPassphrase || '',
@@ -954,14 +1006,17 @@ async function confirmDeleteRemoteProfile() {
 
 async function connectRemoteProfile(profile) {
   if (!window.electronAPI?.remoteConnect) return
+  connectionsNotif.value = { type: '', msg: '' }
   connectionsLoading.value = true
   connectingProfileId.value = profile.id
   try {
     let result = await window.electronAPI.remoteConnect(profile.id, {})
     if (result?.code === 'SECRET_REQUIRED') {
       connectionsLoading.value = false
-      const promptLabel = result.secretType === 'passphrase' ? 'passphrase' : 'password'
-      const secretValue = prompt(`Enter ${promptLabel} for ${profile.name}:`, '')
+      const label = result.secretType === 'passphrase'
+        ? `Key passphrase for ${profile.name}`
+        : `Password for ${profile.username}@${profile.host}`
+      const secretValue = await openSecretPrompt(label)
       if (!secretValue) { connectingProfileId.value = ''; return }
       connectionsLoading.value = true
       const secretInput = result.secretType === 'passphrase'
@@ -970,7 +1025,7 @@ async function connectRemoteProfile(profile) {
       result = await window.electronAPI.remoteConnect(profile.id, secretInput)
     }
     if (result?.error) {
-      alert(`Failed to connect: ${result.error}`)
+      connectionsNotif.value = { type: 'error', msg: `Failed to connect: ${result.error}` }
       return
     }
     fileTreeStore.setRemoteWorkspace(result.connection)
@@ -978,10 +1033,12 @@ async function connectRemoteProfile(profile) {
     if (treeLoad?.error) {
       await window.electronAPI?.remoteDisconnect?.(result.connection.connectionId)
       fileTreeStore.clearRemoteWorkspace()
-      alert(`Connected to ${profile.name}, but AuroraPad could not open the initial remote directory.\n\n${treeLoad.error}\n\nTry editing the profile's Default Remote Root or reconnecting.`)
+      connectionsNotif.value = {
+        type: 'error',
+        msg: `Connected to ${profile.name} but could not open remote root: ${treeLoad.error}`,
+      }
       return
     }
-    // Add to SFTP sessions (avoid duplicates)
     const conn = { ...result.connection, name: profile.name || profile.host }
     if (!sftpSessions.value.find(s => s.connectionId === conn.connectionId)) {
       sftpSessions.value.push(conn)
@@ -1037,6 +1094,10 @@ function activateGit() {
   settingsStore.setActiveScreen('editor')
   settingsStore.setActiveSidePanel('git')
   settingsStore.setSidebarVisible(true)
+  // Refresh git status for the folder already open in the file explorer
+  if (fileTreeStore.openFolderPath && fileTreeStore.workspaceMode === 'local') {
+    fileTreeStore.refreshGitStatus()
+  }
 }
 
 function openNewConnectionModal(profile = null) {

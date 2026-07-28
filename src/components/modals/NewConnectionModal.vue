@@ -12,6 +12,13 @@
           <button type="button" class="new-conn-close" @click="$emit('update:modelValue', false)">✕</button>
         </div>
 
+        <!-- Inline notification -->
+        <div v-if="notif.msg" class="new-conn-notif" :class="`notif-${notif.type}`">
+          <i :class="notif.type === 'success' ? 'fa-solid fa-check-circle' : notif.type === 'error' ? 'fa-solid fa-circle-xmark' : 'fa-solid fa-circle-info'"></i>
+          <span>{{ notif.msg }}</span>
+          <button type="button" class="notif-dismiss" @click="notif.msg = ''"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
         <!-- Body -->
         <div class="new-conn-body">
           <div class="conn-field-group">
@@ -184,6 +191,12 @@ const tagInput = ref('')
 const testing = ref(false)
 const saving = ref(false)
 const editId = ref('')
+const notif = ref({ type: 'info', msg: '' })
+
+function showNotif(type, msg) {
+  notif.value = { type, msg }
+  if (type !== 'error') setTimeout(() => { if (notif.value.msg === msg) notif.value.msg = '' }, 4000)
+}
 
 // Inline password prompt
 const showPasswordPrompt = ref(false)
@@ -191,6 +204,10 @@ const passwordPromptLabel = ref('')
 const pendingSecret = ref('')
 const pwPromptRef = ref(null)
 let passwordPromptResolve = null
+
+watch(() => props.modelValue, (open) => {
+  if (open) notif.value.msg = ''
+})
 
 watch(() => props.editProfile, (profile) => {
   if (profile) {
@@ -276,7 +293,8 @@ function cancelPasswordPrompt() {
 async function testConnection() {
   if (!window.electronAPI?.remoteTestConnection || testing.value) return
   const payload = buildPayload()
-  if (!payload.host || !payload.username) { alert('Host and username are required.'); return }
+  if (!payload.host || !payload.username) { showNotif('error', 'Host and username are required.'); return }
+  notif.value.msg = ''
   testing.value = true
   try {
     let result = await window.electronAPI.remoteTestConnection(payload)
@@ -289,8 +307,8 @@ async function testConnection() {
         : { ...payload.secret, password: secret, passphrase: secret }
       result = await window.electronAPI.remoteTestConnection({ ...payload, secret: secretObj })
     }
-    if (result?.error) { alert(`Connection test failed: ${result.error}`); return }
-    alert(`Connection successful!\n\nProtocol: ${(result.protocol || '').toUpperCase()}\nHost: ${result.username}@${result.host}:${result.port}\nRemote root: ${result.rootPath || '/'}`)
+    if (result?.error) { showNotif('error', `Connection test failed: ${result.error}`); return }
+    showNotif('success', `Connected — ${result.username}@${result.host}:${result.port} (${(result.protocol || '').toUpperCase()})`)
   } finally {
     testing.value = false
   }
@@ -299,11 +317,12 @@ async function testConnection() {
 async function saveOnly() {
   if (!window.electronAPI?.remoteSaveProfile) return
   const payload = buildPayload()
-  if (!payload.host || !payload.username) { alert('Host and username are required.'); return }
+  if (!payload.host || !payload.username) { showNotif('error', 'Host and username are required.'); return }
+  notif.value.msg = ''
   saving.value = true
   try {
     const saved = await window.electronAPI.remoteSaveProfile(payload)
-    if (saved?.error) { alert(`Save failed: ${saved.error}`); return }
+    if (saved?.error) { showNotif('error', `Save failed: ${saved.error}`); return }
     emit('saved', saved.profile)
     emit('update:modelValue', false)
   } finally {
@@ -314,11 +333,12 @@ async function saveOnly() {
 async function saveAndConnect() {
   if (!window.electronAPI?.remoteSaveProfile) return
   const payload = buildPayload()
-  if (!payload.host || !payload.username) { alert('Host and username are required.'); return }
+  if (!payload.host || !payload.username) { showNotif('error', 'Host and username are required.'); return }
+  notif.value.msg = ''
   saving.value = true
   try {
     const saved = await window.electronAPI.remoteSaveProfile(payload)
-    if (saved?.error) { alert(`Save failed: ${saved.error}`); return }
+    if (saved?.error) { showNotif('error', `Save failed: ${saved.error}`); return }
 
     emit('saved', saved.profile)
 
@@ -335,7 +355,7 @@ async function saveAndConnect() {
         : { password: secret, passphrase: secret }
       result = await window.electronAPI.remoteConnect(saved.profile.id, secretObj)
     }
-    if (result?.error) { alert(`Connect failed: ${result.error}`); return }
+    if (result?.error) { showNotif('error', `Connect failed: ${result.error}`); return }
 
     emit('connected', result)
     emit('update:modelValue', false)
@@ -627,4 +647,23 @@ async function saveAndConnect() {
 }
 .conn-save-btn:hover:not(:disabled) { filter: brightness(1.1); }
 .conn-save-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+.new-conn-notif {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--npp-border, #1c2233);
+  flex-shrink: 0;
+}
+.notif-success { background: rgba(74,222,128,0.1); color: #4ade80; }
+.notif-error   { background: rgba(248,113,113,0.1); color: #f87171; }
+.notif-info    { background: rgba(41,212,240,0.08); color: var(--npp-accent, #29d4f0); }
+.new-conn-notif span { flex: 1; }
+.notif-dismiss {
+  background: transparent; border: none; color: inherit; cursor: pointer;
+  font-size: 11px; padding: 0 2px; opacity: 0.7;
+}
+.notif-dismiss:hover { opacity: 1; }
 </style>

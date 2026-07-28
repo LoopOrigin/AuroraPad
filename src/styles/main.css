@@ -1463,3 +1463,88 @@ select:focus-visible,
     padding-top: 56px;
   }
 }
+
+/* ── App-level secret prompt (SSH connect) ───────────── */
+.app-secret-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-secret-box {
+  background: var(--npp-sidebar, #111520);
+  border: 1px solid var(--npp-border, #1c2233);
+  border-radius: 10px;
+  padding: 22px 24px 20px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  animation: fadeInScale 0.12s ease-out;
+}
+
+.app-secret-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--npp-text, #cdd6f4);
+}
+
+.app-secret-label {
+  font-size: 12px;
+  color: var(--npp-text-dim, #6b7a99);
+}
+
+.app-secret-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--npp-border, #1c2233);
+  border-radius: 6px;
+  color: var(--npp-text, #cdd6f4);
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.app-secret-input:focus {
+  border-color: var(--npp-accent, #29d4f0);
+}
+
+.app-secret-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.app-secret-cancel {
+  background: transparent;
+  border: 1px solid var(--npp-border, #1c2233);
+  border-radius: 6px;
+  color: var(--npp-text, #cdd6f4);
+  font-size: 12px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.app-secret-cancel:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.app-secret-ok {
+  background: var(--npp-accent, #29d4f0);
+  color: #090b0f;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.app-secret-ok:hover {
+  filter: brightness(1.1);
+}

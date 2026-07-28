@@ -16,8 +16,15 @@
       <button type="button" class="git-error-dismiss" @click="errorMsg = ''"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <div v-if="!folderOpen" class="git-no-folder">
-      Open a folder to see source control changes.
+    <div v-if="!fileTreeStore.openFolderPath" class="git-no-folder">
+      <p>Open a folder to use source control.</p>
+      <button type="button" class="git-open-folder-btn" @click="$emit('open-folder')">
+        <i class="fa-solid fa-folder-open"></i> Open Folder
+      </button>
+    </div>
+
+    <div v-else-if="!isLocal" class="git-no-folder">
+      <p>Source control is not available for remote workspaces.</p>
     </div>
 
     <div v-else class="git-panel-body">
@@ -158,7 +165,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useFileTreeStore } from '../../stores/fileTree'
 
-const emit = defineEmits(['open-file'])
+const emit = defineEmits(['open-file', 'open-folder'])
 const fileTreeStore = useFileTreeStore()
 
 const commitMessage = ref('')
@@ -176,12 +183,13 @@ const committing = ref(false)
 const branchesLoading = ref(false)
 const errorMsg = ref('')
 
-const folderOpen = computed(() => !!fileTreeStore.openFolderPath)
+const isLocal = computed(() => fileTreeStore.workspaceMode === 'local')
+const folderOpen = computed(() => !!fileTreeStore.openFolderPath && isLocal.value)
 const changeCount = computed(() => staged.value.length + unstaged.value.length)
 const hasStagedChanges = computed(() => staged.value.length > 0)
 
 onMounted(() => {
-  refresh()
+  if (folderOpen.value) refresh()
   if (window.electronAPI?.onFolderChanged) {
     window.electronAPI.onFolderChanged(refresh)
   }
@@ -194,7 +202,11 @@ onUnmounted(() => {
 })
 
 watch(() => fileTreeStore.openFolderPath, (newPath) => {
-  if (newPath) refresh()
+  if (newPath && isLocal.value) refresh()
+}, { immediate: true })
+
+watch(isLocal, (local) => {
+  if (local && fileTreeStore.openFolderPath) refresh()
 })
 
 async function refresh() {
@@ -394,7 +406,28 @@ function statusClass(status) {
   font-size: 12px;
   color: var(--npp-text-dim, #6b7a99);
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
+.git-no-folder p { margin: 0; }
+
+.git-open-folder-btn {
+  align-self: flex-start;
+  background: var(--npp-accent, #29d4f0);
+  color: #090b0f;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.git-open-folder-btn:hover { filter: brightness(1.1); }
 
 .git-panel-body {
   flex: 1;

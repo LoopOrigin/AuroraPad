@@ -466,6 +466,38 @@ class RemoteConnectionManager {
     return { ok: true, path: targetPath }
   }
 
+  async deleteFile(connectionId, remotePath) {
+    const connection = this.getConnection(connectionId)
+    const targetPath = ensurePosixPath(remotePath)
+    if (connection.protocol === 'sftp') {
+      try {
+        await connection.instance.delete(targetPath)
+      } catch {
+        await connection.instance.rmdir(targetPath, true)
+      }
+    } else {
+      try {
+        await connection.instance.remove(targetPath)
+      } catch {
+        await connection.instance.removeDir(targetPath)
+      }
+    }
+    return { ok: true, path: targetPath }
+  }
+
+  async chmod(connectionId, remotePath, mode) {
+    const connection = this.getConnection(connectionId)
+    if (connection.protocol !== 'sftp') {
+      const error = new Error('Permissions can only be changed on SFTP connections')
+      error.code = 'NOT_SUPPORTED'
+      throw error
+    }
+    const targetPath = ensurePosixPath(remotePath)
+    const numeric = typeof mode === 'string' ? parseInt(mode, 8) : mode
+    await connection.instance.chmod(targetPath, numeric)
+    return { ok: true, path: targetPath, mode }
+  }
+
   getSshTerminalDescriptor(connectionId, cwd = '') {
     const connection = this.getConnection(connectionId)
     if (connection.protocol !== 'sftp') {
@@ -737,6 +769,7 @@ class RemoteConnectionManager {
 
     const group = input.group ? boundedString(input.group, 'Group', { max: 80, allowEmpty: true }) : ''
     const notes = input.notes ? boundedString(input.notes, 'Notes', { max: 2048, allowEmpty: true }) : ''
+    const tags = Array.isArray(input.tags) ? input.tags.map(t => String(t).trim()).filter(Boolean).slice(0, 20) : []
 
     const proxyHost = input.proxyHost ? boundedString(input.proxyHost, 'Proxy host', { max: 255, allowEmpty: true }) : ''
     const rawProxyPort = Number(input.proxyPort)
@@ -761,6 +794,7 @@ class RemoteConnectionManager {
       keepAliveCountMax: 3,
       group,
       notes,
+      tags,
       proxyHost,
       proxyPort,
       proxyUsername,

@@ -953,6 +953,60 @@ ipcMain.handle('remote:mkdir', async (_, connectionId, remotePath) => {
   }
 })
 
+ipcMain.handle('remote:deleteFile', async (_, connectionId, remotePath) => {
+  try {
+    return await remoteManager.deleteFile(connectionId, remotePath)
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_DELETE_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:chmod', async (_, connectionId, remotePath, mode) => {
+  try {
+    return await remoteManager.chmod(connectionId, remotePath, mode)
+  } catch (e) {
+    return { error: e.message, code: e.code || 'REMOTE_CHMOD_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:uploadFile', async (_, connectionId, localPath, remotePath) => {
+  try {
+    const buffer = await fs.readFile(localPath)
+    await remoteManager.writeFile(connectionId, remotePath, buffer)
+    return { ok: true, size: buffer.length }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'UPLOAD_FAILED' }
+  }
+})
+
+ipcMain.handle('remote:downloadFile', async (_, connectionId, remotePath, localPath) => {
+  try {
+    const result = await remoteManager.readFile(connectionId, remotePath)
+    await fs.writeFile(localPath, result.buffer)
+    return { ok: true, size: result.buffer.length }
+  } catch (e) {
+    return { error: e.message, code: e.code || 'DOWNLOAD_FAILED' }
+  }
+})
+
+ipcMain.handle('fs:deleteFile', async (_, filePath) => {
+  try {
+    await fs.rm(filePath, { recursive: true, force: true })
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
+ipcMain.handle('fs:mkdir', async (_, dirPath) => {
+  try {
+    await fs.mkdir(dirPath, { recursive: true })
+    return { ok: true }
+  } catch (e) {
+    return { error: e.message }
+  }
+})
+
 ipcMain.handle('remote:openSshTerminal', async (_, connectionId, cwd = '') => {
   try {
     const descriptor = remoteManager.getSshTerminalDescriptor(connectionId, cwd)
@@ -1126,20 +1180,52 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
     const shellType = options.shell || 'default'
     const requestedCwd = options.cwd || ''
     const isSshShell = String(shellType).startsWith('ssh:')
+
     if (isSshShell) {
-      const launchPreview = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
-      const approved = await confirmSensitiveAction({
-        title: 'Open SSH Terminal',
-        message: 'AuroraPad wants to open an SSH terminal session.',
-        detail: `Shell:\n${launchPreview?.file || 'ssh'} ${(launchPreview?.args || []).join(' ')}`.trim(),
-        confirmLabel: 'Open SSH',
-      })
-      if (!approved) {
-        logSecurityEvent('remote-ssh-terminal-canceled', { shellType, cwd: requestedCwd })
-        return { error: 'Action canceled by user', code: 'USER_CANCELED' }
+      // Reuse the already-authenticated SSH connection — no dialog, no new ssh process
+      const connectionId = shellType.slice(4)
+      const cols = options.cols || 80
+      const rows = options.rows || 24
+
+      const connection = remoteManager.getConnection(connectionId)
+      if (connection.protocol !== 'sftp') {
+        return { error: 'SSH terminal is only available for SFTP/SSH connections' }
       }
+
+      const sshClient = connection.instance.client
+      const channel = await new Promise((resolve, reject) => {
+        sshClient.shell({ term: 'xterm-color', cols, rows }, (err, stream) => {
+          if (err) reject(err)
+          else resolve(stream)
+        })
+      })
+
+      const id = `term-${nextTerminalId++}`
+
+      // Adapt ssh2 channel to the same interface used by terminal:write/resize/dispose
+      const term = {
+        write: (data) => channel.write(data),
+        resize: (c, r) => { try { channel.setWindow(r, c, 0, 0) } catch {} },
+        kill: () => { try { channel.close() } catch {} try { channel.destroy() } catch {} },
+      }
+      terminals.set(id, term)
+      logSecurityEvent('terminal-ssh-attached', { id, connectionId })
+
+      channel.on('data', (chunk) => {
+        mainWindow?.webContents.send('terminal:data', { id, data: chunk.toString() })
+      })
+      channel.stderr?.on('data', (chunk) => {
+        mainWindow?.webContents.send('terminal:data', { id, data: chunk.toString() })
+      })
+      channel.on('close', () => {
+        terminals.delete(id)
+        mainWindow?.webContents.send('terminal:exit', { id })
+      })
+
+      return { ok: true, id, shell: 'ssh' }
     }
-    const cwd = isSshShell ? process.cwd() : (requestedCwd || process.cwd())
+
+    const cwd = requestedCwd || process.cwd()
     const terminalLaunch = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
     if (!terminalLaunch) {
       return { error: `The ${shellType} terminal profile is not available on this platform.` }
@@ -1159,7 +1245,7 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
 
     const id = `term-${nextTerminalId++}`
     terminals.set(id, term)
-    logSecurityEvent('terminal-created', { id, shell: shellKey, cwd, ssh: isSshShell })
+    logSecurityEvent('terminal-created', { id, shell: shellKey, cwd })
 
     term.onData(data => {
       mainWindow?.webContents.send('terminal:data', { id, data })

@@ -18,7 +18,14 @@
       </div>
     </div>
 
-    <div v-if="connectingId" class="connections-connecting-bar">
+    <div v-if="notif?.msg" class="connections-notif" :class="`connections-notif-${notif.type}`">
+      <i :class="notif.type === 'error' ? 'fa-solid fa-circle-xmark' : notif.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-info'"></i>
+      <span>{{ notif.msg }}</span>
+      <button type="button" class="connections-notif-dismiss" @click="$emit('dismiss-notif')">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div v-else-if="connectingId" class="connections-connecting-bar">
       <i class="fa-solid fa-circle-notch fa-spin"></i>
       Connecting to server…
     </div>
@@ -56,6 +63,17 @@
             </div>
             <div class="card-actions">
               <button
+                v-if="isConnected(profile)"
+                type="button"
+                class="card-disconnect-btn"
+                title="Disconnect this session"
+                @click="$emit('disconnect', profile)"
+              >
+                <i class="fa-solid fa-plug-circle-xmark"></i>
+                Disconnect
+              </button>
+              <button
+                v-else
                 type="button"
                 class="card-connect-btn"
                 :class="{ 'card-connecting': connectingId === profile.id }"
@@ -88,19 +106,21 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
   activeConnectionId: { type: String, default: '' },
   connectingId: { type: String, default: '' },
+  notif: { type: Object, default: () => ({ type: '', msg: '' }) },
 })
 
-defineEmits(['new-connection', 'connect', 'edit', 'delete'])
+defineEmits(['new-connection', 'connect', 'disconnect', 'edit', 'delete', 'dismiss-notif'])
 
 const filterText = ref('')
 
 const filteredProfiles = computed(() => {
-  const q = filterText.value.toLowerCase()
+  const q = filterText.value.toLowerCase().trim()
   if (!q) return props.profiles
   return props.profiles.filter(p =>
     p.name?.toLowerCase().includes(q) ||
     p.host?.toLowerCase().includes(q) ||
-    p.username?.toLowerCase().includes(q)
+    p.username?.toLowerCase().includes(q) ||
+    p.tags?.some(t => t.toLowerCase().includes(q))
   )
 })
 
@@ -224,6 +244,43 @@ function statusLabel(profile) {
 .connections-new-btn:hover {
   filter: brightness(1.1);
 }
+
+.connections-notif {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-size: 13px;
+  flex-shrink: 0;
+  border-bottom: 1px solid transparent;
+}
+.connections-notif-error {
+  background: rgba(248, 113, 113, 0.1);
+  border-bottom-color: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+.connections-notif-success {
+  background: rgba(74, 222, 128, 0.1);
+  border-bottom-color: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+}
+.connections-notif-info {
+  background: rgba(41, 212, 240, 0.07);
+  border-bottom-color: rgba(41, 212, 240, 0.15);
+  color: var(--npp-accent, #29d4f0);
+}
+.connections-notif span { flex: 1; }
+.connections-notif-dismiss {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  opacity: 0.7;
+  border-radius: 3px;
+}
+.connections-notif-dismiss:hover { opacity: 1; }
 
 .connections-connecting-bar {
   display: flex;
@@ -413,6 +470,26 @@ function statusLabel(profile) {
 .card-connect-btn:hover:not(:disabled) { filter: brightness(1.1); }
 .card-connect-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .card-connect-btn.card-connecting { background: rgba(41,212,240,0.3); color: var(--npp-accent, #29d4f0); }
+
+.card-disconnect-btn {
+  flex: 1;
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.card-disconnect-btn:hover {
+  background: rgba(248, 113, 113, 0.22);
+  border-color: rgba(248, 113, 113, 0.4);
+}
 
 .card-edit-btn {
   background: rgba(255,255,255,0.07);
