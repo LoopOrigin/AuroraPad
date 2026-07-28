@@ -1,40 +1,36 @@
 <template>
   <div class="terminal-dock">
     <div class="terminal-toolbar">
-      <div class="terminal-toolbar-meta">
-        <div class="terminal-toolbar-title">Integrated Terminal</div>
-        <div class="terminal-toolbar-subtitle">
-          <span>{{ activeSession?.title || 'No session' }}</span>
-          <span v-if="activeSession?.cwd" class="terminal-cwd">{{ compactPath(activeSession.cwd) }}</span>
-          <span class="terminal-platform">{{ platformPill }}</span>
-        </div>
-      </div>
+      <span class="terminal-toolbar-label">TERMINAL</span>
+      <span v-if="activeSession" class="terminal-toolbar-session">
+        {{ activeSession.title }}
+        <span v-if="activeSession.cwd" class="terminal-cwd">{{ compactPath(activeSession.cwd) }}</span>
+      </span>
+      <span class="terminal-platform">{{ platformPill }}</span>
       <div class="terminal-toolbar-actions">
         <button type="button" class="terminal-action-btn" title="Clear active terminal" @click="clearActiveSession">
-          Clear
-        </button>
-        <button
-          type="button"
-          class="terminal-action-btn terminal-action-btn-primary"
-          :title="`New ${profileLabel(profileShell)} terminal`"
-          @click="newSession(profileShell)"
-        >
-          New
+          <i class="fa-solid fa-eraser"></i>
         </button>
         <select
           v-model="profileShell"
           class="terminal-profile-select"
           title="Default shell profile for new terminals"
         >
-          <option
-            v-for="profile in availableProfiles"
-            :key="profile.id"
-            :value="profile.id"
-          >
+          <option v-for="profile in availableProfiles" :key="profile.id" :value="profile.id">
             {{ profile.label }}
           </option>
         </select>
-        <button type="button" class="terminal-action-btn" @click="$emit('close')">Hide</button>
+        <button
+          type="button"
+          class="terminal-action-btn terminal-action-btn-primary"
+          :title="`New ${profileLabel(profileShell)} terminal`"
+          @click="newSession(profileShell)"
+        >
+          <i class="fa-solid fa-plus"></i>
+        </button>
+        <button type="button" class="terminal-action-btn" title="Hide terminal" @click="$emit('close')">
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
       </div>
     </div>
     <div class="terminal-tabs">
@@ -258,62 +254,82 @@ defineExpose({
 .terminal-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px 8px;
+  gap: 8px;
+  padding: 4px 10px;
   border-bottom: 1px solid color-mix(in srgb, var(--npp-tab-border) 76%, transparent);
+  flex-shrink: 0;
+  min-height: 0;
 }
 
-.terminal-toolbar-meta {
-  min-width: 0;
-}
-
-.terminal-toolbar-title {
-  font-size: 12px;
+.terminal-toolbar-label {
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--npp-text-dim);
+  flex-shrink: 0;
 }
 
-.terminal-toolbar-subtitle {
+.terminal-toolbar-session {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-  color: var(--npp-text-dim);
-  font-size: 12px;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--npp-text, #cdd6f4);
+  overflow: hidden;
   min-width: 0;
 }
 
 .terminal-cwd {
-  max-width: 320px;
+  font-size: 11px;
+  color: var(--npp-text-dim);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .terminal-platform {
-  padding: 2px 7px;
+  font-size: 10px;
+  padding: 1px 6px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--npp-accent) 14%, transparent);
   color: var(--npp-accent);
+  flex-shrink: 0;
 }
 
 .terminal-toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
-.terminal-action-btn,
-.terminal-profile-select {
-  height: 32px;
-  border-radius: 10px;
+.terminal-action-btn {
+  height: 24px;
+  min-width: 24px;
+  border-radius: 6px;
   border: 1px solid color-mix(in srgb, var(--npp-tab-border) 86%, transparent);
   background: color-mix(in srgb, var(--npp-toolbar-bg) 70%, transparent);
   color: var(--npp-text);
-  padding: 0 12px;
+  padding: 0 8px;
   font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.terminal-profile-select {
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--npp-tab-border) 86%, transparent);
+  background: color-mix(in srgb, var(--npp-toolbar-bg) 70%, transparent);
+  color: var(--npp-text);
+  padding: 0 6px;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
 }
 
 .terminal-action-btn:hover,
@@ -410,18 +426,7 @@ defineExpose({
   display: flex;
 }
 
-@media (max-width: 900px) {
-  .terminal-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .terminal-toolbar-actions {
-    flex-wrap: wrap;
-  }
-
-  .terminal-cwd {
-    max-width: 100%;
-  }
+@media (max-width: 600px) {
+  .terminal-toolbar-session { display: none; }
 }
 </style>

@@ -5,8 +5,10 @@ export const useFileTreeStore = defineStore('fileTree', () => {
   const workspaceMode = ref('local') // 'local' | 'remote'
   const openFolderPath = ref(null)
   const remoteConnection = ref(null) // { connectionId, profileId, rootPath, ... }
-  const tree = ref([]) // { name, path, isDirectory, children? }
+  const tree = ref([])
   const expandedPaths = ref(new Set())
+  const gitBranch = ref('')
+  const gitStatus = ref({}) // { 'path/to/file.js': 'M' | 'A' | 'D' | '?' }
 
   async function loadTree(path) {
     if (!path || !window.electronAPI) return
@@ -81,20 +83,26 @@ export const useFileTreeStore = defineStore('fileTree', () => {
     expandedPaths.value = new Set()
   }
 
+  async function refreshGitStatus() {
+    const root = openFolderPath.value
+    if (!root || workspaceMode.value !== 'local' || !window.electronAPI?.gitGetStatus) return
+    const result = await window.electronAPI.gitGetStatus(root)
+    if (!result?.error) {
+      gitBranch.value = result.branch || ''
+      const map = {}
+      for (const f of result.staged || []) map[f.path] = f.status
+      for (const f of result.unstaged || []) {
+        if (!map[f.path]) map[f.path] = f.status
+      }
+      gitStatus.value = map
+    }
+  }
+
   return {
-    workspaceMode,
-    openFolderPath,
-    remoteConnection,
-    tree,
-    expandedPaths,
-    loadTree,
-    loadChildren,
-    toggleExpand,
-    isExpanded,
-    setOpenFolder,
-    setLocalWorkspace,
-    setRemoteWorkspace,
-    clearRemoteWorkspace,
-    clearOpenFolder,
+    workspaceMode, openFolderPath, remoteConnection, tree, expandedPaths,
+    gitBranch, gitStatus,
+    loadTree, loadChildren, toggleExpand, isExpanded, setOpenFolder,
+    setLocalWorkspace, setRemoteWorkspace, clearRemoteWorkspace, clearOpenFolder,
+    refreshGitStatus,
   }
 })

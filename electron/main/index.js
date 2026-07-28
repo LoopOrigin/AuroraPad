@@ -1492,13 +1492,130 @@ ipcMain.handle('plugin:openPluginsFolder', async () => {
   await fs.mkdir(pluginsDir(), { recursive: true })
   const approved = await confirmSensitiveAction({
     title: 'Open Plugins Folder',
-    message: 'Open AuroraPad’s local plugins folder in the system file manager?',
+    message: "Open AuroraPad's local plugins folder in the system file manager?",
     detail: pluginsDir(),
     confirmLabel: 'Open Folder',
   })
   if (!approved) return { error: 'Action canceled by user', code: 'USER_CANCELED' }
   logSecurityEvent('plugin-folder-opened', { path: pluginsDir() })
   shell.openPath(pluginsDir())
+})
+
+// Git IPC handlers
+const { exec } = require('child_process')
+const util = require('util')
+const execAsync = util.promisify(exec)
+
+async function gitExec(cwd, args) {
+  try {
+    const { stdout } = await execAsync(`git ${args}`, { cwd, timeout: 10000 })
+    return { ok: true, stdout: stdout.trim() }
+  } catch (err) {
+    return { error: err.message || String(err) }
+  }
+}
+
+ipcMain.handle('git:getStatus', async (_, repoPath) => {
+  if (!repoPath) return { error: 'No repo path' }
+  const [branchResult, statusResult] = await Promise.all([
+    gitExec(repoPath, 'branch --show-current'),
+    gitExec(repoPath, 'status --porcelain'),
+  ])
+  if (branchResult.error || statusResult.error) {
+    return { error: branchResult.error || statusResult.error, branch: '', staged: [], unstaged: [] }
+  }
+  const staged = []
+  const unstaged = []
+  for (const line of statusResult.stdout.split('\n')) {
+    if (!line.trim()) continue
+    const xy = line.slice(0, 2)
+    const filePath = line.slice(3).trim()
+    const stagedCode = xy[0]
+    const unstagedCode = xy[1]
+    if (stagedCode !== ' ' && stagedCode !== '?') staged.push({ path: filePath, status: stagedCode })
+    if (unstagedCode !== ' ') unstaged.push({ path: filePath, status: unstagedCode === '?' ? '?' : unstagedCode })
+  }
+  return { branch: branchResult.stdout, staged, unstaged }
+})
+
+ipcMain.handle('git:stageFile', async (_, repoPath, filePath) => {
+  if (!repoPath || !filePath) return { error: 'Missing arguments' }
+  return gitExec(repoPath, `add -- "${filePath}"`)
+})
+
+ipcMain.handle('git:unstageFile', async (_, repoPath, filePath) => {
+  if (!repoPath || !filePath) return { error: 'Missing arguments' }
+  return gitExec(repoPath, `restore --staged -- "${filePath}"`)
+})
+
+ipcMain.handle('git:commit', async (_, repoPath, message) => {
+  if (!repoPath || !message) return { error: 'Missing arguments' }
+  const safeMsg = String(message).replace(/"/g, '\\"')
+  return gitExec(repoPath, `commit -m "${safeMsg}"`)
+})
+
+ipcMain.handle('git:stageAll', async (_, repoPath) => {
+  if (!repoPath) return { error: 'No repo path' }
+  return gitExec(repoPath, 'add -A')
+})
+
+ipcMain.handle('git:discardFile', async (_, repoPath, filePath) => {
+  if (!repoPath || !filePath) return { error: 'Missing arguments' }
+  // For untracked files, remove them; for tracked, restore
+  const statusResult = await gitExec(repoPath, `status --porcelain -- "${filePath}"`)
+  if (statusResult.error) return statusResult
+  const line = (statusResult.stdout || '').trim()
+  if (line.startsWith('??')) {
+    const fullPath = path.join(repoPath, filePath)
+    try { require('fs').unlinkSync(fullPath) } catch {}
+    return { ok: true, stdout: '' }
+  }
+  return gitExec(repoPath, `restore -- "${filePath}"`)
+})
+
+ipcMain.handle('git:pull', async (_, repoPath) => {
+  if (!repoPath) return { error: 'No repo path' }
+  return gitExec(repoPath, 'pull')
+})
+
+ipcMain.handle('git:push', async (_, repoPath) => {
+  if (!repoPath) return { error: 'No repo path' }
+  return gitExec(repoPath, 'push')
+})
+
+ipcMain.handle('git:log', async (_, repoPath, limit = 20) => {
+  if (!repoPath) return { error: 'No repo path' }
+  const result = await gitExec(repoPath, `log --oneline -${limit} --format=%H|%s|%an|%ar`)
+  if (result.error) return result
+  const commits = result.stdout.split('\n').filter(Boolean).map(line => {
+    const [hash, message, author, time] = line.split('|')
+    return { hash: (hash || '').slice(0, 7), fullHash: hash || '', message: message || '', author: author || '', time: time || '' }
+  })
+  return { commits }
+})
+
+ipcMain.handle('git:branches', async (_, repoPath) => {
+  if (!repoPath) return { error: 'No repo path' }
+  const result = await gitExec(repoPath, 'branch -a')
+  if (result.error) return result
+  const branches = result.stdout.split('\n').filter(Boolean).map(b => {
+    const current = b.startsWith('*')
+    const name = b.replace(/^\*?\s+/, '').trim()
+    return { name, current }
+  })
+  return { branches }
+})
+
+ipcMain.handle('git:checkout', async (_, repoPath, branch) => {
+  if (!repoPath || !branch) return { error: 'Missing arguments' }
+  return gitExec(repoPath, `checkout "${branch}"`)
+})
+
+ipcMain.handle('git:diff', async (_, repoPath, filePath) => {
+  if (!repoPath) return { error: 'No repo path' }
+  const target = filePath ? `-- "${filePath}"` : ''
+  const result = await gitExec(repoPath, `diff HEAD ${target}`)
+  return result
 })
 
 app.whenReady().then(() => {

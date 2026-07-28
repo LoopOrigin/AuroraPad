@@ -38,108 +38,211 @@
       @preferences="openPreferences"
     />
     <div class="app-body">
-    <aside class="sidebar" :class="{ collapsed: !settingsStore.sidebarVisible }">
-      <FileTree
-        @open-file="openFileByPath"
-        @move-entry="moveRemoteEntry"
-      />
-      <div class="sidebar-section-title">
-        <span>Recent</span>
-        <button v-if="settingsStore.recentFiles.length" type="button" @click="clearRecent">Clear</button>
-      </div>
-      <ul class="recent-files-list">
-        <li
-          v-for="path in settingsStore.recentFiles.slice(0, 10)"
-          :key="path"
-          :title="path"
-          @click="openFileByPath(path)"
-        >
-          {{ path.split(/[/\\]/).pop() }}
-        </li>
-        <li v-if="!settingsStore.recentFiles.length" class="recent-files-empty">
-          Recently opened files will appear here.
-        </li>
-      </ul>
-    </aside>
-    <div class="editor-area">
-      <TabBar />
-      <div class="editor-container" :class="{ 'editor-container-split': splitViewEnabled }">
-        <template v-if="tabsStore.activeTab">
-          <div class="editor-pane primary-pane">
-            <div
-              :data-tab-id="primaryTab?.id"
-              class="monaco-editor-wrapper"
-            >
-              <MonacoEditor
-                ref="monacoEditorRef"
-                :model-value="primaryTab?.content || ''"
-                :language="primaryTab?.language || 'plaintext'"
-                :theme="monacoTheme"
-                :word-wrap="settingsStore.wordWrap"
-                :line-numbers="settingsStore.lineNumbers"
-                :font-size="settingsStore.fontSize"
-                :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
-                :highlight-current-line="settingsStore.highlightCurrentLine"
-                :bookmarks="primaryTab?.bookmarks || []"
-                :show-minimap="settingsStore.showMinimap"
-                @update:model-value="val => onEditorContentChange('primary', val)"
-                @cursor-change="pos => onCursorChange('primary', pos)"
-              />
+    <nav class="activity-bar" aria-label="Activity bar">
+
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'editor' && settingsStore.activeSidePanel === 'explorer' && settingsStore.sidebarVisible }"
+        title="Explorer (Ctrl+B)"
+        @click="activateExplorer"
+      >
+        <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'editor' && settingsStore.activeSidePanel === 'search' && settingsStore.sidebarVisible }"
+        title="Search (Ctrl+Shift+F)"
+        @click="activateSearch"
+      >
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'editor' && settingsStore.activeSidePanel === 'git' && settingsStore.sidebarVisible }"
+        title="Source Control"
+        @click="activateGit"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M11.75 2.5a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0zm.75 3c-.98 0-1.81.626-2.12 1.5H7.93A2.5 2.5 0 0 0 5.5 9.25v1.5a.75.75 0 0 0 1.5 0v-1.5a1 1 0 0 1 1-1h2.37c.31.874 1.14 1.5 2.12 1.5a2.25 2.25 0 0 0 0-4.5zM2.75 5.5a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0zm.75 2.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5z"/>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'connections' }"
+        title="SSH Connections"
+        @click="settingsStore.setActiveScreen('connections'); loadRemoteProfiles()"
+      >
+        <i class="fa-solid fa-server" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'sftp' }"
+        title="SFTP File Manager"
+        @click="settingsStore.setActiveScreen('sftp')"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M7 16V8m0 0l-3 3m3-3 3 3M17 8v8m0 0 3-3m-3 3-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': showTerminal }"
+        title="Terminal (Ctrl+`)"
+        @click="openTerminalPanel"
+      >
+        <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+      </button>
+      <div class="activity-bar-spacer"></div>
+      <button
+        type="button"
+        class="activity-bar-btn"
+        :class="{ 'is-active': settingsStore.activeScreen === 'settings' }"
+        title="Settings"
+        @click="settingsStore.setActiveScreen('settings')"
+      >
+        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+      </button>
+    </nav>
+
+    <!-- main-content: screens column + terminal dock at bottom -->
+    <div class="main-content">
+      <div class="screen-area">
+        <!-- Non-editor screens — kept mounted (v-show) for state persistence -->
+        <ConnectionsScreen
+          v-show="settingsStore.activeScreen === 'connections'"
+          :profiles="remoteProfiles"
+          :loading="connectionsLoading"
+          :active-connection-id="fileTreeStore.remoteConnection?.profileId || ''"
+          :connecting-id="connectingProfileId"
+          @new-connection="openNewConnectionModal(null)"
+          @connect="connectRemoteProfile"
+          @edit="openNewConnectionModal"
+          @delete="requestDeleteRemoteProfile"
+        />
+        <SftpScreen
+          v-show="settingsStore.activeScreen === 'sftp'"
+          :sessions="sftpSessions"
+          @disconnect-session="onSftpSessionDisconnect"
+          @new-session="settingsStore.setActiveScreen('connections'); loadRemoteProfiles()"
+          @open-in-editor="openFileByPath"
+          @open-ssh-terminal="onSftpOpenSshTerminal"
+        />
+        <SettingsScreen
+          v-show="settingsStore.activeScreen === 'settings'"
+          @go-connections="settingsStore.setActiveScreen('connections')"
+        />
+
+        <!-- Editor screen: kept mounted (v-show) for Monaco state -->
+        <div class="editor-screen" v-show="settingsStore.activeScreen === 'editor'">
+          <aside class="sidebar" :class="{ collapsed: !settingsStore.sidebarVisible }">
+            <template v-if="settingsStore.activeSidePanel === 'explorer'">
+              <FileTree @open-file="openFileByPath" @move-entry="moveRemoteEntry" />
+              <div class="sidebar-section-title">
+                <span>Recent</span>
+                <button v-if="settingsStore.recentFiles.length" type="button" @click="clearRecent">Clear</button>
+              </div>
+              <ul class="recent-files-list">
+                <li v-for="path in settingsStore.recentFiles.slice(0, 10)" :key="path" :title="path" @click="openFileByPath(path)">
+                  {{ path.split(/[/\\]/).pop() }}
+                </li>
+                <li v-if="!settingsStore.recentFiles.length" class="recent-files-empty">Recently opened files will appear here.</li>
+              </ul>
+            </template>
+            <SearchPanel v-else-if="settingsStore.activeSidePanel === 'search'" @open-result="openFindInFilesResult" />
+            <GitPanel v-else-if="settingsStore.activeSidePanel === 'git'" @open-file="openFileByPath" />
+          </aside>
+          <div class="editor-area">
+            <TabBar />
+            <div v-if="tabsStore.activeTab" class="breadcrumb-row" aria-label="File path">
+              <template v-for="(seg, idx) in activeBreadcrumbs" :key="idx">
+                <span v-if="idx > 0" class="breadcrumb-sep">›</span>
+                <span :class="['breadcrumb-segment', idx === activeBreadcrumbs.length - 1 ? 'current' : '']">{{ seg }}</span>
+              </template>
             </div>
-          </div>
-          <div v-if="splitViewEnabled" class="editor-pane secondary-pane">
-            <div
-              :data-tab-id="(secondaryTab || primaryTab)?.id + '-secondary'"
-              class="monaco-editor-wrapper"
-            >
-              <MonacoEditor
-                ref="monacoEditorSecondaryRef"
-                :model-value="(secondaryTab || primaryTab)?.content || ''"
-                :language="(secondaryTab || primaryTab)?.language || 'plaintext'"
-                :theme="monacoTheme"
-                :word-wrap="settingsStore.wordWrap"
-                :line-numbers="settingsStore.lineNumbers"
-                :font-size="settingsStore.fontSize"
-                :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
-                :highlight-current-line="settingsStore.highlightCurrentLine"
-                :bookmarks="(secondaryTab || primaryTab)?.bookmarks || []"
-                :show-minimap="settingsStore.showMinimap"
-                @update:model-value="val => onEditorContentChange('secondary', val)"
-              />
+            <div class="editor-container" :class="{ 'editor-container-split': splitViewEnabled }">
+              <template v-if="tabsStore.activeTab">
+                <div class="editor-pane primary-pane">
+                  <div :data-tab-id="primaryTab?.id" class="monaco-editor-wrapper">
+                    <MonacoEditor
+                      ref="monacoEditorRef"
+                      :model-value="primaryTab?.content || ''"
+                      :language="primaryTab?.language || 'plaintext'"
+                      :theme="monacoTheme"
+                      :word-wrap="settingsStore.wordWrap"
+                      :line-numbers="settingsStore.lineNumbers"
+                      :font-size="settingsStore.fontSize"
+                      :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
+                      :highlight-current-line="settingsStore.highlightCurrentLine"
+                      :bookmarks="primaryTab?.bookmarks || []"
+                      :show-minimap="settingsStore.showMinimap"
+                      @update:model-value="val => onEditorContentChange('primary', val)"
+                      @cursor-change="pos => onCursorChange('primary', pos)"
+                    />
+                  </div>
+                </div>
+                <div v-if="splitViewEnabled" class="editor-pane secondary-pane">
+                  <div :data-tab-id="(secondaryTab || primaryTab)?.id + '-secondary'" class="monaco-editor-wrapper">
+                    <MonacoEditor
+                      ref="monacoEditorSecondaryRef"
+                      :model-value="(secondaryTab || primaryTab)?.content || ''"
+                      :language="(secondaryTab || primaryTab)?.language || 'plaintext'"
+                      :theme="monacoTheme"
+                      :word-wrap="settingsStore.wordWrap"
+                      :line-numbers="settingsStore.lineNumbers"
+                      :font-size="settingsStore.fontSize"
+                      :render-whitespace="settingsStore.showWhitespace ? 'all' : 'none'"
+                      :highlight-current-line="settingsStore.highlightCurrentLine"
+                      :bookmarks="(secondaryTab || primaryTab)?.bookmarks || []"
+                      :show-minimap="settingsStore.showMinimap"
+                      @update:model-value="val => onEditorContentChange('secondary', val)"
+                    />
+                  </div>
+                </div>
+              </template>
+              <div v-else class="empty-state">
+                <div class="empty-state-badge">AuroraPad</div>
+                <h2>No file open</h2>
+                <p>Open a file, load a folder, or start a scratch note.</p>
+                <div class="empty-state-platform">
+                  <span>{{ platformInfo.revealInFolderLabel }}</span>
+                  <span>{{ platformInfo.terminalAppLabel }}</span>
+                  <span>{{ platformInfo.platform }}</span>
+                </div>
+                <div class="empty-state-actions">
+                  <button type="button" @click="menuOpenFile">Open File</button>
+                  <button type="button" @click="menuOpenFolder">Open Folder</button>
+                  <button type="button" class="secondary" @click="menuNew">New File</button>
+                </div>
+                <div class="empty-state-tips">
+                  <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+P</kbd> Command Palette</span>
+                  <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+Shift+F</kbd> Find in Files</span>
+                </div>
+              </div>
             </div>
+            <StatusBar
+              v-if="settingsStore.statusBarVisible"
+              :active-screen="settingsStore.activeScreen"
+              @go-to-line="handleMenu('menu:go-to-line')"
+              @go-sftp="settingsStore.setActiveScreen('sftp')"
+            />
           </div>
-        </template>
-        <div v-else class="empty-state">
-          <div class="empty-state-badge">AuroraPad</div>
-          <h2>No file open</h2>
-          <p>Open a file, load a folder, or start a scratch note.</p>
-          <div class="empty-state-platform">
-            <span>{{ platformInfo.revealInFolderLabel }}</span>
-            <span>{{ platformInfo.terminalAppLabel }}</span>
-            <span>{{ platformInfo.platform }}</span>
-          </div>
-          <div class="empty-state-actions">
-            <button type="button" @click="menuOpenFile">Open File</button>
-            <button type="button" @click="menuOpenFolder">Open Folder</button>
-            <button type="button" class="secondary" @click="menuNew">New File</button>
-          </div>
-          <div class="empty-state-tips">
-            <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+P</kbd> Command Palette</span>
-            <span><kbd>{{ isMacPlatform ? 'Cmd' : 'Ctrl' }}+Shift+F</kbd> Find in Files</span>
-          </div>
-        </div>
-      </div>
-      <StatusBar
-        v-if="settingsStore.statusBarVisible"
-        @go-to-line="handleMenu('menu:go-to-line')"
-      />
+        </div><!-- end editor-screen -->
+      </div><!-- end screen-area -->
+
+      <!-- Terminal dock — visible on ALL screens, pinned to bottom -->
       <TerminalDock
         v-if="showTerminal"
         ref="terminalDockRef"
         :platform-info="platformInfo"
         @close="showTerminal = false"
       />
-    </div>
+    </div><!-- end main-content -->
     </div>
     <v-dialog v-model="showPluginManager" max-width="760">
       <v-card class="aurora-dialog">
@@ -431,6 +534,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <NewConnectionModal
+      v-model="showNewConnectionModal"
+      :edit-profile="editingProfile"
+      :keychain-available="keychainAvailable"
+      @saved="onConnectionSaved"
+      @connected="onConnectionConnected"
+    />
     <CommandPalette
       v-if="showCommandPalette"
       :recent-only="commandPaletteRecentOnly"
@@ -500,6 +610,12 @@ import Toolbar from './components/Toolbar.vue'
 import MenuBar from './components/MenuBar.vue'
 import FindInFiles from './components/FindInFiles.vue'
 import TerminalDock from './components/TerminalDock.vue'
+import ConnectionsScreen from './components/screens/ConnectionsScreen.vue'
+import SftpScreen from './components/screens/SftpScreen.vue'
+import SettingsScreen from './components/screens/SettingsScreen.vue'
+import SearchPanel from './components/sidebar/SearchPanel.vue'
+import GitPanel from './components/sidebar/GitPanel.vue'
+import NewConnectionModal from './components/modals/NewConnectionModal.vue'
 
 const tabsStore = useTabsStore()
 const settingsStore = useSettingsStore()
@@ -535,9 +651,21 @@ const remoteAuthOptions = [
 const remoteForm = ref(createRemoteProfileForm())
 const pendingDeleteRemoteProfile = ref(null)
 const remoteConnectionTestBusy = ref(false)
+const showNewConnectionModal = ref(false)
+const editingProfile = ref(null)
+const sftpSessions = ref([]) // [{connectionId, profileId, host, username, name, rootPath, ...}]
+const connectionsLoading = ref(false)
+const connectingProfileId = ref('')
 let autoSaveInterval = null
 
 const primaryTab = computed(() => tabsStore.activeTab)
+
+const activeBreadcrumbs = computed(() => {
+  const tab = tabsStore.activeTab
+  if (!tab) return []
+  const path = tab.path || tab.name || ''
+  return path.split(/[/\\]/).filter(Boolean)
+})
 
 const activeTabEolMode = computed(() => {
   const tab = tabsStore.activeTab
@@ -826,31 +954,45 @@ async function confirmDeleteRemoteProfile() {
 
 async function connectRemoteProfile(profile) {
   if (!window.electronAPI?.remoteConnect) return
-  let result = await window.electronAPI.remoteConnect(profile.id, {})
-  if (result?.code === 'SECRET_REQUIRED') {
-    const promptLabel = result.secretType === 'passphrase' ? 'passphrase' : 'password'
-    const secretValue = prompt(`Enter ${promptLabel} for ${profile.name}:`, '')
-    if (!secretValue) return
-    const secretInput = result.secretType === 'passphrase'
-      ? { passphrase: secretValue }
-      : { password: secretValue, passphrase: secretValue }
-    result = await window.electronAPI.remoteConnect(profile.id, secretInput)
+  connectionsLoading.value = true
+  connectingProfileId.value = profile.id
+  try {
+    let result = await window.electronAPI.remoteConnect(profile.id, {})
+    if (result?.code === 'SECRET_REQUIRED') {
+      connectionsLoading.value = false
+      const promptLabel = result.secretType === 'passphrase' ? 'passphrase' : 'password'
+      const secretValue = prompt(`Enter ${promptLabel} for ${profile.name}:`, '')
+      if (!secretValue) { connectingProfileId.value = ''; return }
+      connectionsLoading.value = true
+      const secretInput = result.secretType === 'passphrase'
+        ? { passphrase: secretValue }
+        : { password: secretValue, passphrase: secretValue }
+      result = await window.electronAPI.remoteConnect(profile.id, secretInput)
+    }
+    if (result?.error) {
+      alert(`Failed to connect: ${result.error}`)
+      return
+    }
+    fileTreeStore.setRemoteWorkspace(result.connection)
+    const treeLoad = await fileTreeStore.loadTree(result.connection.rootPath || '/')
+    if (treeLoad?.error) {
+      await window.electronAPI?.remoteDisconnect?.(result.connection.connectionId)
+      fileTreeStore.clearRemoteWorkspace()
+      alert(`Connected to ${profile.name}, but AuroraPad could not open the initial remote directory.\n\n${treeLoad.error}\n\nTry editing the profile's Default Remote Root or reconnecting.`)
+      return
+    }
+    // Add to SFTP sessions (avoid duplicates)
+    const conn = { ...result.connection, name: profile.name || profile.host }
+    if (!sftpSessions.value.find(s => s.connectionId === conn.connectionId)) {
+      sftpSessions.value.push(conn)
+    }
+    settingsStore.setSidebarVisible(true)
+    settingsStore.setActiveScreen('sftp')
+    showRemoteManager.value = false
+  } finally {
+    connectionsLoading.value = false
+    connectingProfileId.value = ''
   }
-  if (result?.error) {
-    alert(`Failed to connect: ${result.error}`)
-    return
-  }
-
-  fileTreeStore.setRemoteWorkspace(result.connection)
-  const treeLoad = await fileTreeStore.loadTree(result.connection.rootPath || '/')
-  if (treeLoad?.error) {
-    await window.electronAPI?.remoteDisconnect?.(result.connection.connectionId)
-    fileTreeStore.clearRemoteWorkspace()
-    alert(`Connected to ${profile.name}, but AuroraPad could not open the initial remote directory.\n\n${treeLoad.error}\n\nTry editing the profile's Default Remote Root or reconnecting.`)
-    return
-  }
-  settingsStore.setSidebarVisible(true)
-  showRemoteManager.value = false
 }
 
 async function disconnectRemoteWorkspace() {
@@ -862,6 +1004,59 @@ async function disconnectRemoteWorkspace() {
   const remoteTabs = tabsStore.tabs.filter(tab => isRemoteTab(tab))
   remoteTabs.forEach(tab => tabsStore.closeTab(tab.id))
   fileTreeStore.clearRemoteWorkspace()
+}
+
+function openTerminalPanel() {
+  showTerminal.value = !showTerminal.value
+  if (showTerminal.value) setTimeout(() => terminalDockRef.value?.focus?.(), 100)
+}
+
+function onSftpSessionDisconnect(session) {
+  sftpSessions.value = sftpSessions.value.filter(s => s.connectionId !== session.connectionId)
+  window.electronAPI?.remoteDisconnect?.(session.connectionId)
+  if (fileTreeStore.remoteConnection?.connectionId === session.connectionId) {
+    const remoteTabs = tabsStore.tabs.filter(tab => tab.remote?.connectionId === session.connectionId)
+    remoteTabs.forEach(tab => tabsStore.closeTab(tab.id))
+    fileTreeStore.clearRemoteWorkspace()
+  }
+}
+
+function activateExplorer() {
+  settingsStore.setActiveScreen('editor')
+  settingsStore.setActiveSidePanel('explorer')
+  settingsStore.setSidebarVisible(true)
+}
+
+function activateSearch() {
+  settingsStore.setActiveScreen('editor')
+  settingsStore.setActiveSidePanel('search')
+  settingsStore.setSidebarVisible(true)
+}
+
+function activateGit() {
+  settingsStore.setActiveScreen('editor')
+  settingsStore.setActiveSidePanel('git')
+  settingsStore.setSidebarVisible(true)
+}
+
+function openNewConnectionModal(profile = null) {
+  editingProfile.value = profile || null
+  showNewConnectionModal.value = true
+}
+
+async function onConnectionSaved(profile) {
+  await loadRemoteProfiles()
+}
+
+async function onConnectionConnected(result) {
+  fileTreeStore.setRemoteWorkspace(result.connection)
+  await fileTreeStore.loadTree(result.connection.rootPath || '/')
+  const conn = { ...result.connection, name: result.connection.host }
+  if (!sftpSessions.value.find(s => s.connectionId === conn.connectionId)) {
+    sftpSessions.value.push(conn)
+  }
+  settingsStore.setSidebarVisible(true)
+  settingsStore.setActiveScreen('sftp')
 }
 
 async function openRemoteManager(presetProtocol = '') {
@@ -905,6 +1100,18 @@ async function openRemoteSshTerminal() {
   setTimeout(() => {
     terminalDockRef.value?.newSession?.(result.shell, result.cwd || cwd, { title: result.title || 'SSH Session' })
   }, 100)
+}
+
+async function onSftpOpenSshTerminal(session) {
+  if (!session?.connectionId || !window.electronAPI?.remoteOpenSshTerminal) return
+  const result = await window.electronAPI.remoteOpenSshTerminal(session.connectionId, session.rootPath || '/')
+  if (result?.error) {
+    alert(`Unable to open SSH terminal: ${result.error}`)
+    return
+  }
+  showTerminal.value = true
+  await new Promise(r => setTimeout(r, 100))
+  terminalDockRef.value?.newSession?.(result.shell, result.cwd || '/', { title: result.title || `SSH • ${session.name || session.host}` })
 }
 
 async function moveRemoteEntry(payload) {
@@ -1983,7 +2190,7 @@ function onMenuBarAction(action, item) {
     return true
   }
   if (action === 'menu:preferences') {
-    showPreferences.value = true
+    settingsStore.setActiveScreen('settings')
     return true
   }
   if (action === 'menu:exit') {
@@ -2040,19 +2247,23 @@ async function handleMenu(channel, ...args) {
       menuOpenFolder()
       break
     case 'menu:connect-server':
-      openRemoteManager()
+      settingsStore.setActiveScreen('connections')
+      loadRemoteProfiles()
       break
     case 'menu:remote-manager':
-      openRemoteManager()
+      settingsStore.setActiveScreen('connections')
+      loadRemoteProfiles()
       break
     case 'menu:remote-new-sftp':
-      openRemoteManager('sftp')
+      settingsStore.setActiveScreen('connections')
+      openNewConnectionModal(null)
       break
     case 'menu:remote-new-ftp':
-      openRemoteManager('ftp')
+      settingsStore.setActiveScreen('connections')
+      openNewConnectionModal(null)
       break
     case 'menu:remote-new-ftps':
-      openRemoteManager('ftps')
+      settingsStore.setActiveScreen('connections')
       break
     case 'menu:remote-import':
       showRemoteManager.value = true
@@ -2127,7 +2338,7 @@ async function handleMenu(channel, ...args) {
         alert('Find in Files is currently available for local workspaces only.')
         break
       }
-      showFindInFiles.value = true
+      activateSearch()
       break
     case 'menu:open-recent-dialog':
       commandPaletteRecentOnly.value = true
@@ -2257,7 +2468,7 @@ async function handleMenu(channel, ...args) {
       showPluginManager.value = true
       break
     case 'menu:preferences':
-      showPreferences.value = true
+      settingsStore.setActiveScreen('settings')
       break
     case 'menu:reload-from-disk':
       reloadFromDisk()
@@ -2655,7 +2866,7 @@ async function openPluginsFolder() {
 }
 
 function openPreferences() {
-  showPreferences.value = true
+  settingsStore.setActiveScreen('settings')
 }
 
 async function runHashTool(action) {

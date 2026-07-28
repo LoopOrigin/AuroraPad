@@ -84,6 +84,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
   remoteStopPortForward: (connectionId, localPort) => ipcRenderer.invoke('remote:stopPortForward', connectionId, localPort),
   remoteListPortForwards: (connectionId) => ipcRenderer.invoke('remote:listPortForwards', connectionId),
 
+  // Git
+  gitGetStatus: (repoPath) => ipcRenderer.invoke('git:getStatus', repoPath),
+  gitStageFile: (repoPath, filePath) => ipcRenderer.invoke('git:stageFile', repoPath, filePath),
+  gitUnstageFile: (repoPath, filePath) => ipcRenderer.invoke('git:unstageFile', repoPath, filePath),
+  gitStageAll: (repoPath) => ipcRenderer.invoke('git:stageAll', repoPath),
+  gitDiscardFile: (repoPath, filePath) => ipcRenderer.invoke('git:discardFile', repoPath, filePath),
+  gitCommit: (repoPath, message) => ipcRenderer.invoke('git:commit', repoPath, message),
+  gitPull: (repoPath) => ipcRenderer.invoke('git:pull', repoPath),
+  gitPush: (repoPath) => ipcRenderer.invoke('git:push', repoPath),
+  gitLog: (repoPath, limit) => ipcRenderer.invoke('git:log', repoPath, limit),
+  gitBranches: (repoPath) => ipcRenderer.invoke('git:branches', repoPath),
+  gitCheckout: (repoPath, branch) => ipcRenderer.invoke('git:checkout', repoPath, branch),
+  gitDiff: (repoPath, filePath) => ipcRenderer.invoke('git:diff', repoPath, filePath),
+
   // Tools / Run
   getHash: (algorithm, text) => ipcRenderer.invoke('tools:getHash', algorithm, text),
   runCommand: (command, cwd) => ipcRenderer.invoke('run:command', command, cwd),

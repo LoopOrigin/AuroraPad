@@ -1,15 +1,15 @@
-# Graph Report - /Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad  (2026-07-20)
+# Graph Report - /Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad  (2026-07-28)
 
 ## Corpus Check
 - cluster-only mode — file stats not available
 
 ## Summary
-- 10195 nodes · 29071 edges · 391 communities (332 shown, 59 thin omitted)
+- 10253 nodes · 29116 edges · 383 communities (331 shown, 52 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 1220 edges (avg confidence: 0.52)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `39325766`
+- Built from commit: `c3a836a9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,365 +18,354 @@
 - css.worker.bundle.js
 - json.worker.bundle.js
 - html.worker.bundle.js
-- getDirectoryPath
 - DoNMQGcP.js
 - DoNMQGcP.js
-- editor.worker.bundle.js
-- createProgram
-- push
-- .push
-- some
 - get
+- editor.worker.bundle.js
+- getDirectoryPath
 - push
+- startsWith
+- .getText
+- .push
+- .push
+- createProgram
 - .setNode
-- .getText
+- isString2
+- push
 - computeUnchangedMoves
-- .add
-- registerCodeFix
-- isArray
-- fileExtensionIs
-- find
+- split
+- ie
 - CHV4pif9.js
-- App.vue
-- CHV4pif9.js
-- ComputeDiff
-- n
-- getAllRules
-- addRange
-- .beautify
+- push
 - .getText
+- CHV4pif9.js
+- n
+- App.vue
+- ComputeDiff
+- .beautify
+- createBuilderProgramUsingProgramBuildInfo
+- constructor
+- fileExtensionIs
+- .item
+- LESSParser2
 - JSONCompletion2
 - event
-- ie
-- al
-- push
-- Pa
-- JSONSchemaService2
-- .push
+- hasProperty
+- Dt-JubDU.js
 - .positionAt
-- n
+- JSONSchemaService2
 - Dt-JubDU.js
-- Dt-JubDU.js
-- getSignatureHelpItems
-- .has
-- Pa
 - .replace
-- every
-- skipTrivia
-- r
-- .replace
-- ComputeDiff
-- Parser2
-- constructor
-- index.js
-- InputScanner
-- .create
-- value
-- .offsetAt
-- dependencies
-- Ge
-- WebsiteApp.vue
-- join
-- RemoteConnectionManager
-- computeUnchangedMoves
-- join
-- isSourceFile
-- TerminalDock.vue
-- Node22
-- Output
-- BWdvOWGK.js
-- Scanner2
-- constructor
-- computeUnicodeHighlights
-- "src/services/codefixes/fixAddMissingMember.ts"
-- transformCallbackArgument
-- handleMenu
-- InputScanner
-- computeUnicodeHighlights
-- isPropertyAccessExpression
-- getEmitScriptTarget
-- StatusBar.vue
-- .peek
-- formatIdentifierWorker
-- getEmitFlags
-- join
-- isClassLike
-- getEmitModuleKind
-- cast
-- getLocaleSpecificMessage
-- ConsentBanner.vue
+- update
+- X
 - .substring
-- addNewNodeForMemberSymbol
+- RemoteConnectionManager
+- _format2
+- dispose
+- index.js
+- Pa
+- join
+- .finish
+- isExportsOrModuleExportsOrAlias
+- add
+- .test
+- value
+- getDefinitionAtPosition
+- Marker2
+- dependencies
+- Pa
+- WebsiteApp.vue
+- InputScanner
+- registerCodeFix
+- .get
+- ComputeDiff
+- event
+- computeUnicodeHighlights
+- handleMenu
+- TerminalDock.vue
+- Output
+- constructor
+- isIdentifier
+- InputScanner
+- join
+- tryCast
+- "src/compiler/visitorPublic.ts"
+- Scanner2
+- SCSSParser2
+- with
+- toString
+- breakIntoSpans
+- computeUnchangedMoves
+- isParameter
+- compareValues
+- getAllRules
+- Node22
+- join
+- constructor
+- every
+- getFirstJSDocTag
+- ConsentBanner.vue
+- .accept
+- StatusBar.vue
 - index.js
 - BWdvOWGK.js
-- _assertIndex
-- renameCollidingVarNames
-- "src/compiler/visitorPublic.ts"
-- getTokenAtPosition
-- isModuleDeclaration
-- isIdentifier
-- constructor
-- createGetSymbolAccessibilityDiagnosticForNode
-- isConstructorDeclaration
-- getFunctionOrClassName
-- flattenDestructuringBinding
-- "src/compiler/parser.ts"
-- build
-- CommandPalette.vue
-- FileTreeFolder.vue
-- WALKTRACE
-- getNodeKind
-- isJSDoc
-- isVariableStatement
 - get
-- WALKTRACE
-- dispose
-- suppressLeadingAndTrailingTrivia
-- isBinaryExpression
-- getText
-- WALKTRACE
-- isBindingElement
-- TemplatablePattern
+- organizeImports
+- transformCallbackArgument
+- CommandPalette.vue
+- remote-manager.test.js
+- computeUnicodeHighlights
+- isVariableDeclaration
+- computeSuggestionDiagnostics
+- devDependencies
 - constructor
-- getContextualType
-- updateReadonlyPropertyInitializerStatementConstructor
+- isPrivateIdentifier
+- last
 - df
+- accessKind
+- getTokenAtPosition
+- createGetSymbolAccessibilityDiagnosticForNode
+- "src/compiler/parser.ts"
+- al
+- r
+- WALKTRACE
+- WALKTRACE
+- getRangeOfEnclosingComment
+- getEmitScriptTarget
+- BWdvOWGK.js
+- computeColors
+- build
+- al
+- toString
+- createTextSpan
+- getAdjustedLocation
+- isClassLike
+- fire
+- mapDefined
+- "src/services/codefixes/disableJsDiagnostics.ts"
+- createCompletionEntry
+- FindReplaceBar.vue
+- textSpanEnd
+- getText
+- isPropertyAccessExpression
+- isSourceFile
+- getContextualType
 - CSSDataManager2
 - get
-- getEffectiveModifierFlags
-- getOrCreateEmitNode
-- collectExternalModuleInfo
-- isVariableDeclaration
-- identifierToKeywordKind
-- slice
-- WALKTRACE
-- WALKTRACE
-- addChildrenRecursively
-- generateAccessorFromProperty
-- setTextRange
-- definitionToReferencedSymbolDefinitionInfo
-- lu
-- computeUnicodeHighlights
-- compareValues
-- getSymbolDisplayPartsDocumentationAndSymbolKind
-- registerRefactor
-- devDependencies
-- je
-- lu
-- isJsxOpeningLikeElement
-- getAdjustedLocation
-- MenuBar.vue
-- .has
-- MultiLineStream2
-- doChange24
-- getCompletionData
-- completionInfoFromData
-- isTypeNode
-- getRangeToExtract
-- getAssignmentDeclarationKindWorker
-- getFirstJSDocTag
-- scripts
-- FindInFiles.vue
-- FindReplaceBar.vue
-- fire
-- get
-- getSourceFileOfNode
-- tryCast
-- coalesceImportsWorker
-- concatConsecutiveString
-- isExpression
-- fire
-- isFunctionLike
-- package.json
-- getContainingNodeArray
-- findChildOfKind
-- getAdjustedStartPosition
-- toString
-- isInString
-- computeColors
-- getDefinitionAtPosition
+- getLocaleSpecificMessage
+- find
+- getRefactorActionsToExtractSymbol
+- flattenDestructuringBinding
+- isNamedImports
+- isStringOrNumericLiteralLike
 - createCallHierarchyItem
-- getInfo5
-- doAddOverrideModifierChange
+- .replace
+- WALKTRACE
+- WALKTRACE
+- getOrCreateEmitNode
+- positionsAreOnSameLine
+- some
+- isExpression
+- getCallHierarchyItemName
+- getAssignmentDeclarationKindWorker
+- ie
+- lu
+- _format2
+- isBinaryExpression
+- isParenthesizedExpression
+- scripts
+- n
+- slice
+- isObjectLiteralExpression
+- getSmartSelectionRange
+- getRequiresAtTopOfFile
+- isStringLiteralLike
+- MenuBar.vue
 - canHaveModifiers
-- convertSingleIdentifierImport
+- getEnd
+- skipTrivia
+- getTypescriptKeywordCompletions
+- findImplementation
+- displayPart
+- registerRefactor
+- getFunctionDeclarationAtPosition
+- isTypeNode
+- package.json
+- FindInFiles.vue
 - initialize
-- createCompletionEntry
-- createNewArgument
-- formatSpan
-- createScanner
-- hasSyntacticModifier
-- .doValidation
+- fire
+- getEffectiveTypeParameterDeclarations
+- getJSDocCommentsAndTags
+- computeColors
+- getContainingNodeArray
+- MultiLineStream2
 - isExpressionStatement
-- textSpanEnd
-- eachUnreachableRange
+- getNodeId
+- getJSDocModifierFlagsNoCache
+- contains
+- getNonDecoratorTokenPosOfNode
+- TabBar.vue
+- addConvertToAsyncFunctionDiagnostics
+- "src/services/codefixes/fixAddMissingMember.ts"
+- getEffectiveModifierFlags
+- compute
+- getCompletionEntryCodeActionsAndSourceDisplay
+- definitionToReferencedSymbolDefinitionInfo
+- isStatement
+- formatSpan
+- getEmitModuleKind
+- FileTreeFolder.vue
+- hasEffectiveModifier
+- .doValidation
+- addChildrenRecursively
+- doAddExistingFix
+- addNewNodeForMemberSymbol
+- createTypeChecker
+- getDefinitionFromOverriddenMember
+- idText
 - update
-- newCaseClauseTracker
-- isExpressionNode
-- je
+- computeLineOfPosition
+- setTextRange
+- getFixesInfoForNonUMDImport
+- sd
+- createFromDiffResult
 - MultiLineStream2
 - createFromDiffResult
-- .computeCompletions
-- createFromDiffResult
-- computeColors
-- createFromDiffResult
-- isQualifiedName
-- getLineAndCharacterOfPosition
-- getRangeOfEnclosingComment
-- isStringLiteralLike
-- isStatement
-- nodeIsASICandidate
-- run-electron-builder.js
-- computeColors
-- dispose
-- flattenDestructuringAssignment
+- .offsetAt
 - isLineBreak
-- breakIntoSpans
-- matchTextChunk
-- getDecorators
-- extractFunctionInScope
-- createTypeChecker
-- isRequireCall
-- getCompletionEntryDetails
-- displayPart
-- computeColors
-- initialize
-- doAddExistingFix
-- getEnd
-- contains
+- createFromDiffResult
+- getNameOfDeclaration
+- getSymbolDisplayPartsDocumentationAndSymbolKind
+- getAdjustedStartPosition
 - isPrologueDirective
-- isStringLiteral
-- getJSDocReturnType
-- ie
-- security-scan.js
-- Marker2
-- createWriter
+- getEffectiveJSDocHost
+- run-electron-builder.js
+- createNewParameters
+- createDeprecation
+- optionsHaveChanges
+- getDocumentationComment
+- copyComments
+- getCompletionEntryDetails
+- flattenDestructuringAssignment
+- isVariableDeclarationList
+- getTokenPosOfNode
+- computeColors
+- createExternalHelpersImportDeclarationIfNeeded
+- getRangeToExtract2
+- doAddOverrideModifierChange
+- findPrecedingToken
 - getStringLiteralCompletions
-- findTokenOnLeftOfPosition
-- computeLineOfPosition
-- identity
-- insertImports
-- getStringLiteralCompletionEntries
-- isAssignmentExpression
-- mapToDisplayParts
-- getWordAtText
-- findNode
-- addEs6Export
-- getInfo7
-- getJSDocModifierFlagsNoCache
+- getLineAndCharacterOfPosition
+- extractFunctionInScope
+- isWhiteSpaceOnlyJsxText
+- hasSyntacticModifier
+- isStringLiteral
+- security-scan.js
+- isWhiteSpaceLike
+- getEmitFlags
+- getAllSuperTypeNodes
+- isBindingElement
+- getFunctionOrClassName
+- createScanner
+- getNodeKind
+- getRenameInfoForNode
+- "src/services/refactors/extractType.ts"
+- getImmediatelyContainingArgumentInfo
+- getTouchingPropertyName
+- getEffectiveTypeAnnotationNode
 - resolve-release-version.js
 - MonacoEditor.vue
 - createFromDiffResult
-- getTokenPosOfNode
-- toString
-- EmitterObserver
-- "src/services/codefixes/fixStrictClassInitialization.ts"
 - EmitterObserver
 - createRulesMap
-- organizeImports
-- last
-- getEncodedSemanticClassifications
+- cast
+- getMeaningFromDeclaration
+- isWhiteSpaceSingleLine
+- concatConsecutiveString
 - "src/compiler/sys.ts"
-- getRelativeLuminance
-- isWhiteSpaceLike
-- getVariableDeclaration
-- getGroupedReferences
+- getBinderAndCheckerDiagnosticsOfFile
 - _format
-- createTextSpan
-- isVariableDeclarationInitializedToBareOrAccessedRequire
-- getCompletionEntriesFromSymbols
+- isStaticPropertyDeclaration
+- start
+- identifierToKeywordKind
+- "src/compiler/factory/parenthesizerRules.ts"
 - generate-icons.js
-- collectExportedVariableInfo
-- createChildren
-- toHexString
-- createExpressionForJsxFragment
-- breakPatternIntoTextChunks
-- nodeIsMissing
-- isQuestionOrPlusOrMinusToken
-- electron
+- onMenuBarAction
+- suppressLeadingAndTrailingTrivia
+- getSelectionChildren
+- getEntryForMemberCompletion
+- changeDefaultToNamedImport
+- isExportOrDefaultKeywordKind
+- getFixableErrorSpanExpression
+- length
+- getCompletionsAtPosition
+- nodeIsASICandidate
 - set-version.js
 - TagStack
-- createOverload
-- propagateChildFlags
-- getNameOfDeclaration
-- indexOfNode
-- getConvertableOverloadListAtPosition
+- addSyntheticLeadingComment
+- decodedTextSpanIntersectsWith
+- nodeIsSynthesized
 - getInfo20
 - isFileProbablyExternalModule
-- getInfo6
-- iterateCommentRanges
+- isBlockContext
+- Toolbar.vue
 - useSiteAnalytics.ts
+- ls
+- _assertIndex
 - SchemaCollector2
 - _acceptInsertText
-- positionIsASICandidate
-- doChange6
-- parseComparator
-- getContextualSignatureLocationInfo
+- propagateChildFlags
 - getExpressionAssociativity
+- isBeforeBlockContext
 - vercel.json
-- isArrayBindingElement
-- isConciseBody
-- encodeUtf16EscapeSequence
-- updateErrorForNoInputFiles
-- getBoundaryScore
-- getCompletionEntryDisplayNameForSymbol
+- updateExport
+- getAssertion
+- getSourceFileOfNode
 - toUint32
-- isValidTypeOnlyAliasUseSite
+- wrapCustomTransformerFactory
+- isQuestionOrPlusOrMinusToken
 - ChangeAnnotations2
 - ChangeAnnotations2
 - ChangeAnnotations2
-- addObjectLiteralProperties
+- "src/compiler/checker.ts"
 - getData
 - getSemanticClassifications2
 - reduceLeft
-- createImportTracker
 - createModeAwareCache
 - forwardCall
-- getRecommendedCompletion
+- getInfo11
 - isBinaryLogicalOperator
-- "src/compiler/transformer.ts"
-- Toolbar.vue
+- tokenRangeFromRange
 - app.vue
 - UnknownAtRule2
 - HTMLDataManager2
 - arrayIsEqualTo
 - convertToBase64
-- getUsageInfo
-- isIdentifierOrThisTypeNode
+- cloneCompilerOptions
 - selectionsEqual
-- joinPath
-- getJSDocImplementsTags
-- getSourceFileLikeForImportDeclaration
 - getDirection
 - onWatchedFileStat
 - getOrganizeImportsLocale
-- getValue
-- getPresentModifiers
+- isFunctionCallOrNewContext
 - isNamespaceReference
-- getPossibleGenericSignatures
+- isNonNullExpression
 - isNotEmittedOrPartiallyEmittedNode
-- isSuperProperty
+- isTypeOnlyImportOrExportDeclaration
 - loadModuleFromNearestNodeModulesDirectoryWorker
 - prepareRangeContainsErrorFunction
 - arrayToNumericMap
-- base64decode
-- cartesianProductWorker
-- optionsHaveModuleResolutionChanges
 - charactersFuzzyMatchInString
 - chord
 - convertClassificationsToResult
 - convertToDiagnostics
 - convertToReusableDiagnostics
 - createBinder
-- "src/compiler/emitter.ts"
-- createUndefined
-- percentDecode
 - diag
 - doChange22
 - enable
-- isJsonEqual
 - escapeRegExpCharacter
 - findWordContaining
+- firstOrUndefinedIterator
 - _format2
 - formatHSL
 - getDefaultFormatCodeSettings
@@ -386,14 +375,17 @@
 - isInitializedVariable
 - helperString
 - _hue2rgb
+- isBinaryOpContext
 - isDigit
+- isForContext
+- isNonTypeAssertionContext
+- isNotStatementConditionContext
+- isTypeAnnotationContext
 - isShorthandAmbientModule
+- isTypeArgumentOrParameterOrAssertionContext
 - isUnparsedNode
 - makeReverseMap
 - moduleResolutionIsEqualTo
-- packageIdToString
-- parseCommandLineWorker
-- realizeDiagnostic
 - renderPackageNameValidationFailure
 - textChangeRangeIsUnchanged
 - tokenIsIdentifierOrKeyword
@@ -414,1339 +406,1335 @@
 ## Surprising Connections (you probably didn't know these)
 - `initializeNameTable()` --indirect_call--> `walk()`  [INFERRED]
   website/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/dist-website/monacoeditorwork/ts.worker.bundle.js → electron/main/index.js
-- `changeCompilerHostLikeToUseCache()` --indirect_call--> `fileName()`  [INFERRED]
-  website/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/dist-website/monacoeditorwork/ts.worker.bundle.js → src/components/FindInFiles.vue
-- `createBuildOrUpdateInvalidedProject()` --indirect_call--> `fileName()`  [INFERRED]
-  website/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/dist-website/monacoeditorwork/ts.worker.bundle.js → src/components/FindInFiles.vue
 - `createFsWatchCallbackForDirectoryWatcherCallback()` --indirect_call--> `fileName()`  [INFERRED]
   website/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/dist-website/monacoeditorwork/ts.worker.bundle.js → src/components/FindInFiles.vue
-- `createRedirectedBuilderProgram()` --indirect_call--> `fileName()`  [INFERRED]
+- `parseOwnConfigOfJson()` --indirect_call--> `fileName()`  [INFERRED]
+  website/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/dist-website/monacoeditorwork/ts.worker.bundle.js → src/components/FindInFiles.vue
+- `getFileNamesFromConfigSpecs()` --indirect_call--> `fileName()`  [INFERRED]
+  website/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/dist-website/monacoeditorwork/ts.worker.bundle.js → src/components/FindInFiles.vue
+- `isExcludedFile()` --indirect_call--> `fileName()`  [INFERRED]
   website/Users/muhammadali/Desktop/LoopOrigin/Projects/AuroraPad/dist-website/monacoeditorwork/ts.worker.bundle.js → src/components/FindInFiles.vue
 
 ## Import Cycles
 - None detected.
 
-## Communities (391 total, 59 thin omitted)
+## Communities (383 total, 52 thin omitted)
 
 ### Community 0 - "ts.worker.bundle.js"
 Cohesion: 0.00
-Nodes (111): accumulate(), addNodeFactoryPatcher(), addRelatedInfo(), assertSourceFileOkWithoutNextAffectedCall(), asyncToArray(), [(_b = Symbol.toStringTag, Symbol.iterator)](), canWatchDirectoryOrFile(), compareStringsCaseInsensitiveEslintCompatible() (+103 more)
+Nodes (8): TODO: should have its own kind?, NOTE: 'next' is defined using a tuple to ensure we report the correct assignabil, TODO:: if there is inline sourceMap in jsFile, use that, TODO: GH#18217, TODO: https://github.com/microsoft/TypeScript/pull/32372#discussion_r328386357, NOTE: cast to TransientSymbol should be safe because only TransientSymbols can h, TODO: These mappings should go in the vscode-codicons mapping file, TODO: GH#17345: These are methods, so handle computed name case. (`Always allowi
 
 ### Community 1 - "css.worker.bundle.js"
 Cohesion: 0.01
-Nodes (203): addItemFirst(), addItemLast(), _asFormatted(), assertNever(), [(_b = Symbol.toStringTag, Symbol.iterator)](), _boundaryScore(), buildRegExpCharClassExpr(), chord() (+195 more)
+Nodes (200): addItemFirst(), addItemLast(), AddModifiedElement(), AddOriginalElement(), adopt(), [(_b = Symbol.toStringTag, Symbol.iterator)](), _boundaryScore(), buffer() (+192 more)
 
 ### Community 2 - "json.worker.bundle.js"
 Cohesion: 0.01
-Nodes (107): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), addItemFirst(), addItemLast(), _asFormatted(), [(_b = Symbol.toStringTag, Symbol.iterator)](), _boundaryScore() (+99 more)
+Nodes (112): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), addItemFirst(), addItemLast(), _asFormatted(), [(_b = Symbol.toStringTag, Symbol.iterator)](), chord() (+104 more)
 
 ### Community 3 - "html.worker.bundle.js"
 Cohesion: 0.01
-Nodes (105): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), addItemFirst(), addItemLast(), adopt(), _asFormatted(), [(_b = Symbol.toStringTag, Symbol.iterator)]() (+97 more)
+Nodes (125): addItemFirst(), addItemLast(), adopt(), _asFormatted(), assertNever(), [(_b = Symbol.toStringTag, Symbol.iterator)](), buildRegExpCharClassExpr(), chord() (+117 more)
 
-### Community 4 - "getDirectoryPath"
-Cohesion: 0.03
-Nodes (202): k(), addCompletionEntriesFromPaths(), addCompletionEntriesFromPathsOrExports(), addNewFileToTsconfig(), allKeysStartWithDot(), arePathsEqual(), bundlerModuleNameResolver(), changeAnyExtension() (+194 more)
+### Community 4 - "DoNMQGcP.js"
+Cohesion: 0.02
+Nodes (136): ac(), addHooks(), Ag(), ah(), Ar, Ba, bg(), Bh() (+128 more)
 
 ### Community 5 - "DoNMQGcP.js"
 Cohesion: 0.02
-Nodes (131): addHooks(), Ag(), ah(), Ar, Ba, bg(), Bh(), bi (+123 more)
+Nodes (132): addHooks(), Ag(), ah(), Ar, Ba, bg(), Bh(), bi (+124 more)
 
-### Community 6 - "DoNMQGcP.js"
-Cohesion: 0.02
-Nodes (135): addHooks(), Ag(), ah(), Ar, Ba, bg(), Bh(), bi (+127 more)
+### Community 6 - "get"
+Cohesion: 0.03
+Nodes (157): addProjToQueue(), applyChange(), arrayToMap(), assertSourceFileOkWithoutNextAffectedCall(), bindSourceFile(), build(), buildNextInvalidatedProject(), buildNextInvalidatedProjectWorker() (+149 more)
 
 ### Community 7 - "editor.worker.bundle.js"
 Cohesion: 0.02
 Nodes (51): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), [(_b = Symbol.toStringTag, Symbol.iterator)](), chord(), codePoints(), entries(), equalsSelection() (+43 more)
 
-### Community 8 - "createProgram"
-Cohesion: 0.03
-Nodes (154): fileName(), chainDiagnosticMessages(), clearScreenIfNotWatchingForFileChanges(), compareModuleSpecifiers(), containsIgnoredPath(), convertDocumentToSourceMapper(), convertToRelativePath(), copyProperties() (+146 more)
+### Community 8 - "getDirectoryPath"
+Cohesion: 0.04
+Nodes (139): addCompletionEntriesFromPaths(), addCompletionEntriesFromPathsOrExports(), canWatchDirectoryOrFile(), combineNormal(), combinePaths(), comparePaths(), comparePathsCaseInsensitive(), comparePathsWorker() (+131 more)
 
 ### Community 9 - "push"
 Cohesion: 0.02
-Nodes (146): addOutliningForLeadingCommentsForPos(), addPragmaForMatch(), addRegionOutliningSpans(), areLinesSimilar(), assertFn(), attachFileToDiagnostic(), attachFileToDiagnostics(), basename() (+138 more)
+Nodes (193): accumulate(), addAndReturnDisposable(), addNodeFactoryPatcher(), addNodeOutliningSpans(), addOutliningForLeadingCommentsForNode(), addOutliningForLeadingCommentsForPos(), addPragmaForMatch(), addRange() (+185 more)
 
-### Community 10 - ".push"
-Cohesion: 0.04
-Nodes (33): accumulate(), addReferencesToDocumentation(), computeWordRanges(), concat(), consume(), CSSCompletion2(), CSSHover2(), ExtendsReference2() (+25 more)
-
-### Community 11 - "some"
+### Community 10 - "startsWith"
 Cohesion: 0.03
-Nodes (125): add(), addAndReturnDisposable(), addFileToChangeSet(), addJsxAttributes(), addToAffectedFilesPendingEmit(), arrayFrom(), arrayToMultiMap(), buffer() (+117 more)
+Nodes (115): arePathsEqual(), bundlerModuleNameResolver(), classicNameResolver(), codeFixActionToCodeAction(), combinePathsSafe(), compareNodeCoreModuleSpecifiers(), completionEntryDataIsResolved(), completionEntryDataToSymbolOriginInfo() (+107 more)
 
-### Community 12 - "get"
+### Community 11 - ".getText"
 Cohesion: 0.04
-Nodes (127): addProjToQueue(), afterProgramDone(), arrayToMap(), bindSourceFile(), build(), buildErrors(), buildNextInvalidatedProject(), buildNextInvalidatedProjectWorker() (+119 more)
+Nodes (43): BodyDeclaration2(), calculateBoxModel(), checkBorderShorthand(), checkLineStyle(), checkLineStyleList(), checkLineWidth(), checkLineWidthList(), collectValues() (+35 more)
 
-### Community 13 - "push"
+### Community 12 - ".push"
+Cohesion: 0.05
+Nodes (21): accumulate(), computeWordRanges(), consume(), CSSCompletion2(), CSSHover2(), func(), getEntryDescription(), getLimitedString() (+13 more)
+
+### Community 13 - ".push"
+Cohesion: 0.03
+Nodes (96): accumulate(), addRange(), areLinesSimilar(), assertFn(), b(), checkAdjacentItems(), clip(), compareBy() (+88 more)
+
+### Community 14 - "createProgram"
 Cohesion: 0.04
-Nodes (83): accumulate(), addRange(), areLinesSimilar(), asyncToArray(), b(), clip(), compareBy(), compute() (+75 more)
+Nodes (110): fileName(), compareBooleans(), compareModuleSpecifiers(), compareNumberOfDirectorySeparators(), comparePathsByRedirectAndNumberOfDirectorySeparators(), convertToRelativePath(), convertToTSConfig(), copyProperties() (+102 more)
 
-### Community 14 - ".setNode"
+### Community 15 - ".setNode"
 Cohesion: 0.02
 Nodes (20): AtApplyRule2(), AttributeSelector2(), BinaryExpression2(), CustomPropertyDeclaration2(), Declaration2(), ForStatement2(), Forward2(), ForwardVisibility2() (+12 more)
 
-### Community 15 - ".getText"
-Cohesion: 0.05
-Nodes (36): BodyDeclaration2(), calculateBoxModel(), checkBorderShorthand(), checkLineStyle(), checkLineStyleList(), checkLineWidth(), checkLineWidthList(), collectValues() (+28 more)
+### Community 16 - "isString2"
+Cohesion: 0.03
+Nodes (102): append(), combine(), commandLineOptionsToMap(), compareStringsCaseInsensitiveEslintCompatible(), convertCompileOnSaveOptionFromJson(), convertCompilerOptionsForTelemetry(), convertCompilerOptionsFromJson(), convertCompilerOptionsFromJsonWorker() (+94 more)
 
-### Community 16 - "computeUnchangedMoves"
-Cohesion: 0.05
-Nodes (53): addRange(), areLinesSimilar(), b(), compareBy(), compute(), computeMovedLines(), computeMoves(), computeMovesFromSimpleDeletionsToSimpleInsertions() (+45 more)
-
-### Community 17 - ".add"
-Cohesion: 0.05
-Nodes (37): add(), addAndReturnDisposable(), _addLeakageTraceLogic(), any(), buffer(), cancel(), clear(), combinedDisposable() (+29 more)
-
-### Community 18 - "registerCodeFix"
-Cohesion: 0.05
-Nodes (88): addReturnStatement(), addToSeen(), codeActionForFix(), codeFixAll(), createCodeFixAction(), createDeleteFix(), doChange12(), doChange14() (+80 more)
-
-### Community 19 - "isArray"
+### Community 17 - "push"
 Cohesion: 0.04
-Nodes (80): assign(), canJsonReportNoInputFiles(), commandLineOptionsToMap(), convertCompileOnSaveOptionFromJson(), convertCompilerOptionsForTelemetry(), convertCompilerOptionsFromJsonWorker(), convertConfigFileToObject(), convertJsonOption() (+72 more)
+Nodes (85): accumulate(), addRange(), areLinesSimilar(), asyncToArray(), b(), clip(), compareBy(), compute() (+77 more)
 
-### Community 20 - "fileExtensionIs"
-Cohesion: 0.06
-Nodes (72): changeExtension(), createAddOutput(), createBuildInfo(), emitFiles(), endsWith(), extensionFromPath(), extensionIsTS(), fileExtensionIs() (+64 more)
+### Community 18 - "computeUnchangedMoves"
+Cohesion: 0.04
+Nodes (67): addRange(), areLinesSimilar(), b(), clip(), compareBy(), compute(), computeMovedLines(), computeMoves() (+59 more)
 
-### Community 21 - "find"
-Cohesion: 0.06
-Nodes (54): combinePathsSafe(), compareNodeCoreModuleSpecifiers(), computeModuleSpecifiers(), ensurePathIsNonModuleName(), find(), firstDefined(), firstOrUndefinedIterator(), flatMap() (+46 more)
+### Community 19 - "split"
+Cohesion: 0.12
+Nodes (11): chain(), ChainableSynthesis, countWhere2(), createTabularErrorsDisplay(), formatColorAndReset(), getErrorCountForSummary(), getErrorSummaryText(), optionMapToObject() (+3 more)
 
-### Community 22 - "CHV4pif9.js"
+### Community 20 - "ie"
+Cohesion: 0.05
+Nodes (61): Aa(), Ap(), au(), be(), bo(), _c(), Ca(), cn() (+53 more)
+
+### Community 21 - "CHV4pif9.js"
 Cohesion: 0.06
 Nodes (65): i, k(), X(), Y(), am(), bm(), callHook(), Ce() (+57 more)
 
-### Community 23 - "App.vue"
-Cohesion: 0.04
-Nodes (62): availableTerminalProfiles, buildRemoteProfilePayload(), cancelDeleteRemoteProfile(), commandPaletteRecentOnly, confirmDeleteRemoteProfile(), createRemoteProfileForm(), editRemoteProfile(), fileTreeStore (+54 more)
-
-### Community 24 - "CHV4pif9.js"
-Cohesion: 0.06
-Nodes (65): _, _, _, _, $, i, X(), Y() (+57 more)
-
-### Community 25 - "ComputeDiff"
-Cohesion: 0.04
-Nodes (73): addRange(), areLinesSimilar(), assertFn(), b(), checkAdjacentItems(), clip(), compareBy(), compute() (+65 more)
-
-### Community 26 - "n"
-Cohesion: 0.06
-Nodes (63): bf(), bl(), Br(), Ci(), dd(), dg(), du, ec (+55 more)
-
-### Community 27 - "getAllRules"
-Cohesion: 0.04
-Nodes (66): getAllRules(), isAfterCodeBlockContext(), isArrowFunctionContext(), isBeforeBlockContext(), isBeforeMultilineBlockContext(), isBinaryOpContext(), isBlockContext(), isBraceWrappedContext() (+58 more)
-
-### Community 28 - "addRange"
-Cohesion: 0.05
-Nodes (67): addRange(), backupBuilderProgramEmitState(), check(), clearFiles(), compilerOptionsIndicateEsModules(), computeSuggestionDiagnostics(), createAbstractBuilder(), createBuilderProgram() (+59 more)
-
-### Community 29 - ".beautify"
-Cohesion: 0.05
-Nodes (7): Beautifier(), css_beautify2(), in_array(), limitRanges(), Output(), OutputLine(), style_html()
-
-### Community 30 - ".getText"
-Cohesion: 0.08
-Nodes (31): binarySearch(), clipCyclic(), concat(), createScanner(), doComplete(), doHover(), doRename(), findDocumentHighlights() (+23 more)
-
-### Community 31 - "JSONCompletion2"
-Cohesion: 0.10
-Nodes (11): buffer(), fromPlainText(), getMatchingSchemas(), getNodePath3(), isDefined(), JSONCompletion2(), JSONDocument2(), NoOpSchemaCollector2() (+3 more)
-
-### Community 32 - "event"
-Cohesion: 0.05
-Nodes (41): add(), addAndReturnDisposable(), _addLeakageTraceLogic(), any(), buffer(), cancel(), chain(), ChainableSynthesis (+33 more)
-
-### Community 33 - "ie"
-Cohesion: 0.07
-Nodes (40): Aa(), au(), be(), Ca(), cn(), cs(), ct(), Da (+32 more)
-
-### Community 34 - "al"
-Cohesion: 0.10
-Nodes (26): ai(), al, An(), bt(), Ci(), Cl(), Co(), ef() (+18 more)
-
-### Community 35 - "push"
+### Community 22 - "push"
 Cohesion: 0.04
 Nodes (74): accumulate(), assertFn(), asyncToArray(), checkAdjacentItems(), compareBy(), ComputeDiff(), computeMoreMinimalEdits(), computeMovedLines() (+66 more)
 
-### Community 36 - "Pa"
-Cohesion: 0.05
-Nodes (27): callHookParallel(), callHookWith(), Cr, Gg(), go(), gs(), Ia(), ih() (+19 more)
+### Community 23 - ".getText"
+Cohesion: 0.08
+Nodes (35): binarySearch(), clipCyclic(), concat(), createScanner(), doComplete(), doHover(), doRename(), findDocumentHighlights() (+27 more)
 
-### Community 37 - "JSONSchemaService2"
+### Community 24 - "CHV4pif9.js"
+Cohesion: 0.06
+Nodes (63): _, _, _, _, $, i, X(), Y() (+55 more)
+
+### Community 25 - "n"
+Cohesion: 0.05
+Nodes (73): ad(), As(), bd(), bf(), Br(), _d(), dd(), ds() (+65 more)
+
+### Community 26 - "App.vue"
+Cohesion: 0.04
+Nodes (55): activeBreadcrumbs, activeTabEolMode, availableTerminalProfiles, buildRemoteProfilePayload(), cancelDeleteRemoteProfile(), commandPaletteRecentOnly, confirmDeleteRemoteProfile(), createRemoteProfileForm() (+47 more)
+
+### Community 27 - "ComputeDiff"
+Cohesion: 0.05
+Nodes (50): assertFn(), assertNever(), buildRegExpCharClassExpr(), checkAdjacentItems(), ComputeDiff(), computeLinks(), computeMoreMinimalEdits(), computeUnicodeHighlights() (+42 more)
+
+### Community 28 - ".beautify"
+Cohesion: 0.05
+Nodes (11): asyncToArray(), Beautifier(), css_beautify2(), findLast(), findLastMaxBy(), in_array(), limitRanges(), Output() (+3 more)
+
+### Community 29 - "createBuilderProgramUsingProgramBuildInfo"
+Cohesion: 0.03
+Nodes (116): addFileToChangeSet(), addToAffectedFilesPendingEmit(), afterProgramDone(), [(_b = Symbol.toStringTag, Symbol.iterator)](), backupBuilderProgramEmitState(), buildErrors(), clearFiles(), createAbstractBuilder() (+108 more)
+
+### Community 30 - "constructor"
+Cohesion: 0.04
+Nodes (50): add(), addAndReturnDisposable(), _addLeakageTraceLogic(), any(), buffer(), cancel(), clear(), combinedDisposable() (+42 more)
+
+### Community 31 - "fileExtensionIs"
+Cohesion: 0.05
+Nodes (79): changeCompilerHostLikeToUseCache(), changeExtension(), endsWith(), extensionFromPath(), file(), fileExtensionIs(), fileExtensionIsOneOf(), findIndex() (+71 more)
+
+### Community 32 - ".item"
+Cohesion: 0.07
+Nodes (24): add(), addAndReturnDisposable(), _addLeakageTraceLogic(), any(), asyncToArray(), debounce(), defer(), deleteAndLeak() (+16 more)
+
+### Community 34 - "JSONCompletion2"
+Cohesion: 0.10
+Nodes (11): buffer(), fromPlainText(), getMatchingSchemas(), getNodePath3(), isDefined(), JSONCompletion2(), JSONDocument2(), NoOpSchemaCollector2() (+3 more)
+
+### Community 35 - "event"
+Cohesion: 0.04
+Nodes (49): add(), addAndReturnDisposable(), _addLeakageTraceLogic(), any(), cancel(), clear(), combinedDisposable(), createSingleCallFunction() (+41 more)
+
+### Community 36 - "hasProperty"
+Cohesion: 0.07
+Nodes (53): k(), allKeysStartWithDot(), assign(), canJsonReportNoInputFiles(), comparePatternKeys(), directoryProbablyExists(), findBestPatternMatch(), getCompilerOptionsOfBuildOptions() (+45 more)
+
+### Community 37 - "Dt-JubDU.js"
+Cohesion: 0.04
+Nodes (53): ac(), ay(), cp(), $i(), sn(), uh, up(), Vn (+45 more)
+
+### Community 38 - ".positionAt"
+Cohesion: 0.10
+Nodes (22): A2(), colorFromHex(), concat(), createRange(), endsWith(), find(), findLinks(), findNode() (+14 more)
+
+### Community 39 - "JSONSchemaService2"
 Cohesion: 0.08
 Nodes (26): ASTNodeImpl2(), clipCyclic(), createRegex(), file(), FilePatternAssociation2(), fsPath(), getLanguageService(), getSelectionRanges() (+18 more)
 
-### Community 38 - ".push"
-Cohesion: 0.04
-Nodes (49): accumulate(), addAndReturnDisposable(), _addLeakageTraceLogic(), any(), asyncToArray(), buffer(), chain(), ChainableSynthesis (+41 more)
-
-### Community 39 - ".positionAt"
-Cohesion: 0.06
-Nodes (37): A2(), colorFromHex(), computeCodePoint(), computeLineOffsets(), concat(), createRange(), endsWith(), _ensureLineStarts() (+29 more)
-
-### Community 40 - "n"
-Cohesion: 0.06
-Nodes (70): ad(), As(), bd(), bf(), bl(), Br(), _d(), dd() (+62 more)
-
-### Community 41 - "Dt-JubDU.js"
+### Community 40 - "Dt-JubDU.js"
 Cohesion: 0.04
 Nodes (47): ay(), Vn, ae, as, be, ce, de, _e (+39 more)
 
-### Community 42 - "Dt-JubDU.js"
-Cohesion: 0.04
-Nodes (47): ay(), Vn, ae, as, be, ce, de, _e (+39 more)
-
-### Community 44 - "getSignatureHelpItems"
-Cohesion: 0.24
-Nodes (11): createJSSignatureHelpItems(), createSignatureHelpItems(), createTypeHelpItems(), getContainingArgumentInfo(), getEnclosingDeclarationFromInvocation(), getExpressionFromInvocation(), getImmediatelyContainingArgumentOrContextualParameterInfo(), getSignatureHelpItem() (+3 more)
-
-### Community 45 - ".has"
-Cohesion: 0.07
-Nodes (28): Ao(), Ap(), _c(), el(), fh(), gh(), go(), Ha() (+20 more)
-
-### Community 46 - "Pa"
-Cohesion: 0.06
-Nodes (21): callHookParallel(), callHookWith(), Cr, Gg(), gs(), Ia(), ih(), Is() (+13 more)
-
-### Community 47 - ".replace"
-Cohesion: 0.06
-Nodes (33): A(), computeIndentLevel(), create(), decodeURIComponentGraceful(), delete(), file(), _format(), _format2() (+25 more)
-
-### Community 48 - "every"
-Cohesion: 0.04
-Nodes (79): addEnumMemberDeclaration(), append(), combine(), completionEntryDataIsResolved(), completionEntryDataToSymbolOriginInfo(), completionNameForLiteral(), concatenate(), continuePreviousIncompleteResponse() (+71 more)
-
-### Community 49 - "skipTrivia"
-Cohesion: 0.12
-Nodes (22): doChange19(), getLabelCompletionAtPosition(), getLabelStatementCompletions(), getLinesBetweenPositionAndNextNonWhitespaceCharacter(), getLinesBetweenPositionAndPrecedingNonWhitespaceCharacter(), getLinesBetweenPositions(), getLinesBetweenRangeEndAndRangeStart(), getLinesBetweenRangeEndPositions() (+14 more)
-
-### Community 50 - "r"
-Cohesion: 0.06
-Nodes (46): ad(), ai(), al, An(), Ao(), As(), bd(), bn() (+38 more)
-
-### Community 51 - ".replace"
+### Community 41 - ".replace"
 Cohesion: 0.05
-Nodes (29): A2(), chain(), ChainableSynthesis, computeMoreMinimalEdits(), create(), createCompletionItem(), decodeURIComponentGraceful(), delete() (+21 more)
+Nodes (30): A(), chain(), ChainableSynthesis, create(), decodeURIComponentGraceful(), delete(), file(), _format() (+22 more)
 
-### Community 52 - "ComputeDiff"
+### Community 42 - "update"
+Cohesion: 0.12
+Nodes (18): computeCodePoint(), computeLineOffsets(), _ensureLineStarts(), getLineOffsets(), getNextCodePoint(), getValueInRange(), getWellformedEdit(), getWellformedRange() (+10 more)
+
+### Community 43 - "X"
+Cohesion: 0.07
+Nodes (47): As(), bf(), Br(), dd(), ed, ei(), Eo(), Er() (+39 more)
+
+### Community 44 - ".substring"
+Cohesion: 0.07
+Nodes (27): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), _asFormatted(), clipCyclic(), CSSNavigation2(), dirname2(), encodeURIComponentFast() (+19 more)
+
+### Community 45 - "RemoteConnectionManager"
+Cohesion: 0.11
+Nodes (14): basenamePosix(), boundedString(), { Client: Ssh2Client }, dirnamePosix(), ensurePosixPath(), ftp, makeVersion(), normalizeRemoteError() (+6 more)
+
+### Community 46 - "_format2"
 Cohesion: 0.06
-Nodes (42): assertFn(), assertNever(), buildRegExpCharClassExpr(), checkAdjacentItems(), ComputeDiff(), computeLinks(), computeMoreMinimalEdits(), computeUnicodeHighlights() (+34 more)
+Nodes (34): computeCodePoint(), computeIndentLevel(), computeLineOffsets(), CSSCodeActions2(), difference(), _ensureLineStarts(), _findRange(), _format2() (+26 more)
 
-### Community 53 - "Parser2"
+### Community 47 - "dispose"
+Cohesion: 0.05
+Nodes (44): cancel(), combinedDisposable(), create(), createProxyObject(), createProxyObject2(), createSingleCallFunction(), _deliver(), _deliverQueue() (+36 more)
+
+### Community 48 - "index.js"
+Cohesion: 0.06
+Nodes (28): addRecentFile(), { app, BrowserWindow, ipcMain, dialog, Menu, shell, clipboard }, buildMenu(), chokidar, createWindow(), deleteRemoteSecret(), ensureKeychainSupport(), fileWatchers (+20 more)
+
+### Community 49 - "Pa"
+Cohesion: 0.06
+Nodes (20): Cr, Gg(), go(), gs(), Ia(), ih(), Is(), iu (+12 more)
+
+### Community 50 - "join"
+Cohesion: 0.09
+Nodes (38): A2(), addReferencesToDocumentation(), applyEdits(), basename(), compare(), concat(), cwd(), dirname() (+30 more)
+
+### Community 53 - "isExportsOrModuleExportsOrAlias"
+Cohesion: 0.07
+Nodes (42): collectExportRenames(), collectFreeIdentifiers(), convertAssignment(), convertedImports(), convertFileToEsModule(), convertNamedExport(), convertPropertyAccessImport(), convertReExportAll() (+34 more)
+
+### Community 54 - "add"
+Cohesion: 0.05
+Nodes (59): add(), arrayFrom(), arrayToMultiMap(), compareChildren(), compareCompletionEntries(), compareStringsCaseSensitiveUI(), completionInfoFromData(), completionNameForLiteral() (+51 more)
+
+### Community 55 - ".test"
 Cohesion: 0.08
-Nodes (3): length(), LessGuard2(), Parser2()
+Nodes (26): _boundaryScore(), createCompletionItem(), _createLink(), getWordEnd(), getWordStart(), getWorkspaceUrl(), isCompletablePath(), isPathAttribute() (+18 more)
 
-### Community 54 - "constructor"
-Cohesion: 0.04
-Nodes (60): add(), addAndReturnDisposable(), any(), cancel(), clear(), combinedDisposable(), constructor(), createContinueProcessingPredicate() (+52 more)
-
-### Community 55 - "index.js"
-Cohesion: 0.06
-Nodes (26): addRecentFile(), { app, BrowserWindow, ipcMain, dialog, Menu, shell, clipboard }, buildMenu(), chokidar, createWindow(), deleteRemoteSecret(), ensureKeychainSupport(), fsSync (+18 more)
-
-### Community 56 - "InputScanner"
-Cohesion: 0.10
-Nodes (7): Beautifier(), css_beautify2(), Directives(), InputScanner(), t3(), u(), _validateUri()
-
-### Community 59 - "value"
+### Community 56 - "value"
 Cohesion: 0.06
 Nodes (30): chain(), ChainableSynthesis, create(), createProxyObject(), createProxyObject2(), delete(), fromJSON(), getAllMethodNames() (+22 more)
 
-### Community 60 - ".offsetAt"
-Cohesion: 0.04
-Nodes (36): computeCodePoint(), computeLineOffsets(), CSSCodeActions2(), difference(), _ensureLineStarts(), _findRange(), FullTextDocument3(), getColorInformation() (+28 more)
+### Community 57 - "getDefinitionAtPosition"
+Cohesion: 0.15
+Nodes (20): createDefinitionFromSignatureDeclaration(), createDefinitionInfo(), createDefinitionInfoFromName(), definitionFromType(), getContainingObjectLiteralElement(), getDefinitionAtPosition(), getDefinitionFromObjectLiteralElement(), getDefinitionFromSymbol() (+12 more)
 
-### Community 61 - "dependencies"
+### Community 59 - "dependencies"
 Cohesion: 0.05
 Nodes (39): basic-ftp, chokidar, electron-store, file-type, @fortawesome/fontawesome-free, iconv-lite, jschardet, keytar (+31 more)
 
-### Community 62 - "Ge"
-Cohesion: 0.11
-Nodes (17): au(), cn(), ct(), du, fs(), Ge(), iy(), ke() (+9 more)
+### Community 60 - "Pa"
+Cohesion: 0.06
+Nodes (22): callHookParallel(), callHookWith(), Cr, Gg(), gs(), Ia(), ih(), Is() (+14 more)
 
-### Community 63 - "WebsiteApp.vue"
+### Community 61 - "WebsiteApp.vue"
 Cohesion: 0.06
 Nodes (25): legalPages, { trackNavigation, trackOutboundLink }, artifactRows, comparisonItems, downloads, editorLines, faqItems, features (+17 more)
 
-### Community 64 - "join"
-Cohesion: 0.10
-Nodes (35): applyEdits(), basename(), compare(), cwd(), dirname(), extname(), getBrowserLabel(), getEntryMarkdownDescription() (+27 more)
+### Community 62 - "InputScanner"
+Cohesion: 0.05
+Nodes (8): pattern, Directives(), InputScanner(), isEmpty(), Pattern(), TemplatablePattern(), TokenStream(), WhitespacePattern()
 
-### Community 65 - "RemoteConnectionManager"
-Cohesion: 0.13
-Nodes (13): basenamePosix(), boundedString(), dirnamePosix(), ensurePosixPath(), ftp, makeVersion(), normalizeRemoteError(), nowIso() (+5 more)
-
-### Community 66 - "computeUnchangedMoves"
+### Community 63 - "registerCodeFix"
 Cohesion: 0.08
-Nodes (33): addRange(), areLinesSimilar(), clip(), compute(), computeUnchangedMoves(), contains(), delta(), extendToFullLines() (+25 more)
+Nodes (39): codeFixAll(), doChange12(), doChange14(), doChange15(), doChange16(), doChange21(), doChange26(), doChange3() (+31 more)
 
-### Community 67 - "join"
-Cohesion: 0.11
-Nodes (30): applyEdits(), basename(), cwd(), decodeURIComponentGraceful(), dirname(), extname(), getUnion(), isAbsolute() (+22 more)
+### Community 64 - ".get"
+Cohesion: 0.05
+Nodes (39): Ap(), be(), _c(), Da, dr(), du, fh(), gh() (+31 more)
 
-### Community 68 - "isSourceFile"
+### Community 65 - "ComputeDiff"
+Cohesion: 0.07
+Nodes (38): assertFn(), checkAdjacentItems(), ComputeDiff(), computeMoreMinimalEdits(), computeMoves(), countLinesIn(), deltaEnd(), deltaStart() (+30 more)
+
+### Community 66 - "event"
+Cohesion: 0.05
+Nodes (41): add(), addAndReturnDisposable(), _addLeakageTraceLogic(), any(), buffer(), cancel(), chain(), ChainableSynthesis (+33 more)
+
+### Community 67 - "computeUnicodeHighlights"
+Cohesion: 0.06
+Nodes (37): assertNever(), buildRegExpCharClassExpr(), computeLinks(), computeMovesFromSimpleDeletionsToSimpleInsertions(), computeSimilarity(), computeUnicodeHighlightReason(), computeUnicodeHighlights(), _createLink() (+29 more)
+
+### Community 68 - "handleMenu"
 Cohesion: 0.10
-Nodes (48): containingThis(), convertExportsPropertyAssignment(), createSignatureDeclarationFromSignature(), doChange7(), findAllInitialDeclarations(), findImplementation(), findImplementationOrAllInitialDeclarations(), getAdjustedLocationForClass() (+40 more)
+Nodes (36): applyEol(), clearRecent(), convertEol(), cycleEol(), cycleTab(), disconnectRemoteWorkspace(), exportRemoteProfiles(), handleMenu() (+28 more)
 
 ### Community 69 - "TerminalDock.vue"
 Cohesion: 0.08
 Nodes (22): activeSession, activeSessionId, availableProfiles, closeSession(), emit, isSshShell(), labelForShell(), makeSessionTitle() (+14 more)
 
-### Community 70 - "Node22"
+### Community 70 - "Output"
 Cohesion: 0.08
-Nodes (7): getParentDeclaration(), LintConfigurationSettings2(), Node22(), Nodelist2(), ParseErrorCollector2(), toLevel(), VariableDeclaration2()
+Nodes (3): Output(), OutputLine(), Property2()
 
-### Community 71 - "Output"
-Cohesion: 0.05
-Nodes (20): adopt(), asyncToArray(), clipCyclic(), _createAsciiMap(), digest(), fill(), findLast(), findLastMaxBy() (+12 more)
+### Community 71 - "constructor"
+Cohesion: 0.07
+Nodes (35): assertFn(), checkAdjacentItems(), ComputeDiff(), computeMoreMinimalEdits(), constructor(), createContinueProcessingPredicate(), elapsed(), emit() (+27 more)
 
-### Community 72 - "BWdvOWGK.js"
+### Community 72 - "isIdentifier"
+Cohesion: 0.08
+Nodes (34): canUsePropertyAccess(), createAccessorAccessExpression(), createPropertyName(), entityNameToExpression(), findComputedPropertyNameCacheAssignment(), generateAccessorFromProperty(), generateGetAccessor(), generateSetAccessor() (+26 more)
+
+### Community 73 - "InputScanner"
+Cohesion: 0.10
+Nodes (6): Beautifier(), css_beautify2(), Directives(), InputScanner(), isColorString(), _validateUri()
+
+### Community 74 - "join"
+Cohesion: 0.12
+Nodes (28): applyEdits(), basename(), cwd(), decodeURIComponentGraceful(), dirname(), extname(), isAbsolute(), isPathSeparator() (+20 more)
+
+### Community 75 - "tryCast"
+Cohesion: 0.07
+Nodes (38): canHaveExportModifier(), canHaveLocals(), canHaveSymbol(), chooseBetterSymbol(), findScope(), firstOrUndefined(), getExportEqualsLocalSymbol(), getExportSpecifierForDiagnosticSpan() (+30 more)
+
+### Community 76 - ""src/compiler/visitorPublic.ts""
+Cohesion: 0.06
+Nodes (33): isArrayBindingElement(), isAssertClause(), isAssertEntry(), isAssertsKeyword(), isAsteriskToken(), isAwaitKeyword(), isBindingName(), isCallChain() (+25 more)
+
+### Community 77 - "Scanner2"
+Cohesion: 0.11
+Nodes (6): computeFoldingRanges(), LESSScanner2(), popPrevStartDelimiterOfType(), Scanner2(), SCSSScanner2(), unescape()
+
+### Community 79 - "with"
+Cohesion: 0.10
+Nodes (34): addReturnStatement(), codeActionForFix(), createActionForAddMissingMemberInJavascriptFile(), createCodeFixAction(), createDeleteFix(), doChange25(), doChange28(), doChange5() (+26 more)
+
+### Community 80 - "toString"
+Cohesion: 0.06
+Nodes (34): _asFormatted(), clipCyclic(), _createAsciiMap(), createPropertyNameNodeForIdentifierOrLiteral(), diagnosticCategoryName(), digest(), encodeJsxCharacterEntity(), encodeURIComponentFast() (+26 more)
+
+### Community 81 - "breakIntoSpans"
 Cohesion: 0.09
-Nodes (23): b, g, h, m, N, p, x, y (+15 more)
+Nodes (34): betterMatch(), breakIntoCharacterSpans(), breakIntoSpans(), breakIntoWordSpans(), breakPatternIntoTextChunks(), charIsPunctuation(), compareMatches(), createPatternMatch() (+26 more)
 
-### Community 73 - "Scanner2"
-Cohesion: 0.11
-Nodes (7): computeFoldingRanges(), getFoldingRanges(), LESSScanner2(), popPrevStartDelimiterOfType(), Scanner2(), SCSSScanner2(), unescape()
-
-### Community 74 - "constructor"
+### Community 82 - "computeUnchangedMoves"
 Cohesion: 0.08
-Nodes (27): constructor(), createContinueProcessingPredicate(), darken(), emit(), firstNonWhitespaceIndex(), from(), getDarkerColor(), getFirstNonBlankColumn() (+19 more)
+Nodes (33): addRange(), areLinesSimilar(), clip(), compute(), computeUnchangedMoves(), contains(), delta(), extendToFullLines() (+25 more)
 
-### Community 75 - "computeUnicodeHighlights"
-Cohesion: 0.06
-Nodes (37): assertNever(), buildRegExpCharClassExpr(), computeLinks(), computeMovesFromSimpleDeletionsToSimpleInsertions(), computeSimilarity(), computeUnicodeHighlightReason(), computeUnicodeHighlights(), _createLink() (+29 more)
-
-### Community 76 - ""src/services/codefixes/fixAddMissingMember.ts""
-Cohesion: 0.07
-Nodes (35): addPropertyDeclaration(), createAction(), createActionsForAddMissingMemberInTypeScriptFile(), createAddIndexSignatureAction(), createCodeFixActionMaybeFixAll(), createCodeFixActionWithoutFixAll(), createCodeFixActionWorker(), createCombinedCodeActions() (+27 more)
-
-### Community 77 - "transformCallbackArgument"
-Cohesion: 0.13
-Nodes (35): classExpressionToDeclaration(), convertExportsDotXEquals_replaceNode(), createSynthIdentifier(), createUniqueSynthName(), createVariableOrAssignmentOrExpressionStatement(), declareSynthBindingName(), declareSynthBindingPattern(), declareSynthIdentifier() (+27 more)
-
-### Community 78 - "handleMenu"
-Cohesion: 0.10
-Nodes (34): applyEol(), clearRecent(), convertEol(), cycleTab(), disconnectRemoteWorkspace(), exportRemoteProfiles(), handleMenu(), isRemoteTab() (+26 more)
-
-### Community 79 - "InputScanner"
-Cohesion: 0.05
-Nodes (27): pattern, _boundaryScore(), _createLink(), createProxyObject2(), getWordEnd(), getWordStart(), _handleEvent(), initialize() (+19 more)
-
-### Community 80 - "computeUnicodeHighlights"
-Cohesion: 0.10
-Nodes (23): assertNever(), buildRegExpCharClassExpr(), computeDefaultDocumentColors(), computeLinks(), computeUnicodeHighlightReason(), computeUnicodeHighlights(), elapsed(), escapeRegExpCharacters() (+15 more)
-
-### Community 81 - "isPropertyAccessExpression"
-Cohesion: 0.07
-Nodes (45): chainStartsWith(), convertOccurrences(), doChange37(), entryToAccessExpression(), entryToFunctionCall(), findAwaitableInitializers(), findSuperCall(), findSuperStatementIndex() (+37 more)
-
-### Community 82 - "getEmitScriptTarget"
+### Community 83 - "isParameter"
 Cohesion: 0.11
-Nodes (34): chainBundle(), createRuntimeTypeSerializer(), getCompilerOptionValue(), getEmitScriptTarget(), getJSXTransformEnabled(), getModuleTransformer(), getScriptTransformers(), getStrictOptionValue() (+26 more)
+Nodes (23): canPrefix(), changeInferToUnknown(), deleteEntireVariableStatement(), doChange(), getDeclaration(), getJSDocParameterTags(), getJSDocParameterTagsNoCache(), getJSDocParameterTagsWorker() (+15 more)
 
-### Community 83 - "StatusBar.vue"
-Cohesion: 0.07
-Nodes (20): currentEncoding, currentEol, cursorCol, cursorLine, docLength, emit, encodings, fontSize (+12 more)
+### Community 84 - "compareValues"
+Cohesion: 0.15
+Nodes (17): compareComparableValues(), compareDiagnostics(), compareDiagnosticsSkipRelatedInformation(), compareEmitHelpers(), compareGeneratedPositions(), compareImportKind(), compareMessageText(), comparePathsCaseSensitive() (+9 more)
 
-### Community 85 - "formatIdentifierWorker"
-Cohesion: 0.20
-Nodes (11): accessPrivateIdentifier(), formatGeneratedName(), formatGeneratedNamePart(), formatIdentifier(), formatIdentifierWorker(), getNodeForGeneratedName(), getPrivateIdentifier(), isGeneratedPrivateIdentifier() (+3 more)
-
-### Community 86 - "getEmitFlags"
+### Community 85 - "getAllRules"
 Cohesion: 0.06
-Nodes (36): canUseOriginalText(), changeDefaultToNamedImport(), changeExport(), changeImports(), changeNamedToDefaultImport(), doChange33(), escapeTemplateSubstitution(), findComputedPropertyNameCacheAssignment() (+28 more)
+Nodes (33): getAllRules(), isAfterCodeBlockContext(), isArrowFunctionContext(), isConditionalOperatorContext(), isConstructorSignatureContext(), isControlDeclContext(), isFunctionDeclarationOrFunctionExpressionContext(), isImportTypeContext() (+25 more)
+
+### Community 86 - "Node22"
+Cohesion: 0.07
+Nodes (11): codePoints(), getParentDeclaration(), has(), intersectMaps(), isInvisibleCharacter(), LintConfigurationSettings2(), Node22(), Nodelist2() (+3 more)
 
 ### Community 87 - "join"
 Cohesion: 0.13
-Nodes (28): applyEdits(), basename(), compare(), cwd(), dirname(), extname(), generateDocumentation(), getUnion() (+20 more)
+Nodes (27): applyEdits(), basename(), compare(), cwd(), dirname(), extname(), generateDocumentation(), getText() (+19 more)
 
-### Community 88 - "isClassLike"
-Cohesion: 0.09
-Nodes (34): collectCallSitesOfModuleDeclaration(), doChange23(), extractConstantInScope(), getAllSupers(), getDefinitionFromOverriddenMember(), getDescriptionForClassLikeDeclaration(), getDescriptionForConstantInScope(), getDescriptionForFunctionInScope() (+26 more)
+### Community 88 - "constructor"
+Cohesion: 0.07
+Nodes (31): addItemFirst(), addItemLast(), constructor(), createContinueProcessingPredicate(), darken(), deleteAndLeak(), firstNonWhitespaceIndex(), from() (+23 more)
 
-### Community 89 - "getEmitModuleKind"
-Cohesion: 0.10
-Nodes (32): addInternalEmitFlags(), createExport(), createExportSpecifiers(), createExternalHelpersImportDeclarationIfNeeded(), deduplicateEquality(), doChange8(), doChanges(), getAllKeys() (+24 more)
+### Community 89 - "every"
+Cohesion: 0.08
+Nodes (32): bindingOrAssignmentPatternAssignsToName(), bindingOrAssignmentPatternContainsNonLiteralComputedName(), createOldFileImportsFromNewFile(), createRequireCall(), deduplicate(), deleteMovedStatements(), deleteUnusedImports(), deleteUnusedImportsInDeclaration() (+24 more)
 
-### Community 90 - "cast"
-Cohesion: 0.10
-Nodes (24): assertType(), cast(), deleteTypeParameters(), doTypedefChange(), getClass2(), getEffectiveConstraintOfTypeParameter(), getPropertiesToAdd(), getProperty2() (+16 more)
+### Community 90 - "getFirstJSDocTag"
+Cohesion: 0.15
+Nodes (17): getFirstJSDocTag(), getJSDocClassTag(), getJSDocDeprecatedTag(), getJSDocDeprecatedTagNoCache(), getJSDocPrivateTag(), getJSDocPrivateTagNoCache(), getJSDocProtectedTag(), getJSDocProtectedTagNoCache() (+9 more)
 
-### Community 91 - "getLocaleSpecificMessage"
-Cohesion: 0.18
-Nodes (15): assertDiagnosticLocation(), createDetachedDiagnostic(), createDiagnosticForNodeArray(), createDiagnosticForNodeArrayFromMessageChain(), createDiagnosticForNodeFromMessageChain(), createFileDiagnostic(), createFileDiagnosticFromMessageChain(), formatMessage() (+7 more)
-
-### Community 92 - "ConsentBanner.vue"
+### Community 91 - "ConsentBanner.vue"
 Cohesion: 0.08
 Nodes (27): acceptLabel, acceptOptional(), analyticsId, bannerBody, bannerEyebrow, bannerOpen, bannerTitle, config (+19 more)
 
-### Community 93 - ".substring"
-Cohesion: 0.12
-Nodes (16): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), CSSNavigation2(), dirname2(), file(), findDocumentHighlights(), getCurrentWord() (+8 more)
+### Community 93 - "StatusBar.vue"
+Cohesion: 0.08
+Nodes (19): currentEncoding, currentEol, cursorCol, cursorLine, docLength, emit, encodings, fontSize (+11 more)
 
-### Community 94 - "addNewNodeForMemberSymbol"
-Cohesion: 0.11
-Nodes (31): addFunctionDeclaration(), addMethodDeclaration(), addMissingConstraint(), addNewNodeForMemberSymbol(), createDummyParameters(), createImportAdder(), createImportAdderWorker(), createMethodImplementingSignatures() (+23 more)
-
-### Community 95 - "index.js"
+### Community 94 - "index.js"
 Cohesion: 0.09
 Nodes (16): applyToSelectionOrDocument(), run(), withErrorBoundary(), builtInPlugins, getBuiltInPlugins(), getMenuStructure(), replaceSelectionOrDocument(), run() (+8 more)
 
-### Community 96 - "BWdvOWGK.js"
+### Community 95 - "BWdvOWGK.js"
 Cohesion: 0.07
 Nodes (28): b, g, h, m, N, p, x, y (+20 more)
 
-### Community 97 - "_assertIndex"
-Cohesion: 0.67
-Nodes (6): _assertIndex(), createFromDiffChange(), getEndColumn(), getEndLineNumber(), getStartColumn(), getStartLineNumber()
-
-### Community 98 - "renameCollidingVarNames"
-Cohesion: 0.07
-Nodes (39): canHaveIllegalTypeParameters(), canPrefix(), changeInferToUnknown(), deleteEntireVariableStatement(), getDeclaration(), getEffectiveContainerForJSDocTemplateTag(), getEffectiveTypeParameterDeclarations(), getHostSignatureFromJSDoc() (+31 more)
-
-### Community 99 - ""src/compiler/visitorPublic.ts""
-Cohesion: 0.09
-Nodes (22): isAssertClause(), isAssertEntry(), isAssertsKeyword(), isAsteriskToken(), isAwaitKeyword(), isBindingName(), isCaseOrDefaultClause(), isColonToken() (+14 more)
-
-### Community 100 - "getTokenAtPosition"
-Cohesion: 0.09
-Nodes (30): doChange18(), documentSpansEqual(), findAncestor(), getActionsForInvalidImportLocation(), getActionsForUsageOfInvalidImport(), getAssertion(), getAwaitErrorSpanExpression(), getCallName() (+22 more)
-
-### Community 101 - "isModuleDeclaration"
-Cohesion: 0.17
-Nodes (17): canHaveExportModifier(), getExportingModuleSymbol(), getInfo19(), getInteriorModule(), getNonAugmentationDeclaration(), getSourceFileOfModule(), isAmbientModule(), isExternalModuleAugmentation() (+9 more)
-
-### Community 102 - "isIdentifier"
-Cohesion: 0.08
-Nodes (36): canUsePropertyAccess(), charSize(), createPropertyOrShorthandAssignment(), doChange10(), entityNameToExpression(), entityNameToString(), getJSDocTypeAliasName(), getPrefixAndSuffixText() (+28 more)
-
-### Community 103 - "constructor"
-Cohesion: 0.06
-Nodes (35): add(), assertFn(), checkAdjacentItems(), ComputeDiff(), computeMoreMinimalEdits(), constructor(), createContinueProcessingPredicate(), deleteAndLeak() (+27 more)
-
-### Community 104 - "createGetSymbolAccessibilityDiagnosticForNode"
+### Community 96 - "get"
 Cohesion: 0.10
-Nodes (36): addMissingMemberInJs(), addUndefinedToOptionalProperty(), canProduceDiagnostics(), createActionForAddMissingMemberInJavascriptFile(), createGetSymbolAccessibilityDiagnosticForNode(), createGetSymbolAccessibilityDiagnosticForNodeName(), createTypeAliasFromInterface(), doChange30() (+28 more)
+Nodes (25): assertNever(), buildRegExpCharClassExpr(), computeLinks(), computeUnicodeHighlights(), _createLink(), escapeRegExpCharacters(), fromString(), fromUserSettings() (+17 more)
 
-### Community 105 - "isConstructorDeclaration"
+### Community 97 - "organizeImports"
+Cohesion: 0.10
+Nodes (28): arrayIsSorted(), coalesceExports(), coalesceExportsWorker(), coalesceImports(), coalesceImportsWorker(), compareImportsOrRequireStatements(), compareModuleSpecifiers2(), compareModuleSpecifiersWorker() (+20 more)
+
+### Community 98 - "transformCallbackArgument"
+Cohesion: 0.14
+Nodes (30): createSynthIdentifier(), createUniqueSynthName(), createVariableOrAssignmentOrExpressionStatement(), declareSynthBindingName(), declareSynthBindingPattern(), declareSynthIdentifier(), finishCatchOrFinallyTransform(), getExplicitPromisedTypeOfPromiseReturningCallExpression() (+22 more)
+
+### Community 99 - "CommandPalette.vue"
+Cohesion: 0.08
+Nodes (21): allItems, commands, emit, fileTreeStore, filteredItems, inputRef, props, query (+13 more)
+
+### Community 100 - "remote-manager.test.js"
+Cohesion: 0.07
+Nodes (25): assert, FakeFtpClient, FakeSftpClient, ftpAccessStub, ftpCloseStub, ftpDownloadStub, ftpEnsureDirStub, ftpLastModStub (+17 more)
+
+### Community 101 - "computeUnicodeHighlights"
+Cohesion: 0.07
+Nodes (33): assertNever(), buildRegExpCharClassExpr(), computeLinks(), computeUnicodeHighlightReason(), computeUnicodeHighlights(), _createLink(), doNavigateValueSet(), ensureValidWordDefinition() (+25 more)
+
+### Community 102 - "isVariableDeclaration"
+Cohesion: 0.13
+Nodes (30): canBeConvertedToClass(), containingThis(), doChange2(), doChange7(), getCommentOwnerInfoWorker(), getFixableErrorSpanDeclaration(), getFunctionInfo(), getNewTargetContainer() (+22 more)
+
+### Community 103 - "computeSuggestionDiagnostics"
 Cohesion: 0.12
-Nodes (21): addMissingDeclarations(), addMissingMembers(), collectCallSites(), collectCallSitesOfClassLikeDeclaration(), collectCallSitesOfClassStaticBlockDeclaration(), collectCallSitesOfFunctionLikeDeclaration(), collectCallSitesOfSourceFile(), createCallSiteCollector() (+13 more)
+Nodes (21): check(), compilerOptionsIndicateEsModules(), computeSuggestionDiagnostics(), findModuleReferences(), findNamespaceReExports(), fixImportOfModuleExports(), forEachImport(), forEachPossibleImportOrExportStatement() (+13 more)
 
-### Community 106 - "getFunctionOrClassName"
-Cohesion: 0.11
-Nodes (27): areSameModule(), cleanText(), compareChildren(), declarationNameToString(), getCalledExpressionName(), getFullWidth(), getFullyQualifiedModuleName(), getFunctionOrClassName() (+19 more)
+### Community 104 - "devDependencies"
+Cohesion: 0.07
+Nodes (27): commander, concurrently, electron, electron-builder, { contextBridge, ipcRenderer }, @electron/rebuild, esbuild, nuxt (+19 more)
 
-### Community 107 - "flattenDestructuringBinding"
+### Community 105 - "constructor"
+Cohesion: 0.08
+Nodes (27): constructor(), createContinueProcessingPredicate(), darken(), emit(), firstNonWhitespaceIndex(), from(), getDarkerColor(), getFirstNonBlankColumn() (+19 more)
+
+### Community 106 - "isPrivateIdentifier"
+Cohesion: 0.09
+Nodes (25): accessPrivateIdentifier(), charSize(), doChange10(), formatGeneratedName(), formatGeneratedNamePart(), formatIdentifier(), formatIdentifierWorker(), getNodeForGeneratedName() (+17 more)
+
+### Community 107 - "last"
 Cohesion: 0.12
-Nodes (33): bindingOrAssignmentElementAssignsToName(), bindingOrAssignmentElementContainsNonLiteralComputedName(), bindingOrAssignmentPatternAssignsToName(), bindingOrAssignmentPatternContainsNonLiteralComputedName(), containsObjectRestOrSpread(), createDefaultValueCheck(), createDestructuringPropertyAccess(), ensureIdentifier() (+25 more)
+Nodes (24): collectEnclosingScopes(), collectReadsAndWrites(), createNewArgument(), createPropertyOrShorthandAssignment(), doChange36(), first(), forEachEnclosingBlockScopeContainer(), getContainingFunctionOrClassStaticBlock() (+16 more)
 
-### Community 108 - ""src/compiler/parser.ts""
+### Community 108 - "df"
+Cohesion: 0.09
+Nodes (27): af, bl(), Cu(), df(), em(), hl(), Hs(), ii() (+19 more)
+
+### Community 109 - "accessKind"
+Cohesion: 0.07
+Nodes (27): accessKind(), getAssignmentTargetKind(), isAdditiveOperator(), isAdditiveOperatorOrHigher(), isAssignmentOperator(), isAssignmentOperatorOrHigher(), isAssignmentTarget(), isBinaryOperator() (+19 more)
+
+### Community 110 - "getTokenAtPosition"
+Cohesion: 0.07
+Nodes (42): addMissingNewOperator(), collectTypeParameters(), filterOwnedJSDocTags(), findAncestor(), findAncestorMatchingSpan2(), getActionsForInvalidImportLocation(), getActionsForUsageOfInvalidImport(), getCallName() (+34 more)
+
+### Community 111 - "createGetSymbolAccessibilityDiagnosticForNode"
+Cohesion: 0.13
+Nodes (30): addUndefinedToOptionalProperty(), canProduceDiagnostics(), createGetSymbolAccessibilityDiagnosticForNode(), createGetSymbolAccessibilityDiagnosticForNodeName(), getInfo16(), getRightHandSideOfAssignment(), hasEffectiveReadonlyModifier(), isAutoAccessorPropertyDeclaration() (+22 more)
+
+### Community 112 - ""src/compiler/parser.ts""
 Cohesion: 0.14
 Nodes (27): createBaseNodeFactory(), createNodeConverters(), createNodeFactory(), createParenthesizerRules(), forEachChildInBlock(), forEachChildInCallOrConstructSignature(), forEachChildInCallOrNewExpression(), forEachChildInClassDeclarationOrExpression() (+19 more)
 
-### Community 109 - "build"
-Cohesion: 0.08
-Nodes (26): build, appId, directories, forceCodeSigning, icon, linux, mac, productName (+18 more)
+### Community 113 - "al"
+Cohesion: 0.05
+Nodes (53): ai(), al, An(), Ao(), bl(), bn(), bt(), Ci() (+45 more)
 
-### Community 110 - "CommandPalette.vue"
+### Community 114 - "r"
 Cohesion: 0.09
-Nodes (18): allItems, commands, emit, fileTreeStore, filteredItems, inputRef, props, query (+10 more)
+Nodes (26): ad(), Ao(), bd(), _d(), el(), gd(), gh(), gi() (+18 more)
 
-### Community 111 - "FileTreeFolder.vue"
-Cohesion: 0.10
-Nodes (16): emit, fileTreeStore, folderName, isRemoteMode, moveEntry(), openFile(), remoteLabel, childrenMap (+8 more)
-
-### Community 112 - "WALKTRACE"
+### Community 115 - "WALKTRACE"
 Cohesion: 0.10
 Nodes (26): AddModifiedElement(), AddOriginalElement(), _boundaryScore(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges() (+18 more)
 
-### Community 113 - "getNodeKind"
-Cohesion: 0.14
-Nodes (18): convertToPrimaryNavBarMenuItem(), convertToTree(), createNavigateToItem(), getContainerNode(), getModifiers2(), getNavigationBarItems(), getNavigationTree(), getNodeKind() (+10 more)
-
-### Community 114 - "isJSDoc"
+### Community 116 - "WALKTRACE"
 Cohesion: 0.10
-Nodes (25): canHaveJSDoc(), filterOwnedJSDocTags(), forEachAncestor(), getCommentHavingNodes(), getCommentOwnerInfo(), getDocCommentTemplateAtPosition(), getJSDocCommentsAndTags(), getJSDocParameterTagsNoCache() (+17 more)
+Nodes (26): AddModifiedElement(), AddOriginalElement(), _boundaryScore(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges() (+18 more)
 
-### Community 115 - "isVariableStatement"
-Cohesion: 0.13
-Nodes (19): classifySymbol(), createExpressionFromEntityName(), getJSDocEnumTag(), getMeaningFromDeclaration(), getModuleInstanceState(), getModuleInstanceStateCached(), getModuleInstanceStateForAliasTarget(), getModuleInstanceStateWorker() (+11 more)
-
-### Community 116 - "get"
-Cohesion: 0.18
-Nodes (13): fromString(), fromUserSettings(), get(), getInstance(), getOrCreate(), isResolved(), isValidMatch(), languageId() (+5 more)
-
-### Community 117 - "WALKTRACE"
-Cohesion: 0.10
-Nodes (25): AddModifiedElement(), AddOriginalElement(), _boundaryScore(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges() (+17 more)
-
-### Community 118 - "dispose"
-Cohesion: 0.06
-Nodes (37): cancel(), clear(), combinedDisposable(), createSingleCallFunction(), _deliver(), _deliverQueue(), dispose(), enqueue() (+29 more)
-
-### Community 119 - "suppressLeadingAndTrailingTrivia"
-Cohesion: 0.12
-Nodes (24): addEmitFlags(), addEmitFlagsRecursively(), canBeConvertedToExpression(), copyComments(), copyLeadingComments(), copyTrailingAsLeadingComments(), copyTrailingComments(), forEachLeadingCommentRange() (+16 more)
-
-### Community 120 - "isBinaryExpression"
-Cohesion: 0.08
-Nodes (41): containsTopLevelCommonjs(), entryToDeclaration(), exportAssignmentIsAlias(), expressionResultIsUnused(), forEachTopLevelDeclaration(), getAssignmentDeclarationKind(), getContextNodeForNodeEntry(), getDeclarationFromName() (+33 more)
-
-### Community 121 - "getText"
-Cohesion: 0.12
-Nodes (20): escapeLeadingUnderscores(), getDescriptionForFunctionLikeDeclaration(), getDescriptionForModuleLikeDeclaration(), getEscapedTextOfIdentifierOrLiteral(), getPropertyNameForPropertyNameNode(), getText(), hasDynamicName(), initializeNameTable() (+12 more)
-
-### Community 122 - "WALKTRACE"
-Cohesion: 0.12
-Nodes (21): AddModifiedElement(), AddOriginalElement(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges(), _contiguousSequenceScore() (+13 more)
-
-### Community 123 - "isBindingElement"
-Cohesion: 0.21
-Nodes (14): classifySymbol2(), createSyntaxList2(), getCombinedFlags(), getCombinedNodeFlags(), getDeclarationForBindingElement(), getExportNode(), getSelectionChildren(), groupChildren() (+6 more)
-
-### Community 124 - "TemplatablePattern"
-Cohesion: 0.10
-Nodes (4): Directives(), Pattern(), TemplatablePattern(), WhitespacePattern()
-
-### Community 125 - "constructor"
-Cohesion: 0.09
-Nodes (22): addItemFirst(), addItemLast(), constructor(), createContinueProcessingPredicate(), deleteAndLeak(), firstNonWhitespaceIndex(), from(), getFirstNonBlankColumn() (+14 more)
-
-### Community 126 - "getContextualType"
-Cohesion: 0.29
-Nodes (10): getContextualType(), getContextualTypeFromParent(), getSwitchedType(), isDeleteTarget(), isEqualityOperatorKind(), tryGetObjectLiteralContextualType(), walkUp(), walkUpParentheses() (+2 more)
-
-### Community 127 - "updateReadonlyPropertyInitializerStatementConstructor"
-Cohesion: 0.07
-Nodes (28): accessKind(), getAssignmentTargetKind(), isAdditiveOperator(), isAdditiveOperatorOrHigher(), isAssignmentOperator(), isAssignmentOperatorOrHigher(), isAssignmentTarget(), isBinaryOperator() (+20 more)
-
-### Community 128 - "df"
-Cohesion: 0.12
-Nodes (22): af, df(), em(), hl(), Hs(), ii(), il, ir() (+14 more)
-
-### Community 129 - "CSSDataManager2"
-Cohesion: 0.08
-Nodes (15): computeColors(), computeDefaultDocumentColors(), CSSDataManager2(), CSSDataProvider2(), _findHexColorInformation(), _findHSLColorInformation(), _findMatches(), _findRGBColorInformation() (+7 more)
-
-### Community 130 - "get"
-Cohesion: 0.10
-Nodes (22): addItemFirst(), addItemLast(), computeCodePoint(), fromString(), fromUserSettings(), get(), getInstance(), getNextCodePoint() (+14 more)
-
-### Community 131 - "getEffectiveModifierFlags"
-Cohesion: 0.16
-Nodes (14): convertToBlock(), getCombinedModifierFlags(), getEditInfoForConvertToAnonymousFunction(), getEditInfoForConvertToNamedFunction(), getEffectiveModifierFlags(), getRefactorEditsToConvertFunctionExpressions(), getSelectedEffectiveModifierFlags(), hasEffectiveModifiers() (+6 more)
-
-### Community 132 - "getOrCreateEmitNode"
-Cohesion: 0.11
-Nodes (22): addEmitHelper(), addEmitHelpers(), addSyntheticLeadingComment(), addSyntheticTrailingComment(), appendIfUnique(), getOrCreateEmitNode(), getSyntheticLeadingComments(), getSyntheticTrailingComments() (+14 more)
-
-### Community 133 - "collectExternalModuleInfo"
-Cohesion: 0.09
-Nodes (29): canCompleteFromNamedBindings(), collectExternalModuleInfo(), containsDefaultReference(), extractSingleNode(), getAdjustedLocationForExportDeclaration(), getAdjustedLocationForImportDeclaration(), getExplicitPromisedTypeOfPromiseReturningCallExpression(), getExportNeedsImportStarHelper() (+21 more)
-
-### Community 134 - "isVariableDeclaration"
-Cohesion: 0.09
-Nodes (28): addConvertToAsyncFunctionDiagnostics(), canBeConvertedToClass(), canDeleteEntireVariableStatement(), canHaveLiteralInitializer(), createForOfBindingStatement(), doChange2(), first(), firstOrOnly() (+20 more)
-
-### Community 135 - "identifierToKeywordKind"
-Cohesion: 0.14
-Nodes (19): getKeywordCompletions(), getTypescriptKeywordCompletions(), identifierToKeywordKind(), isClassMemberCompletionKeyword(), isClassMemberModifier(), isContextualKeyword(), isFunctionLikeBodyKeyword(), isIdentifierANonContextualKeyword() (+11 more)
-
-### Community 136 - "slice"
-Cohesion: 0.25
-Nodes (19): basename(), cwd(), decodeURIComponentGraceful(), dirname(), extname(), isAbsolute(), isPathSeparator(), isPosixPathSeparator() (+11 more)
-
-### Community 137 - "WALKTRACE"
-Cohesion: 0.12
-Nodes (21): AddModifiedElement(), AddOriginalElement(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges(), _contiguousSequenceScore() (+13 more)
-
-### Community 138 - "WALKTRACE"
-Cohesion: 0.12
-Nodes (21): AddModifiedElement(), AddOriginalElement(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges(), _contiguousSequenceScore() (+13 more)
-
-### Community 139 - "addChildrenRecursively"
+### Community 117 - "getRangeOfEnclosingComment"
 Cohesion: 0.15
-Nodes (21): addChildrenRecursively(), addLeafNode(), addNodeWithRecursiveChild(), addNodeWithRecursiveInitializer(), addTrackedEs5Class(), emptyNavigationBarNode(), endNestedNodes(), endNode() (+13 more)
+Nodes (13): getApplicableSpanForArguments(), getArgumentCount(), getArgumentOrParameterListInfo(), getRangeOfEnclosingComment(), isInComment(), isInNonReferenceComment(), isInReferenceCommentWorker(), isInString() (+5 more)
 
-### Community 140 - "generateAccessorFromProperty"
+### Community 118 - "getEmitScriptTarget"
 Cohesion: 0.15
-Nodes (14): createAccessorAccessExpression(), createPropertyName(), generateAccessorFromProperty(), generateGetAccessor(), generateSetAccessor(), getAccessorConvertiblePropertyAtPosition(), getDeclarationType(), getTypeAnnotationNode() (+6 more)
+Nodes (26): chainBundle(), createRuntimeTypeSerializer(), getEmitScriptTarget(), getJSXTransformEnabled(), getModuleTransformer(), getScriptTransformers(), getUseDefineForClassFields(), transformClassFields() (+18 more)
 
-### Community 141 - "setTextRange"
-Cohesion: 0.18
-Nodes (20): createExpressionForAccessorDeclaration(), createExpressionForMethodDeclaration(), createExpressionForObjectLiteralElementLike(), createExpressionForPropertyAssignment(), createExpressionForPropertyName(), createExpressionForShorthandPropertyAssignment(), createMemberAccessForPropertyName(), elideNodes() (+12 more)
+### Community 119 - "BWdvOWGK.js"
+Cohesion: 0.05
+Nodes (50): b, g, h, m, N, p, x, y (+42 more)
 
-### Community 142 - "definitionToReferencedSymbolDefinitionInfo"
-Cohesion: 0.15
-Nodes (17): declarationIsWriteAccess(), definitionToReferencedSymbolDefinitionInfo(), entryToDocumentSpan(), findReferencedSymbols(), getDefinitionKindAndDisplayParts(), getFileAndTextSpanFromNode(), getTextSpan(), getTextSpanOfEntry() (+9 more)
-
-### Community 143 - "lu"
-Cohesion: 0.16
-Nodes (20): _a(), At(), dl(), ff, Ga(), ho(), hr, In() (+12 more)
-
-### Community 144 - "computeUnicodeHighlights"
-Cohesion: 0.12
-Nodes (19): assertNever(), buildRegExpCharClassExpr(), computeLinks(), computeUnicodeHighlightReason(), computeUnicodeHighlights(), _createLink(), escapeRegExpCharacters(), getClassifier() (+11 more)
-
-### Community 145 - "compareValues"
-Cohesion: 0.14
-Nodes (20): compareBooleans(), compareComparableValues(), compareDiagnostics(), compareDiagnosticsSkipRelatedInformation(), compareEmitHelpers(), compareGeneratedPositions(), compareMatches(), compareMessageText() (+12 more)
-
-### Community 146 - "getSymbolDisplayPartsDocumentationAndSymbolKind"
-Cohesion: 0.31
-Nodes (11): getCombinedLocalAndExportSymbolFlags(), getDeclarationOfKind(), getExternalModuleImportEqualsDeclarationExpression(), getSymbolDisplayPartsDocumentationAndSymbolKind(), getSymbolKind(), getSymbolKindOfConstructorPropertyMethodAccessorFunctionOrVar(), identifierIsThisKeyword(), isExpressionOfExternalModuleImportEqualsDeclaration() (+3 more)
-
-### Community 147 - "registerRefactor"
-Cohesion: 0.16
-Nodes (18): doChange38(), doInterfaceChange(), doTypeAliasChange(), getOwnValues(), getRefactorActionsToConvertToOptionalChain(), getRefactorActionsToInferReturnType(), getRefactorEditsToConvertToOptionalChain(), getRefactorEditsToInferReturnType() (+10 more)
-
-### Community 148 - "devDependencies"
-Cohesion: 0.11
-Nodes (19): commander, concurrently, electron-builder, esbuild, nuxt, devDependencies, commander, concurrently (+11 more)
-
-### Community 149 - "je"
-Cohesion: 0.10
-Nodes (21): ac(), cp(), Cu(), Dn(), fu(), Hs(), $i(), Ip() (+13 more)
-
-### Community 150 - "lu"
-Cohesion: 0.18
-Nodes (19): _a(), At(), dl(), ff, Ga(), ho(), hr, In() (+11 more)
-
-### Community 151 - "isJsxOpeningLikeElement"
-Cohesion: 0.07
-Nodes (38): climbPastPropertyAccess(), climbPastPropertyOrElementAccess(), codeFixActionToCodeAction(), convertEntryToCallSite(), getFixesInfoForUMDImport(), getFixInfos(), getPromoteTypeOnlyCompletionAction(), getSymbolNamesToImport() (+30 more)
-
-### Community 152 - "getAdjustedLocation"
-Cohesion: 0.10
-Nodes (35): couldBeTypeOnlyImportSpecifier(), entryToImportOrExport(), forEachImportInStatement(), getAdjustedLocation(), getAdjustedLocationForHeritageClause(), getAdjustedReferenceLocation(), getDeclaration2(), getImportDeclaration() (+27 more)
-
-### Community 153 - "MenuBar.vue"
-Cohesion: 0.14
-Nodes (14): closeMenu(), currentMenuItems, emit, menuRefs, menuStyle, onKeydown(), openMenuId, overflowMenuRef (+6 more)
-
-### Community 154 - ".has"
-Cohesion: 0.13
-Nodes (17): Ap(), _c(), fh(), gh(), gi(), Lo(), mc(), mh() (+9 more)
-
-### Community 156 - "doChange24"
-Cohesion: 0.19
-Nodes (19): annotate(), annotateJSDocParameters(), annotateJSDocThis(), annotateParameters(), annotateSetAccessor(), annotateThis(), annotateVariableDeclaration(), doChange24() (+11 more)
-
-### Community 157 - "getCompletionData"
-Cohesion: 0.14
-Nodes (18): binaryExpressionMayBeOpenTag(), getCompletionData(), getCompletionsAtPosition(), getJSDocParameterNameCompletions(), getJSDocTagCompletions(), getJSDocTagNameCompletions(), getRelevantTokens(), hasJSDocParameterTags() (+10 more)
-
-### Community 158 - "completionInfoFromData"
-Cohesion: 0.20
-Nodes (12): compareCompletionEntries(), compareStringsCaseSensitiveUI(), completionInfoFromData(), createCompletionEntryForLiteral(), getJSCompletionEntries(), getLanguageVariant(), getNameTable(), insertSorted() (+4 more)
-
-### Community 159 - "isTypeNode"
-Cohesion: 0.19
-Nodes (19): doChange(), getConstraintOfTypeArgumentProperty(), isJSDocIndexSignature(), isTypeNode(), isTypeNodeKind(), isTypeReferenceType(), setEmitFlags(), transformJSDocFunctionType() (+11 more)
-
-### Community 160 - "getRangeToExtract"
-Cohesion: 0.17
-Nodes (13): collectTypeParameters(), createRange(), createStringRange(), createTextRangeFromNode(), createTextRangeFromSpan(), createTokenRange(), getEnclosingNode(), getRangeToExtract() (+5 more)
-
-### Community 161 - "getAssignmentDeclarationKindWorker"
-Cohesion: 0.17
-Nodes (23): getAssignedExpandoInitializer(), getAssignmentDeclarationKindWorker(), getAssignmentDeclarationPropertyAccessKind(), getDeclaredExpandoInitializer(), getDefaultedExpandoInitializer(), getEffectiveInitializer(), getElementOrPropertyAccessName(), getExpandoInitializer() (+15 more)
-
-### Community 162 - "getFirstJSDocTag"
-Cohesion: 0.14
-Nodes (18): getFirstJSDocTag(), getJSDocClassTag(), getJSDocDeprecatedTag(), getJSDocDeprecatedTagNoCache(), getJSDocProtectedTag(), getJSDocProtectedTagNoCache(), getJSDocPublicTag(), getJSDocPublicTagNoCache() (+10 more)
-
-### Community 163 - "scripts"
-Cohesion: 0.12
-Nodes (17): scripts, assets:generate-icons, build, dev, electron:build, electron:build:linux, electron:build:mac, electron:build:win (+9 more)
-
-### Community 164 - "FindInFiles.vue"
-Cohesion: 0.13
-Nodes (13): close(), emit, isSearching, mask, matchCase, open(), patternInputRef, props (+5 more)
-
-### Community 165 - "FindReplaceBar.vue"
-Cohesion: 0.18
-Nodes (16): caseSensitive, close(), emit, findInputRef, findNext(), findPrev(), findText, getEditor() (+8 more)
-
-### Community 166 - "fire"
-Cohesion: 0.13
-Nodes (17): _deliver(), _deliverQueue(), enqueue(), fire(), fromDOMEventEmitter(), fromNodeEventEmitter(), _handleEventMessage(), handleMessage() (+9 more)
-
-### Community 167 - "get"
-Cohesion: 0.08
-Nodes (31): computeCodePoint(), computeLineOffsets(), _ensureLineStarts(), fromString(), fromUserSettings(), get(), getInstance(), getLineOffsets() (+23 more)
-
-### Community 168 - "getSourceFileOfNode"
-Cohesion: 0.12
-Nodes (17): buildLinkParts(), disposeEmitNodes(), findLinkNameEnd(), getOriginalSourceFile(), getParseTreeNode(), getSourceFileOfNode(), getTextOfNode(), isDeclarationNameOfEnumOrNamespace() (+9 more)
-
-### Community 169 - "tryCast"
-Cohesion: 0.11
-Nodes (24): addExports(), canHaveLocals(), canHaveSymbol(), chooseBetterSymbol(), getAncestorCallLikeExpression(), getExportEqualsLocalSymbol(), getExportSpecifierForDiagnosticSpan(), getInfo14() (+16 more)
-
-### Community 170 - "coalesceImportsWorker"
-Cohesion: 0.15
-Nodes (15): coalesceExports(), coalesceExportsWorker(), coalesceImports(), coalesceImportsWorker(), compareImportOrExportSpecifiers(), getCategorizedImports(), getOrganizeImportsOrdinalStringComparer(), indicesOf() (+7 more)
-
-### Community 171 - "concatConsecutiveString"
-Cohesion: 0.18
-Nodes (17): concatConsecutiveString(), copyExpressionComments(), escapeRawStringForTemplate(), getEditsForToTemplateLiteral(), getExpressionFromParenthesesOrExpression(), getNodeOrParentOfParentheses(), getParentBinaryExpression(), getRawTextOfTemplate() (+9 more)
-
-### Community 172 - "isExpression"
-Cohesion: 0.13
-Nodes (20): createTemplateCooked(), findAncestorMatchingSpan(), getInfo3(), getInfo8(), getSuggestion(), hasInvalidEscape(), isExpression(), isExpressionKind() (+12 more)
-
-### Community 173 - "fire"
-Cohesion: 0.13
-Nodes (17): _deliver(), _deliverQueue(), fire(), fromDOMEventEmitter(), fromNodeEventEmitter(), fromPromise(), _handleEventMessage(), handleMessage() (+9 more)
-
-### Community 174 - "isFunctionLike"
-Cohesion: 0.10
-Nodes (25): canBeConvertedToAsync(), convertToAsyncFunction(), forEachReturnStatement(), getCommentOwnerInfoWorker(), getContainerFlags(), getContainingClassStaticBlock(), getContainingFunction(), getDiagnostic() (+17 more)
-
-### Community 175 - "package.json"
-Cohesion: 0.13
-Nodes (15): author, description, main, name, productName, version, createDeprecation(), createErrorDeprecation() (+7 more)
-
-### Community 176 - "getContainingNodeArray"
-Cohesion: 0.22
-Nodes (10): doChange29(), flattenInvalidBinaryExpr(), getContainingNodeArray(), isEnumMember(), isJSDocCommentContainingNode(), isJSDocLinkLike(), isJSDocTag(), isJSDocTypeLiteral() (+2 more)
-
-### Community 177 - "findChildOfKind"
-Cohesion: 0.23
-Nodes (13): addNodeOutliningSpans(), createOutliningSpan(), createOutliningSpanFromBounds(), createTextSpanFromNode(), findChildOfKind(), functionSpan(), getClassOrObjectBraceEnds(), getJsxClosingTagCompletion() (+5 more)
-
-### Community 178 - "getAdjustedStartPosition"
-Cohesion: 0.23
-Nodes (16): appendCommentRange(), deleteNode(), deleteNodeInList(), endPositionToDeleteNodeInList(), getAdjustedEndPosition(), getAdjustedRange(), getAdjustedStartPosition(), getJSDocCommentRanges() (+8 more)
-
-### Community 179 - "toString"
-Cohesion: 0.09
-Nodes (23): _asFormatted(), clipCyclic(), computeDefaultDocumentColors(), elapsed(), encodeJsxCharacterEntity(), encodeURIComponentFast(), escapeJsxAttributeString(), generateDjb2Hash() (+15 more)
-
-### Community 180 - "isInString"
-Cohesion: 0.22
-Nodes (10): classFromKind(), getNewEndOfLineState(), isBinaryExpressionOperatorToken(), isInString(), isInTemplateString(), isPrefixUnaryExpressionOperatorToken(), isStringOrRegularExpressionOrTemplateLiteral(), isStringTextContainingNode() (+2 more)
-
-### Community 181 - "computeColors"
-Cohesion: 0.16
-Nodes (16): computeColors(), _ensureLineStarts(), _findHexColorInformation(), _findHSLColorInformation(), _findMatches(), _findRange(), _findRGBColorInformation(), fromHex() (+8 more)
-
-### Community 182 - "getDefinitionAtPosition"
-Cohesion: 0.09
-Nodes (31): createDefinitionFromSignatureDeclaration(), createDefinitionInfo(), createDefinitionInfoFromName(), definitionFromType(), flattenTypeLiteralNodeReference(), getCheckFlags(), getContainingObjectLiteralElement(), getDeclarationModifierFlagsFromSymbol() (+23 more)
-
-### Community 183 - "createCallHierarchyItem"
-Cohesion: 0.25
-Nodes (9): convertCallSiteGroupToIncomingCall(), convertCallSiteGroupToOutgoingCall(), createCallHierarchyIncomingCall(), createCallHierarchyItem(), createCallHierarchyOutgoingCall(), createTextSpanFromRange(), findReferenceInPosition(), getDefinitionAndBoundSpan() (+1 more)
-
-### Community 184 - "getInfo5"
-Cohesion: 0.14
-Nodes (20): convertSemanticMeaningToSymbolFlags(), fixImportOfModuleExports(), getInfo5(), getModeForUsageLocation(), getResolutionModeOverrideForClause(), getResolvedModule(), getResolvedSourceFileFromImportDeclaration(), hasPossibleExternalModuleReference() (+12 more)
-
-### Community 185 - "doAddOverrideModifierChange"
-Cohesion: 0.17
-Nodes (13): canFollow(), dispatchChanges(), doAddOverrideModifierChange(), doRemoveOverrideModifierChange(), findContainerClassElementLike(), getJSDocOverrideTagNoCache(), isAbstractModifier(), isAccessibilityModifier() (+5 more)
-
-### Community 186 - "canHaveModifiers"
-Cohesion: 0.24
-Nodes (12): canHaveModifiers(), findLast(), getModifierKindFromSource(), getNonDecoratorTokenPosOfNode(), isDecorator(), isModifierLike(), makeChange6(), moveRangePastDecorators() (+4 more)
-
-### Community 187 - "convertSingleIdentifierImport"
-Cohesion: 0.22
-Nodes (15): convertedImports(), convertPropertyAccessImport(), convertSingleIdentifierImport(), convertSingleImport(), convertVariableStatement(), doChange27(), makeConst(), makeImport() (+7 more)
-
-### Community 188 - "initialize"
-Cohesion: 0.15
-Nodes (15): create(), createProxyObject(), createProxyObject2(), getAllMethodNames(), getAllPropertyNames(), handleChange(), _handleEvent(), initialize() (+7 more)
-
-### Community 189 - "createCompletionEntry"
-Cohesion: 0.17
-Nodes (15): createCompletionEntry(), doChange17(), escapeSnippetText(), getInsertTextAndReplacementSpanForImportCompletion(), isRecommendedCompletionMatch(), isStringAndEmptyAnonymousObjectIntersection(), isValidCharacter(), originIsExport() (+7 more)
-
-### Community 190 - "createNewArgument"
-Cohesion: 0.15
-Nodes (17): createNewArgument(), createNewParameters(), doChange36(), getContainingFunctionDeclaration(), getFunctionDeclarationAtPosition(), getParameterName(), getRefactorableParameters(), getRefactorableParametersLength() (+9 more)
-
-### Community 191 - "formatSpan"
-Cohesion: 0.19
-Nodes (15): findEnclosingNode(), findImmediatelyPrecedingTokenOfKind(), findOutermostNodeWithinListLevel(), formatDocument(), formatNodeLines(), formatOnClosingCurly(), formatOnOpeningCurly(), formatOnSemicolon() (+7 more)
-
-### Community 192 - "createScanner"
-Cohesion: 0.29
-Nodes (7): createClassifier2(), createScanner(), getCookedText(), getEncodedSyntacticClassifications(), getSyntacticClassifications(), scanTokenAtPosition(), "src/services/formatting/formattingScanner.ts"()
-
-### Community 193 - "hasSyntacticModifier"
-Cohesion: 0.11
-Nodes (22): checkFixedAssignableTo(), createObjectTypeFromLabeledExpression(), createSymbolTable(), getFixInfo(), getStaticPropertiesAndClassStaticBlock(), hasAbstractModifier(), hasAccessorModifier(), hasAmbientModifier() (+14 more)
-
-### Community 194 - ".doValidation"
-Cohesion: 0.16
-Nodes (9): asSchema(), extendedRegExp(), isBoolean(), JSONValidation2(), ResolvedSchema2(), schemaAllowsComments(), schemaAllowsTrailingCommas(), startsWith() (+1 more)
-
-### Community 195 - "isExpressionStatement"
-Cohesion: 0.15
-Nodes (17): addExportToChanges(), applyChange(), expandPreOrPostfixIncrementOrDecrementExpression(), expressionCouldBeVariableDeclaration(), getContextNode(), getNamesToExportInCommonJS(), isExported(), isExpressionStatement() (+9 more)
-
-### Community 196 - "textSpanEnd"
-Cohesion: 0.09
-Nodes (25): addMissingNewOperator(), applyChanges(), createLanguageServiceSourceFile(), findAncestorMatchingSpan2(), findFirstNonJsxWhitespaceToken(), findNextToken(), getAdjustedSpanFromNodes(), getExtractableParent() (+17 more)
-
-### Community 197 - "eachUnreachableRange"
-Cohesion: 0.29
-Nodes (7): eachUnreachableRange(), getRangesWhere(), getStatementsToMove(), isAllowedStatementToMove(), isPureImport(), sliceAfter(), "src/services/refactors/moveToNewFile.ts"()
-
-### Community 198 - "update"
-Cohesion: 0.21
-Nodes (14): computeCodePoint(), createCacheWithRedirects(), createModuleOrTypeReferenceResolutionCache(), createNonRelativeNameResolutionCache(), createPackageJsonInfoCache(), createPerDirectoryResolutionCache(), getNextCodePoint(), isHighSurrogate() (+6 more)
-
-### Community 199 - "newCaseClauseTracker"
-Cohesion: 0.25
-Nodes (9): getConstantValue(), isDefaultClause(), isLiteralExpression(), isLiteralKind(), isLiteralTypeLiteral(), isValidBigIntString(), newCaseClauseTracker(), parseBigInt() (+1 more)
-
-### Community 200 - "isExpressionNode"
-Cohesion: 0.19
-Nodes (14): entryToType(), getJSDocAugmentsTag(), isExpressionNode(), isExpressionWithTypeArgumentsInClassExtendsClause(), isHeritageClause(), isInExpressionContext(), isJSDocAugmentsTag(), isJSDocNameReference() (+6 more)
-
-### Community 201 - "je"
-Cohesion: 0.15
-Nodes (13): ac(), cp(), Dn(), fu(), $i(), je(), rs, sn() (+5 more)
-
-### Community 203 - "createFromDiffResult"
-Cohesion: 0.23
-Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
-
-### Community 204 - ".computeCompletions"
-Cohesion: 0.19
-Nodes (10): createCompletionItem(), getWorkspaceUrl(), isCompletablePath(), isPathAttribute(), PathCompletionParticipant2(), pathToReplaceRange(), shiftPosition(), shiftRange() (+2 more)
-
-### Community 205 - "createFromDiffResult"
-Cohesion: 0.23
-Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
-
-### Community 206 - "computeColors"
-Cohesion: 0.21
-Nodes (13): computeColors(), computeDefaultDocumentColors(), _findHexColorInformation(), _findHSLColorInformation(), _findMatches(), _findRange(), _findRGBColorInformation(), fromHex() (+5 more)
-
-### Community 207 - "createFromDiffResult"
-Cohesion: 0.23
-Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
-
-### Community 208 - "isQualifiedName"
-Cohesion: 0.15
-Nodes (13): getAncestorTypeNode(), getContextualTypeFromParentOrAncestorTypeNode(), getMeaningFromRightHandSideOfImportEquals(), getProperties(), getQualifiedName(), isExpressionInCallExpression(), isInitializedOrStaticProperty(), isJSDocMemberName() (+5 more)
-
-### Community 209 - "getLineAndCharacterOfPosition"
-Cohesion: 0.18
-Nodes (13): createCommentDirectivesMap(), findPrecedingMatchingToken(), findPrecedingToken(), formatNodeGivenIndentation(), formatSpanWorker(), getFormattingScanner(), getLeftmostExpression(), getLineAndCharacterOfPosition() (+5 more)
-
-### Community 210 - "getRangeOfEnclosingComment"
-Cohesion: 0.29
-Nodes (7): getRangeOfEnclosingComment(), isInComment(), isInNonReferenceComment(), isInReferenceComment(), isInReferenceCommentWorker(), rangeContainsPositionExclusive(), rangeContainsRangeExclusive()
-
-### Community 211 - "isStringLiteralLike"
-Cohesion: 0.22
-Nodes (11): createTriggerSpanForNode(), getAdjustedRenameLocation(), getModuleSpecifierText(), getRenameInfo(), getRenameInfoError(), getRenameInfoForNode(), getRenameInfoSuccess(), isDefinedInLibraryFile() (+3 more)
-
-### Community 212 - "isStatement"
-Cohesion: 0.29
-Nodes (8): isDeclarationStatement(), isDeclarationStatementKind(), isStatement(), isStatementButNotDeclaration(), isStatementKindButNotDeclarationKind(), isStatementOrBlock(), visitIterationBody(), visitLexicalEnvironment()
-
-### Community 213 - "nodeIsASICandidate"
-Cohesion: 0.33
-Nodes (9): getFormatCodeSettingsForWriting(), getSpanOfTokenAtPosition(), nodeIsASICandidate(), probablyUsesSemicolons(), "src/services/utilities.ts"(), syntaxRequiresTrailingCommaOrSemicolonOrASI(), syntaxRequiresTrailingFunctionBlockOrSemicolonOrASI(), syntaxRequiresTrailingModuleBlockOrSemicolonOrASI() (+1 more)
-
-### Community 214 - "run-electron-builder.js"
-Cohesion: 0.23
-Nodes (11): builderBin, env, fs, hasSigningFileExtension(), isExistingFile(), isLikelyBase64Blob(), isLikelyUrl(), path (+3 more)
-
-### Community 215 - "computeColors"
+### Community 120 - "computeColors"
 Cohesion: 0.23
 Nodes (12): computeColors(), _findHexColorInformation(), _findHSLColorInformation(), _findMatches(), _findRange(), _findRGBColorInformation(), fromHex(), _parseCaptureGroups() (+4 more)
 
-### Community 216 - "dispose"
-Cohesion: 0.20
-Nodes (12): any(), cancel(), combinedDisposable(), createSingleCallFunction(), dispose(), markAsDisposed(), once2(), registerFactory() (+4 more)
+### Community 121 - "build"
+Cohesion: 0.08
+Nodes (25): build, appId, directories, forceCodeSigning, icon, linux, mac, productName (+17 more)
 
-### Community 217 - "flattenDestructuringAssignment"
-Cohesion: 0.25
-Nodes (8): flattenDestructuringAssignment(), isArrayBindingOrAssignmentElement(), isEmptyArrayLiteral(), isEmptyObjectLiteral(), isObjectBindingOrAssignmentElement(), makeArrayAssignmentPattern(), makeAssignmentElement(), makeObjectAssignmentPattern()
+### Community 122 - "al"
+Cohesion: 0.10
+Nodes (25): ai(), al, An(), bn(), bt(), Ci(), Cl(), Co() (+17 more)
 
-### Community 218 - "isLineBreak"
-Cohesion: 0.24
-Nodes (12): arraysEqual(), computeLineStarts(), computePositionOfLineAndCharacter(), formatOnEnter(), getEndLinePosition(), getLineStarts(), getPositionOfLineAndCharacter(), getStartPositionOfLine() (+4 more)
-
-### Community 219 - "breakIntoSpans"
-Cohesion: 0.22
-Nodes (13): breakIntoSpans(), charIsPunctuation(), isAllPunctuation(), isDigit2(), isIdentifierPart(), isLowerCaseLetter(), isUnicodeIdentifierPart(), isUnicodeIdentifierStart() (+5 more)
-
-### Community 220 - "matchTextChunk"
-Cohesion: 0.24
-Nodes (11): breakIntoWordSpans(), createPatternMatch(), equalChars(), every2(), everyInRange(), getWordSpans(), indexOfIgnoringCase(), matchTextChunk() (+3 more)
-
-### Community 221 - "getDecorators"
-Cohesion: 0.30
-Nodes (12): childIsDecorated(), classOrConstructorParameterIsDecorated(), getAllDecoratorsOfAccessors(), getAllDecoratorsOfClass(), getAllDecoratorsOfClassElement(), getAllDecoratorsOfMethod(), getAllDecoratorsOfProperty(), getDecorators() (+4 more)
-
-### Community 222 - "extractFunctionInScope"
-Cohesion: 0.12
-Nodes (22): collectEnclosingScopes(), collectReadsAndWrites(), createDiagnosticForNode(), createDiagnosticForNodeInSourceFile(), extractFunctionInScope(), forEachEnclosingBlockScopeContainer(), getCalledExpression(), getConstantExtractionAtIndex() (+14 more)
-
-### Community 223 - "createTypeChecker"
-Cohesion: 0.18
-Nodes (11): aggregateChildData(), containsParseError(), createGetSymbolWalker(), createTypeChecker(), getContainingObjectLiteralElementWorker(), getFirstIdentifier(), isAssignmentPattern(), isJsxAttributeLike() (+3 more)
-
-### Community 224 - "isRequireCall"
-Cohesion: 0.36
-Nodes (8): convertAssignment(), convertNamedExport(), convertReExportAll(), convertStatement(), isRequireCall(), makeExportDeclaration(), reExportDefault(), reExportStar()
-
-### Community 225 - "getCompletionEntryDetails"
-Cohesion: 0.23
-Nodes (13): createCompletionDetails(), createCompletionDetailsForSymbol(), createSimpleDetails(), getCommentDisplayParts(), getCompletionEntryDetails(), getDisplayPartsFromComment(), getJSDocParameterNameCompletionDetails(), getJSDocTagCompletionDetails() (+5 more)
-
-### Community 226 - "displayPart"
-Cohesion: 0.15
-Nodes (14): displayPart(), getContextualKeywords(), keywordPart(), keywordToCompletionEntry(), operatorPart(), parameterNamePart(), propertyNamePart(), spacePart() (+6 more)
-
-### Community 227 - "computeColors"
-Cohesion: 0.25
-Nodes (11): computeColors(), computeDefaultDocumentColors(), _findHexColorInformation(), _findHSLColorInformation(), _findRGBColorInformation(), fromHex(), _parseCaptureGroups(), parseHex() (+3 more)
-
-### Community 228 - "initialize"
-Cohesion: 0.13
-Nodes (17): concat(), create(), createProxyObject(), createProxyObject2(), getAllMethodNames(), getAllPropertyNames(), _getModels(), handleChange() (+9 more)
-
-### Community 229 - "doAddExistingFix"
-Cohesion: 0.22
-Nodes (11): addImportType(), addNamespaceQualifier(), codeActionForFixWorker(), doAddExistingFix(), getImportTypePrefix(), getQuoteFromPreference(), getTypeKeywordOfTypeOnlyImport(), importNameElisionDisabled() (+3 more)
-
-### Community 230 - "getEnd"
-Cohesion: 0.29
-Nodes (10): assignPositionsToNode(), assignPositionsToNodeArray(), getEnd(), getPos2(), setTextRangeEnd(), setTextRangePos(), setTextRangePosEnd(), setTextRangePosWidth() (+2 more)
-
-### Community 231 - "contains"
-Cohesion: 0.27
-Nodes (10): contains(), containsPrecedingToken(), findContainingList(), getCandidateOrTypeInfo(), indexOfAnyCharCode(), isGrammarErrorElement(), isSyntacticOwner(), rangeContainsRange() (+2 more)
-
-### Community 232 - "isPrologueDirective"
-Cohesion: 0.24
-Nodes (11): findUseStrictPrologue(), insertStatementAfterCustomPrologue(), insertStatementAfterPrologue(), insertStatementAfterStandardPrologue(), insertStatementsAfterCustomPrologue(), insertStatementsAfterPrologue(), insertStatementsAfterStandardPrologue(), isAnyPrologueDirective() (+3 more)
-
-### Community 233 - "isStringLiteral"
-Cohesion: 0.11
-Nodes (22): createJsonPropertyAssignment(), findJsonProperty(), forEachProperty(), getAlreadyUsedTypesInStringLiteralUnion(), getExternalModuleName(), getExternalModuleNameLiteral(), getInfo18(), getMembersOrProperties() (+14 more)
-
-### Community 234 - "getJSDocReturnType"
-Cohesion: 0.09
-Nodes (24): and(), classElementOrClassElementParameterIsDecorated(), getAllAccessorDeclarations(), getEffectiveReturnTypeNode(), getEffectiveSetAccessorTypeAnnotationNode(), getEffectiveTypeAnnotationNode(), getInfo13(), getJSDocReturnTag() (+16 more)
-
-### Community 235 - "ie"
-Cohesion: 0.07
-Nodes (45): Aa(), af, be(), bn(), bo(), bs(), Ca(), cs() (+37 more)
-
-### Community 236 - "security-scan.js"
-Cohesion: 0.20
-Nodes (9): { execFileSync }, findings, fs, ignoredExtensions, ignoredFiles, path, patterns, repoRoot (+1 more)
-
-### Community 238 - "createWriter"
-Cohesion: 0.24
-Nodes (9): calculateIndent(), createTextWriter(), createWriter(), getIndentSize(), getIndentString(), setEnd(), setPos(), writeCommentRange() (+1 more)
-
-### Community 239 - "getStringLiteralCompletions"
-Cohesion: 0.47
-Nodes (6): convertPathCompletions(), convertStringLiteralCompletions(), createSortedArray(), createTextSpanFromStringLiteralLikeContent(), getReplacementSpanForContextToken(), getStringLiteralCompletions()
-
-### Community 240 - "findTokenOnLeftOfPosition"
-Cohesion: 0.29
-Nodes (8): findRightmostChildNodeWithTokens(), findRightmostToken(), findTokenOnLeftOfPosition(), isNonWhitespaceToken(), isToken(), isTokenKind(), isWhiteSpaceOnlyJsxText(), nodeHasTokens()
-
-### Community 241 - "computeLineOfPosition"
-Cohesion: 0.22
-Nodes (10): computeLineAndCharacterOfPosition(), computeLineOfPosition(), emitComments(), emitDetachedComments(), emitNewLineBeforeLeadingCommentOfPosition(), emitNewLineBeforeLeadingComments(), emitNewLineBeforeLeadingCommentsOfPosition(), getEndPositionOfMultilineTrailingComment() (+2 more)
-
-### Community 242 - "identity"
-Cohesion: 0.18
-Nodes (14): binarySearch(), binarySearchKey(), compareTextSpans(), findDiagnosticForNode(), fixSingleExportDeclaration(), getDiagnosticsWithinSpan(), getImportSpecifierInsertionIndex(), getTokenAtPositionWorker() (+6 more)
-
-### Community 243 - "insertImports"
-Cohesion: 0.27
-Nodes (10): compareImportKind(), compareImportsOrRequireStatements(), compareModuleSpecifiers2(), compareModuleSpecifiersWorker(), detectImportDeclarationSorting(), getExternalModuleName2(), getImportDeclarationInsertionIndex(), getImportKindOrder() (+2 more)
-
-### Community 244 - "getStringLiteralCompletionEntries"
-Cohesion: 0.29
-Nodes (10): containsNonPublicProperties(), getApparentProperties(), getPropertiesForCompletion(), getPropertiesForObjectExpression(), getStringLiteralCompletionEntries(), getStringLiteralCompletionsFromSignature(), getStringLiteralTypes(), hasIndexSignature() (+2 more)
-
-### Community 245 - "isAssignmentExpression"
-Cohesion: 0.23
-Nodes (12): arrayElementCouldBeVariableDeclaration(), createQueue(), enqueue(), getImplementationsAtPosition(), getRightMostAssignedExpression(), getSourceOfAssignment(), isAssignmentExpression(), isDestructuringAssignment() (+4 more)
-
-### Community 246 - "mapToDisplayParts"
-Cohesion: 0.22
-Nodes (13): createSignatureHelpParameterForParameter(), createSignatureHelpParameterForTypeParameter(), getSymbolTarget(), getTypeHelpItem(), isAliasSymbol(), isTransientSymbol(), itemInfoForParameters(), itemInfoForTypeParameters() (+5 more)
-
-### Community 247 - "getWordAtText"
-Cohesion: 0.22
-Nodes (10): doNavigateValueSet(), ensureValidWordDefinition(), _findRegexMatchEnclosingPosition(), getWordAtPosition(), getWordAtText(), navigateValueSet(), numberReplace(), textReplace() (+2 more)
-
-### Community 248 - "findNode"
-Cohesion: 0.40
-Nodes (5): find(), findNode(), findTargetNode(), parseJSONPointer(), unescape()
-
-### Community 249 - "addEs6Export"
-Cohesion: 0.40
-Nodes (5): addCommonjsExport(), addEs6Export(), addExport(), canHaveDecorators(), createExportAssignment()
-
-### Community 250 - "getInfo7"
-Cohesion: 0.18
-Nodes (15): firstOrUndefined(), getEffectiveJSDocHost(), getInfo4(), getInfo7(), getNestedModuleDeclaration(), getNextJSDocCommentLocation(), getNodeOfSymbol(), getSingleInitializerOfVariableStatementOrPropertyDeclaration() (+7 more)
-
-### Community 251 - "getJSDocModifierFlagsNoCache"
-Cohesion: 0.29
-Nodes (8): getEffectiveModifierFlagsAlwaysIncludeJSDoc(), getEffectiveModifierFlagsNoCache(), getJSDocModifierFlagsNoCache(), getJSDocPrivateTag(), getJSDocPrivateTagNoCache(), getModifierFlagsWorker(), getSyntacticModifierFlagsNoCache(), isJSDocPrivateTag()
-
-### Community 252 - "resolve-release-version.js"
-Cohesion: 0.44
-Nodes (8): bumpVersion(), detectBumpType(), { execSync }, getHeadTag(), getLatestTag(), main(), parseVersion(), run()
-
-### Community 253 - "MonacoEditor.vue"
-Cohesion: 0.25
-Nodes (7): bookmarkDecorationIds, configureMonaco(), containerRef, emit, props, registeredCompletionLanguages, registerKeywordCompletions()
-
-### Community 254 - "createFromDiffResult"
-Cohesion: 0.23
-Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
-
-### Community 255 - "getTokenPosOfNode"
-Cohesion: 0.40
-Nodes (5): getTokenPosOfNode(), isInJSDoc(), isJSDocNode(), isTopLevelJSDoc(), rangeOfNode()
-
-### Community 256 - "toString"
+### Community 123 - "toString"
 Cohesion: 0.08
 Nodes (25): _asFormatted(), clipCyclic(), _createAsciiMap(), digest(), encodeURIComponentFast(), fill(), _format(), formatHex() (+17 more)
 
-### Community 257 - "EmitterObserver"
-Cohesion: 0.22
-Nodes (4): _addLeakageTraceLogic(), debounce(), defer(), EmitterObserver
+### Community 124 - "createTextSpan"
+Cohesion: 0.16
+Nodes (17): addReplacementSpans(), collapseTextChangeRangesAcrossMultipleVersions(), createTextChange(), createTextChangeFromStartLength(), createTextChangeRange(), createTextSpan(), createTextSpanFromBounds(), getDefinitionInfoForFileReference() (+9 more)
 
-### Community 258 - ""src/services/codefixes/fixStrictClassInitialization.ts""
+### Community 125 - "getAdjustedLocation"
+Cohesion: 0.10
+Nodes (35): convertSemanticMeaningToSymbolFlags(), couldBeTypeOnlyImportSpecifier(), entryToImportOrExport(), getAdjustedLocation(), getAdjustedLocationForHeritageClause(), getAdjustedReferenceLocation(), getDeclaration2(), getImportDeclaration() (+27 more)
+
+### Community 126 - "isClassLike"
+Cohesion: 0.12
+Nodes (24): canBeConvertedToAsync(), convertToAsyncFunction(), doChange23(), getAllSupers(), getArgBindingName(), getContainingClassStaticBlock(), getContainingFunction(), getDescriptionForClassLikeDeclaration() (+16 more)
+
+### Community 127 - "fire"
+Cohesion: 0.08
+Nodes (29): createProxyObject(), createProxyObject2(), _deliver(), _deliverQueue(), enqueue(), fire(), fromDOMEventEmitter(), fromNodeEventEmitter() (+21 more)
+
+### Community 128 - "mapDefined"
+Cohesion: 0.19
+Nodes (20): annotate(), annotateJSDocParameters(), annotateJSDocThis(), annotateParameters(), annotateSetAccessor(), annotateThis(), annotateVariableDeclaration(), doChange24() (+12 more)
+
+### Community 129 - ""src/services/codefixes/disableJsDiagnostics.ts""
+Cohesion: 0.10
+Nodes (24): createAction(), createActionsForAddMissingMemberInTypeScriptFile(), createAddIndexSignatureAction(), createCodeFixActionMaybeFixAll(), createCodeFixActionWithoutFixAll(), createCodeFixActionWorker(), createConstEqualsRequireDeclaration(), createFileTextChanges() (+16 more)
+
+### Community 130 - "createCompletionEntry"
+Cohesion: 0.11
+Nodes (26): createCompletionEntry(), doChange17(), escapeSnippetText(), getCompletionEntryDisplayNameForSymbol(), getCompletionEntrySymbol(), getInsertTextAndReplacementSpanForImportCompletion(), getSourceFromOrigin(), getSymbolCompletionFromEntryId() (+18 more)
+
+### Community 131 - "FindReplaceBar.vue"
+Cohesion: 0.13
+Nodes (20): caseSensitive, close(), emit, findInputRef, findNext(), findPrev(), findText, getEditor() (+12 more)
+
+### Community 132 - "textSpanEnd"
+Cohesion: 0.21
+Nodes (12): applyChanges(), binarySearch(), binarySearchKey(), compareTextSpans(), findDiagnosticForNode(), fixSingleExportDeclaration(), getDiagnosticsWithinSpan(), getTypeExportSpecifiers() (+4 more)
+
+### Community 133 - "getText"
+Cohesion: 0.13
+Nodes (23): addDefiniteAssignmentAssertion(), addInitializer(), addUndefinedType(), createAccessorPropertyBackingField(), createLanguageServiceSourceFile(), getActionForAddMissingDefiniteAssignmentAssertion(), getActionForAddMissingInitializer(), getActionForAddMissingUndefinedType() (+15 more)
+
+### Community 134 - "isPropertyAccessExpression"
+Cohesion: 0.15
+Nodes (27): chainStartsWith(), convertOccurrences(), doChange37(), entryToAccessExpression(), entryToFunctionCall(), getBinaryInfo(), getConditionalInfo(), getFinalExpressionInChain() (+19 more)
+
+### Community 135 - "isSourceFile"
+Cohesion: 0.08
+Nodes (35): collectCallSitesOfModuleDeclaration(), forEachAncestor(), forEachReference(), getCallSiteGroupKey(), getCommentOwnerInfo(), getExportingModuleSymbol(), getIncomingCalls(), getInfo19() (+27 more)
+
+### Community 136 - "getContextualType"
+Cohesion: 0.05
+Nodes (49): containsNonPublicProperties(), doChange34(), doChangeNamedToNamespaceOrDefault(), doChangeNamespaceToNamed(), encodeUtf16EscapeSequence(), escapeNonAsciiString(), escapeString(), extractConstantInScope() (+41 more)
+
+### Community 137 - "CSSDataManager2"
+Cohesion: 0.07
+Nodes (18): computeColors(), computeDefaultDocumentColors(), CSSDataManager2(), CSSDataProvider2(), _findHexColorInformation(), _findHSLColorInformation(), _findMatches(), _findRGBColorInformation() (+10 more)
+
+### Community 138 - "get"
+Cohesion: 0.10
+Nodes (22): addItemFirst(), addItemLast(), computeCodePoint(), fromString(), fromUserSettings(), get(), getInstance(), getNextCodePoint() (+14 more)
+
+### Community 139 - "getLocaleSpecificMessage"
+Cohesion: 0.29
+Nodes (10): assertDiagnosticLocation(), chainDiagnosticMessages(), createDetachedDiagnostic(), createDiagnosticForNode(), createDiagnosticForNodeArray(), createDiagnosticForNodeInSourceFile(), createFileDiagnostic(), formatMessage() (+2 more)
+
+### Community 140 - "find"
+Cohesion: 0.10
+Nodes (23): addMissingMemberInJs(), addPropertyDeclaration(), createSignatureDeclarationFromSignature(), createUndefined(), find(), getEffectiveContainerForJSDocTemplateTag(), getEffectiveReturnTypeNode(), getFirstConstructorWithBody() (+15 more)
+
+### Community 141 - "getRefactorActionsToExtractSymbol"
+Cohesion: 0.12
+Nodes (17): createRange(), createTextRangeFromNode(), createTextRangeFromSpan(), createTokenRange(), getConstantExtractionAtIndex(), getFunctionExtractionAtIndex(), getRangesWhere(), getRangeToMove() (+9 more)
+
+### Community 142 - "flattenDestructuringBinding"
+Cohesion: 0.18
+Nodes (22): bindingOrAssignmentElementAssignsToName(), bindingOrAssignmentElementContainsNonLiteralComputedName(), createDefaultValueCheck(), createDestructuringPropertyAccess(), ensureIdentifier(), flattenBindingOrAssignmentElement(), flattenDestructuringBinding(), flattenObjectBindingOrAssignmentPattern() (+14 more)
+
+### Community 143 - "isNamedImports"
+Cohesion: 0.11
+Nodes (24): canCompleteFromNamedBindings(), containsDefaultReference(), extractSingleNode(), getAdjustedLocationForExportDeclaration(), getAdjustedLocationForImportDeclaration(), getCodeFixesForImportDeclaration(), getExportNeedsImportStarHelper(), getImportNeedsImportDefaultHelper() (+16 more)
+
+### Community 144 - "isStringOrNumericLiteralLike"
+Cohesion: 0.18
+Nodes (14): escapeLeadingUnderscores(), getEscapedTextOfIdentifierOrLiteral(), getPropertyNameForPropertyNameNode(), hasDynamicName(), hasNavigationBarName(), initializeNameTable(), isArgumentOfElementAccessExpression(), isComputedNonLiteralName() (+6 more)
+
+### Community 145 - "createCallHierarchyItem"
+Cohesion: 0.22
+Nodes (10): convertCallSiteGroupToIncomingCall(), convertCallSiteGroupToOutgoingCall(), createCallHierarchyIncomingCall(), createCallHierarchyItem(), createCallHierarchyOutgoingCall(), createTextSpanFromRange(), findReferenceInPosition(), getCallHierarchItemContainerName() (+2 more)
+
+### Community 146 - ".replace"
+Cohesion: 0.04
+Nodes (28): chain(), ChainableSynthesis, create(), createCompletionItem(), decodeURIComponentGraceful(), delete(), ensure(), escapePath() (+20 more)
+
+### Community 147 - "WALKTRACE"
+Cohesion: 0.12
+Nodes (21): AddModifiedElement(), AddOriginalElement(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges(), _contiguousSequenceScore() (+13 more)
+
+### Community 148 - "WALKTRACE"
+Cohesion: 0.10
+Nodes (26): AddModifiedElement(), AddOriginalElement(), _boundaryScore(), ChangesOverlap(), ClipDiagonalBound(), ComputeDiffRecursive(), ComputeRecursionPoint(), ConcatenateChanges() (+18 more)
+
+### Community 149 - "getOrCreateEmitNode"
+Cohesion: 0.10
+Nodes (21): addEmitFlags(), addEmitHelper(), addEmitHelpers(), appendIfUnique(), createEmitHelperFactory(), getOrCreateEmitNode(), getOriginalSourceFile(), getParseTreeNode() (+13 more)
+
+### Community 150 - "positionsAreOnSameLine"
+Cohesion: 0.21
+Nodes (12): getLinesBetweenPositionAndNextNonWhitespaceCharacter(), getLinesBetweenPositionAndPrecedingNonWhitespaceCharacter(), getLinesBetweenPositions(), getLinesBetweenRangeEndAndRangeStart(), getLinesBetweenRangeEndPositions(), getPreviousNonWhitespacePosition(), getStartPositionOfRange(), positionsAreOnSameLine() (+4 more)
+
+### Community 151 - "some"
+Cohesion: 0.18
+Nodes (20): childIsDecorated(), classElementOrClassElementParameterIsDecorated(), classOrConstructorParameterIsDecorated(), getAllAccessorDeclarations(), getAllDecoratorsOfAccessors(), getAllDecoratorsOfClass(), getAllDecoratorsOfClassElement(), getAllDecoratorsOfMethod() (+12 more)
+
+### Community 152 - "isExpression"
+Cohesion: 0.20
+Nodes (11): createTemplateCooked(), findAncestorMatchingSpan(), getInfo3(), getInfo8(), getSuggestion(), isExpression(), isMappedTypeNode(), processTaggedTemplateExpression() (+3 more)
+
+### Community 153 - "getCallHierarchyItemName"
+Cohesion: 0.14
+Nodes (26): convertExportsPropertyAssignment(), findImplementationOrAllInitialDeclarations(), getAdjustedLocationForClass(), getAdjustedLocationForDeclaration(), getAdjustedLocationForFunction(), getCallHierarchyDeclarationReferenceNode(), getCallHierarchyItemName(), getContainerFlags() (+18 more)
+
+### Community 154 - "getAssignmentDeclarationKindWorker"
+Cohesion: 0.15
+Nodes (26): getAssignedExpandoInitializer(), getAssignmentDeclarationKindWorker(), getAssignmentDeclarationPropertyAccessKind(), getDeclaredExpandoInitializer(), getDefaultedExpandoInitializer(), getEffectiveInitializer(), getElementOrPropertyAccessName(), getExpandoInitializer() (+18 more)
+
+### Community 155 - "ie"
+Cohesion: 0.10
+Nodes (33): _a(), At(), au(), cn(), ct(), dl(), ff, fs() (+25 more)
+
+### Community 156 - "lu"
+Cohesion: 0.16
+Nodes (20): _a(), At(), dl(), ff, Ga(), ho(), hr, In() (+12 more)
+
+### Community 157 - "_format2"
+Cohesion: 0.13
+Nodes (18): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), computeIndentLevel(), _format2(), getFormatOption(), getTagsFormatOption(), getTemplatingFormatOption() (+10 more)
+
+### Community 158 - "isBinaryExpression"
+Cohesion: 0.09
+Nodes (39): containsTopLevelCommonjs(), countBinaryExpressionParameters(), exportAssignmentIsAlias(), findAwaitableInitializers(), forEachNameInAccessChainWalkingLeft(), forEachTopLevelDeclaration(), getAncestor(), getAssignmentDeclarationKind() (+31 more)
+
+### Community 159 - "isParenthesizedExpression"
+Cohesion: 0.12
+Nodes (16): expressionResultIsUnused(), getJSDocSatisfiesExpressionType(), getJSDocSatisfiesTag(), getJSDocTypeTag(), isForStatement(), isJSDocSatisfiesExpression(), isJSDocSatisfiesTag(), isJSDocTypeAssertion() (+8 more)
+
+### Community 160 - "scripts"
+Cohesion: 0.11
+Nodes (19): scripts, assets:generate-icons, build, dev, electron:build, electron:build:linux, electron:build:mac, electron:build:win (+11 more)
+
+### Community 161 - "n"
+Cohesion: 0.27
+Nodes (14): n(), classExpressionToDeclaration(), concatenate(), convertExportsDotXEquals_replaceNode(), doChange4(), functionExpressionToDeclaration(), getSynthesizedDeepClone(), getSynthesizedDeepClones() (+6 more)
+
+### Community 162 - "slice"
+Cohesion: 0.25
+Nodes (19): basename(), cwd(), decodeURIComponentGraceful(), dirname(), extname(), isAbsolute(), isPathSeparator(), isPosixPathSeparator() (+11 more)
+
+### Community 163 - "isObjectLiteralExpression"
+Cohesion: 0.11
+Nodes (26): addNewFileToTsconfig(), createJsonPropertyAssignment(), findContainerClassElementLike(), findJsonProperty(), forEachProperty(), getInfo18(), getMembersOrProperties(), getPrefixAndSuffixText() (+18 more)
+
+### Community 164 - "getSmartSelectionRange"
+Cohesion: 0.20
+Nodes (11): getEndPos(), getSmartSelectionRange(), isBlock(), isConciseBody(), isFunctionBody(), isListCloser(), isListOpener(), isTemplateLiteral() (+3 more)
+
+### Community 165 - "getRequiresAtTopOfFile"
+Cohesion: 0.18
+Nodes (12): getExternalModuleRequireArgument(), getLeftmostAccessExpression(), getRequiresAtTopOfFile(), isAnyImportOrBareOrAccessedRequire(), isAnyImportSyntax(), isBindingElementOfBareOrAccessedRequire(), isExternalModuleImportEquals(), isNodeImport() (+4 more)
+
+### Community 166 - "isStringLiteralLike"
+Cohesion: 0.18
+Nodes (18): binaryExpressionMayBeOpenTag(), findNodeToFix(), forEachImportInStatement(), getModuleSpecifierText(), hasPossibleExternalModuleReference(), isExternalModuleReference(), isImportCall(), isImportKeyword() (+10 more)
+
+### Community 167 - "MenuBar.vue"
+Cohesion: 0.14
+Nodes (14): closeMenu(), currentMenuItems, emit, menuRefs, menuStyle, onKeydown(), openMenuId, overflowMenuRef (+6 more)
+
+### Community 168 - "canHaveModifiers"
+Cohesion: 0.16
+Nodes (15): canHaveModifiers(), collectCallSitesOfClassLikeDeclaration(), findModifier(), getCheckFlags(), getClassNames(), getFunctionNames(), getModifierKindFromSource(), getSymbolForContextualType() (+7 more)
+
+### Community 169 - "getEnd"
+Cohesion: 0.13
+Nodes (19): assignPositionsToNode(), assignPositionsToNodeArray(), createTextSpanFromNode(), findTokenOnLeftOfPosition(), functionSpan(), getEnd(), getJsxClosingTagCompletion(), getOutliningSpanForNode() (+11 more)
+
+### Community 170 - "skipTrivia"
+Cohesion: 0.20
+Nodes (10): createDiagnosticForNodeArrayFromMessageChain(), createDiagnosticForNodeFromMessageChain(), createFileDiagnosticFromMessageChain(), isShebangTrivia(), isTrivia2(), rangeContainsSkipTrivia(), rangeContainsStartEnd(), rangeOfTypeParameters() (+2 more)
+
+### Community 171 - "getTypescriptKeywordCompletions"
+Cohesion: 0.20
+Nodes (12): getKeywordCompletions(), getTypescriptKeywordCompletions(), isClassMemberCompletionKeyword(), isClassMemberModifier(), isContextualKeyword(), isFunctionLikeBodyKeyword(), isInterfaceOrTypeLiteralCompletionKeyword(), isNonContextualKeyword() (+4 more)
+
+### Community 172 - "findImplementation"
+Cohesion: 0.29
+Nodes (7): collectCallSites(), collectCallSitesOfClassStaticBlockDeclaration(), collectCallSitesOfFunctionLikeDeclaration(), collectCallSitesOfSourceFile(), createCallSiteCollector(), findImplementation(), getSymbolOfCallHierarchyDeclaration()
+
+### Community 173 - "displayPart"
+Cohesion: 0.12
+Nodes (19): buildLinkParts(), displayPart(), findLinkNameEnd(), isJSDocLink(), isJSDocLinkCode(), keywordPart(), keywordToCompletionEntry(), linkPart() (+11 more)
+
+### Community 174 - "registerRefactor"
+Cohesion: 0.15
+Nodes (20): flatMapIterator(), getApplicableRefactors(), getConvertibleArrowFunctionAtPosition(), getInfo21(), getRefactorActionsToConvertToOptionalChain(), getRefactorActionsToInferReturnType(), getRefactorActionsToRemoveFunctionBraces(), getRefactorEditsToConvertToOptionalChain() (+12 more)
+
+### Community 175 - "getFunctionDeclarationAtPosition"
 Cohesion: 0.33
-Nodes (9): addDefiniteAssignmentAssertion(), addInitializer(), addUndefinedType(), createAccessorPropertyBackingField(), getActionForAddMissingInitializer(), getActionForAddMissingUndefinedType(), getInitializer(), "src/services/codefixes/fixStrictClassInitialization.ts"() (+1 more)
+Nodes (7): getContainingFunctionDeclaration(), getFunctionDeclarationAtPosition(), getRefactorActionsToConvertParametersToDestructuredObject(), getRefactorEditsToConvertParametersToDestructuredObject(), getTokenAtPositionWorker(), getTouchingToken(), "src/services/refactors/convertParamsToDestructuredObject.ts"()
 
-### Community 259 - "EmitterObserver"
+### Community 176 - "isTypeNode"
+Cohesion: 0.20
+Nodes (18): getConstraintOfTypeArgumentProperty(), isJSDocIndexSignature(), isTypeNode(), isTypeNodeKind(), isTypeReferenceType(), setEmitFlags(), transformJSDocFunctionType(), transformJSDocIndexSignature() (+10 more)
+
+### Community 177 - "package.json"
+Cohesion: 0.15
+Nodes (16): author, description, main, name, productName, version, createComparator(), isTypingUpToDate() (+8 more)
+
+### Community 178 - "FindInFiles.vue"
+Cohesion: 0.13
+Nodes (13): close(), emit, isSearching, mask, matchCase, open(), patternInputRef, props (+5 more)
+
+### Community 179 - "initialize"
+Cohesion: 0.13
+Nodes (17): concat(), create(), createProxyObject(), createProxyObject2(), getAllMethodNames(), getAllPropertyNames(), _getModels(), handleChange() (+9 more)
+
+### Community 180 - "fire"
+Cohesion: 0.13
+Nodes (17): _deliver(), _deliverQueue(), enqueue(), fire(), fromDOMEventEmitter(), fromNodeEventEmitter(), _handleEventMessage(), handleMessage() (+9 more)
+
+### Community 181 - "getEffectiveTypeParameterDeclarations"
+Cohesion: 0.27
+Nodes (10): canHaveIllegalTypeParameters(), getEffectiveConstraintOfTypeParameter(), getEffectiveTypeParameterDeclarations(), getJSDocTemplateTag(), getJSDocTypeParameterDeclarations(), isJSDocOverloadTag(), isJSDocTemplateTag(), isJSDocTypeAlias() (+2 more)
+
+### Community 182 - "getJSDocCommentsAndTags"
+Cohesion: 0.25
+Nodes (9): canHaveJSDoc(), getCommentHavingNodes(), getJSDocCommentsAndTags(), getJSDocTagsNoCache(), getJSDocTagsWorker(), getJSDocTypeParameterTags(), getJSDocTypeParameterTagsNoCache(), getJSDocTypeParameterTagsWorker() (+1 more)
+
+### Community 183 - "computeColors"
+Cohesion: 0.15
+Nodes (17): computeColors(), computeDefaultDocumentColors(), _ensureLineStarts(), _findHexColorInformation(), _findHSLColorInformation(), _findMatches(), _findRange(), _findRGBColorInformation() (+9 more)
+
+### Community 184 - "getContainingNodeArray"
+Cohesion: 0.18
+Nodes (12): addEs6Export(), canHaveDecorators(), doChange29(), flattenInvalidBinaryExpr(), getContainingNodeArray(), isEnumMember(), isJSDocCommentContainingNode(), isJSDocLinkLike() (+4 more)
+
+### Community 186 - "isExpressionStatement"
+Cohesion: 0.11
+Nodes (23): addCommonjsExport(), addExport(), addExports(), addExportToChanges(), arrayElementCouldBeVariableDeclaration(), createExportAssignment(), expressionCouldBeVariableDeclaration(), findSuperCall() (+15 more)
+
+### Community 187 - "getNodeId"
+Cohesion: 0.17
+Nodes (16): addToSeen(), createCombinedCodeActions(), createImportAdderWorker(), createImportTracker(), doChange31(), eachDiagnostic(), getImportersForExport(), getNodeId() (+8 more)
+
+### Community 188 - "getJSDocModifierFlagsNoCache"
+Cohesion: 0.22
+Nodes (10): getEffectiveModifierFlagsAlwaysIncludeJSDoc(), getEffectiveModifierFlagsNoCache(), getJSDocModifierFlagsNoCache(), getJSDocOverrideTagNoCache(), getJSDocReadonlyTag(), getJSDocReadonlyTagNoCache(), getModifierFlagsWorker(), getSyntacticModifierFlagsNoCache() (+2 more)
+
+### Community 189 - "contains"
+Cohesion: 0.06
+Nodes (50): clearScreenIfNotWatchingForFileChanges(), climbPastPropertyAccess(), climbPastPropertyOrElementAccess(), contains(), containsPrecedingToken(), convertEntryToCallSite(), createBuilderStatusReporter(), createJSSignatureHelpItems() (+42 more)
+
+### Community 190 - "getNonDecoratorTokenPosOfNode"
+Cohesion: 0.25
+Nodes (8): findLast(), formatNodeGivenIndentation(), formatSpanWorker(), getFormattingScanner(), getNonDecoratorTokenPosOfNode(), isDecorator(), isModifierLike(), makeChange6()
+
+### Community 191 - "TabBar.vue"
+Cohesion: 0.14
+Nodes (5): closeTab(), contextMenu, ctxClose(), dragTabId, tabsStore
+
+### Community 192 - "addConvertToAsyncFunctionDiagnostics"
+Cohesion: 0.20
+Nodes (11): addConvertToAsyncFunctionDiagnostics(), forEachReturnStatement(), getFunctionFlags(), getKeyFromNode(), getReturnStatementsWithPromiseHandlers(), hasReturnStatementWithPromiseHandler(), isAsyncFunction(), isConvertibleFunction() (+3 more)
+
+### Community 193 - ""src/services/codefixes/fixAddMissingMember.ts""
+Cohesion: 0.28
+Nodes (9): addJsxAttributes(), addMethodDeclaration(), addObjectLiteralProperties(), createImportAdder(), createPropertyNameFromSymbol(), getTypeNode2(), isJsxSpreadAttribute(), "src/services/codefixes/fixAddMissingMember.ts"() (+1 more)
+
+### Community 194 - "getEffectiveModifierFlags"
+Cohesion: 0.20
+Nodes (11): convertToBlock(), getCombinedModifierFlags(), getEditInfoForConvertToAnonymousFunction(), getEditInfoForConvertToNamedFunction(), getEffectiveModifierFlags(), hasEffectiveModifiers(), isDeclarationReadonly(), isEnumConst() (+3 more)
+
+### Community 195 - "compute"
+Cohesion: 0.15
+Nodes (15): areLinesSimilar(), compute(), getBoundaryScore(), getCategory(), getCategoryBoundaryScore(), getElement(), getIndentation(), isSpace() (+7 more)
+
+### Community 196 - "getCompletionEntryCodeActionsAndSourceDisplay"
+Cohesion: 0.29
+Nodes (7): doTypeOnlyImportChange(), forEachImportClauseDeclaration(), getCompletionEntryCodeActionsAndSourceDisplay(), getSymbolTarget(), isAliasSymbol(), skipAlias(), symbolCanBeReferencedAtTypeLocation()
+
+### Community 197 - "definitionToReferencedSymbolDefinitionInfo"
+Cohesion: 0.17
+Nodes (16): definitionToReferencedSymbolDefinitionInfo(), entryToDocumentSpan(), findReferencedSymbols(), getDefinitionKindAndDisplayParts(), getFileAndTextSpanFromNode(), getTextSpan(), getTextSpanOfEntry(), implementationKindDisplayParts() (+8 more)
+
+### Community 198 - "isStatement"
+Cohesion: 0.24
+Nodes (10): doChange18(), eachUnreachableRange(), isDeclarationStatement(), isDeclarationStatementKind(), isStatement(), isStatementButNotDeclaration(), isStatementKindButNotDeclarationKind(), isStatementOrBlock() (+2 more)
+
+### Community 199 - "formatSpan"
+Cohesion: 0.19
+Nodes (15): findEnclosingNode(), findImmediatelyPrecedingTokenOfKind(), findOutermostNodeWithinListLevel(), formatDocument(), formatNodeLines(), formatOnClosingCurly(), formatOnOpeningCurly(), formatOnSemicolon() (+7 more)
+
+### Community 200 - "getEmitModuleKind"
+Cohesion: 0.22
+Nodes (15): getAllowSyntheticDefaultImports(), getEmitModuleKind(), getESModuleInterop(), getExportEqualsImportKind(), getImportKind(), getIsolatedModules(), getShouldUseDefault(), getUmdImportKind() (+7 more)
+
+### Community 201 - "FileTreeFolder.vue"
+Cohesion: 0.18
+Nodes (8): childrenMap, emit, enterDirectory(), fileTreeStore, onContextMenu(), openFile(), props, tabsStore
+
+### Community 202 - "hasEffectiveModifier"
+Cohesion: 0.33
+Nodes (6): canHaveLiteralInitializer(), getSelectedEffectiveModifierFlags(), hasEffectiveModifier(), hasInitializer(), hasOverrideModifier(), isDefinitionVisible()
+
+### Community 203 - ".doValidation"
+Cohesion: 0.16
+Nodes (9): asSchema(), extendedRegExp(), isBoolean(), JSONValidation2(), ResolvedSchema2(), schemaAllowsComments(), schemaAllowsTrailingCommas(), startsWith() (+1 more)
+
+### Community 204 - "addChildrenRecursively"
+Cohesion: 0.21
+Nodes (16): addChildrenRecursively(), addLeafNode(), addNodeWithRecursiveChild(), addNodeWithRecursiveInitializer(), addTrackedEs5Class(), emptyNavigationBarNode(), endNestedNodes(), endNode() (+8 more)
+
+### Community 205 - "doAddExistingFix"
+Cohesion: 0.23
+Nodes (12): addImportType(), addNamespaceQualifier(), codeActionForFixWorker(), compareImportOrExportSpecifiers(), doAddExistingFix(), getImportSpecifierInsertionIndex(), getImportTypePrefix(), getQuoteFromPreference() (+4 more)
+
+### Community 206 - "addNewNodeForMemberSymbol"
+Cohesion: 0.17
+Nodes (18): addFunctionDeclaration(), addMissingConstraint(), addNewNodeForMemberSymbol(), createDummyParameters(), createMethodImplementingSignatures(), createObjectLiteralMethod(), createSignatureDeclarationFromCallExpression(), createStubbedBody() (+10 more)
+
+### Community 207 - "createTypeChecker"
+Cohesion: 0.14
+Nodes (14): aggregateChildData(), containsObjectRestOrSpread(), containsParseError(), createGetSymbolWalker(), createTypeChecker(), getContainingObjectLiteralElementWorker(), getFirstIdentifier(), isAssignmentPattern() (+6 more)
+
+### Community 208 - "getDefinitionFromOverriddenMember"
+Cohesion: 0.15
+Nodes (14): areSameModule(), getAncestorTypeNode(), getContextualTypeFromParentOrAncestorTypeNode(), getDefinitionFromOverriddenMember(), getSuperContainer(), hasStaticModifier(), isClassElement(), isClassLikeMemberCompletion() (+6 more)
+
+### Community 209 - "idText"
+Cohesion: 0.10
+Nodes (22): collectExportedVariableInfo(), collectExternalModuleInfo(), flattenTypeLiteralNodeReference(), getDeclarationType(), getEffectiveTypeArguments(), getFullyQualifiedModuleName(), getNameFromPropertyName(), getOriginalNodeId() (+14 more)
+
+### Community 210 - "update"
+Cohesion: 0.21
+Nodes (14): computeCodePoint(), createCacheWithRedirects(), createModuleOrTypeReferenceResolutionCache(), createNonRelativeNameResolutionCache(), createPackageJsonInfoCache(), createPerDirectoryResolutionCache(), getNextCodePoint(), isHighSurrogate() (+6 more)
+
+### Community 211 - "computeLineOfPosition"
+Cohesion: 0.33
+Nodes (6): computeLineAndCharacterOfPosition(), computeLineOfPosition(), emitNewLineBeforeLeadingCommentOfPosition(), emitNewLineBeforeLeadingComments(), emitNewLineBeforeLeadingCommentsOfPosition(), getLineOfLocalPositionFromLineMap()
+
+### Community 212 - "setTextRange"
+Cohesion: 0.06
+Nodes (50): addDefaultValueAssignmentForBindingPattern(), addDefaultValueAssignmentForInitializer(), addDefaultValueAssignmentIfNeeded(), addDefaultValueAssignmentsIfNeeded(), classifySymbol(), createExpressionForAccessorDeclaration(), createExpressionForJsxElement(), createExpressionForJsxFragment() (+42 more)
+
+### Community 213 - "getFixesInfoForNonUMDImport"
+Cohesion: 0.06
+Nodes (40): entryToType(), getFixesInfoForNonUMDImport(), getFixInfos(), getPossibleGenericSignatures(), getPromoteTypeOnlyCompletionAction(), getSymbolNamesToImport(), getTypeOnlyPromotionFix(), is() (+32 more)
+
+### Community 214 - "sd"
+Cohesion: 0.15
+Nodes (11): bs(), cc(), di(), Ea(), fi(), kg(), mt(), od() (+3 more)
+
+### Community 215 - "createFromDiffResult"
+Cohesion: 0.23
+Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
+
+### Community 217 - "createFromDiffResult"
+Cohesion: 0.23
+Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
+
+### Community 218 - ".offsetAt"
+Cohesion: 0.07
+Nodes (33): computeCodePoint(), computeColors(), computeDefaultDocumentColors(), computeLineOffsets(), _ensureLineStarts(), _findHexColorInformation(), _findHSLColorInformation(), _findMatches() (+25 more)
+
+### Community 219 - "isLineBreak"
+Cohesion: 0.22
+Nodes (13): arraysEqual(), computeLineStarts(), computePositionOfLineAndCharacter(), formatOnEnter(), getEndLinePosition(), getLineStarts(), getPositionOfLineAndCharacter(), getSourceFileVersionAsHashFromText() (+5 more)
+
+### Community 220 - "createFromDiffResult"
+Cohesion: 0.23
+Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
+
+### Community 221 - "getNameOfDeclaration"
+Cohesion: 0.15
+Nodes (20): createNavigateToItem(), entryToDeclaration(), getAssignedName(), getContainerNode(), getContainers(), getDeclarationFromName(), getDeclarationIdentifier(), getElementOrPropertyAccessArgumentExpressionOrName() (+12 more)
+
+### Community 222 - "getSymbolDisplayPartsDocumentationAndSymbolKind"
+Cohesion: 0.14
+Nodes (25): createSignatureHelpParameterForParameter(), createSignatureHelpParameterForTypeParameter(), getCombinedLocalAndExportSymbolFlags(), getDeclarationOfKind(), getExternalModuleImportEqualsDeclarationExpression(), getSymbolDisplayPartsDocumentationAndSymbolKind(), getSymbolKind(), getSymbolKindOfConstructorPropertyMethodAccessorFunctionOrVar() (+17 more)
+
+### Community 223 - "getAdjustedStartPosition"
+Cohesion: 0.27
+Nodes (13): deleteNode(), deleteNodeInList(), endPositionToDeleteNodeInList(), getAdjustedEndPosition(), getAdjustedRange(), getAdjustedStartPosition(), getEndPositionOfMultilineTrailingComment(), getJSDocCommentRanges() (+5 more)
+
+### Community 224 - "isPrologueDirective"
+Cohesion: 0.16
+Nodes (15): findUseStrictPrologue(), getInsertionPositionAtSourceFileTop(), getShebang(), insertStatementAfterCustomPrologue(), insertStatementAfterPrologue(), insertStatementAfterStandardPrologue(), insertStatementsAfterCustomPrologue(), insertStatementsAfterPrologue() (+7 more)
+
+### Community 225 - "getEffectiveJSDocHost"
+Cohesion: 0.39
+Nodes (8): getEffectiveJSDocHost(), getNestedModuleDeclaration(), getNextJSDocCommentLocation(), getRightMostAssignedExpression(), getSingleInitializerOfVariableStatementOrPropertyDeclaration(), getSingleVariableOfVariableStatement(), getSourceOfAssignment(), getSourceOfDefaultedAssignment()
+
+### Community 226 - "run-electron-builder.js"
+Cohesion: 0.23
+Nodes (11): builderBin, env, fs, hasSigningFileExtension(), isExistingFile(), isLikelyBase64Blob(), isLikelyUrl(), path (+3 more)
+
+### Community 227 - "createNewParameters"
+Cohesion: 0.40
+Nodes (6): createNewParameters(), getRefactorableParameters(), getRefactorableParametersLength(), hasThisParameter(), isValidParameterDeclaration(), isValidParameterNodeArray()
+
+### Community 228 - "createDeprecation"
+Cohesion: 0.18
+Nodes (12): addObjectAllocatorPatcher(), buildOverload(), createBinder2(), createDeprecation(), createErrorDeprecation(), createOverload(), createWarningDeprecation(), deprecate() (+4 more)
+
+### Community 229 - "optionsHaveChanges"
+Cohesion: 0.17
+Nodes (12): changesAffectingProgramStructure(), changesAffectModuleResolution(), compilerOptionsAffectDeclarationPath(), compilerOptionsAffectEmit(), compilerOptionsAffectSemanticDiagnostics(), equalOwnProperties(), getCompilerOptionValue(), getStrictOptionValue() (+4 more)
+
+### Community 230 - "getDocumentationComment"
+Cohesion: 0.21
+Nodes (12): concat(), forEachUnique(), getAllJSDocTagsOfKind(), getDocumentationComment(), getJsDocCommentsFromDeclarations(), getJSDocTags(), getJsDocTagsFromDeclarations(), getSignatureHelpItem() (+4 more)
+
+### Community 231 - "copyComments"
+Cohesion: 0.25
+Nodes (11): copyComments(), copyLeadingComments(), copyTrailingAsLeadingComments(), copyTrailingComments(), forEachLeadingCommentRange(), forEachTrailingCommentRange(), getAddCommentsFunction(), hasLeadingLineBreak() (+3 more)
+
+### Community 232 - "getCompletionEntryDetails"
+Cohesion: 0.26
+Nodes (12): createCompletionDetails(), createCompletionDetailsForSymbol(), createSimpleDetails(), getCommentDisplayParts(), getCompletionEntryDetails(), getDisplayPartsFromComment(), getJSDocParameterNameCompletionDetails(), getJSDocTagCompletionDetails() (+4 more)
+
+### Community 233 - "flattenDestructuringAssignment"
+Cohesion: 0.20
+Nodes (12): flattenDestructuringAssignment(), isArrayBindingOrAssignmentElement(), isAssignmentExpression(), isBindingOrAssignmentElement(), isDestructuringAssignment(), isEmptyArrayLiteral(), isEmptyObjectLiteral(), isLeftHandSideOfAssignment() (+4 more)
+
+### Community 234 - "isVariableDeclarationList"
+Cohesion: 0.40
+Nodes (5): canDeleteEntireVariableStatement(), createForOfBindingStatement(), deleteUnusedImportsInVariableDeclaration(), isForInitializer(), isVariableDeclarationList()
+
+### Community 235 - "getTokenPosOfNode"
+Cohesion: 0.40
+Nodes (5): getTokenPosOfNode(), isInJSDoc(), isJSDocNode(), isTopLevelJSDoc(), rangeOfNode()
+
+### Community 236 - "computeColors"
+Cohesion: 0.25
+Nodes (11): computeColors(), computeDefaultDocumentColors(), _findHexColorInformation(), _findHSLColorInformation(), _findRGBColorInformation(), fromHex(), _parseCaptureGroups(), parseHex() (+3 more)
+
+### Community 237 - "createExternalHelpersImportDeclarationIfNeeded"
+Cohesion: 0.24
+Nodes (11): addInternalEmitFlags(), createExternalHelpersImportDeclarationIfNeeded(), deduplicateEquality(), getAllKeys(), getEmitHelpers(), getExternalHelpersModuleName(), getOrCreateExternalHelpersModuleNameIfNeeded(), getOriginalNode() (+3 more)
+
+### Community 238 - "getRangeToExtract2"
+Cohesion: 0.20
+Nodes (11): findFirstNonJsxWhitespaceToken(), findNextToken(), getAdjustedSpanFromNodes(), getExtractableParent(), getImportConversionInfo(), getParentNodeInSpan(), getRangeToExtract2(), isExtractableExpression() (+3 more)
+
+### Community 239 - "doAddOverrideModifierChange"
+Cohesion: 0.22
+Nodes (9): canFollow(), dispatchChanges(), doAddOverrideModifierChange(), doRemoveOverrideModifierChange(), isAbstractModifier(), isAccessibilityModifier(), isOverrideModifier(), isStaticModifier() (+1 more)
+
+### Community 240 - "findPrecedingToken"
+Cohesion: 0.50
+Nodes (5): findPrecedingMatchingToken(), findPrecedingToken(), getPossibleTypeArgumentsInfo(), insertLeadingSemicolonIfNeeded(), positionIsASICandidate()
+
+### Community 241 - "getStringLiteralCompletions"
+Cohesion: 0.32
+Nodes (8): convertPathCompletions(), convertStringLiteralCompletions(), createSortedArray(), createTextSpanFromStringLiteralLikeContent(), getReplacementSpanForContextToken(), getStringLiteralCompletions(), isInReferenceComment(), kindModifiersFromExtension()
+
+### Community 242 - "getLineAndCharacterOfPosition"
+Cohesion: 0.33
+Nodes (7): createCommentDirectivesMap(), getLineAndCharacterOfPosition(), getPresentModifiers(), makeChange8(), modifiersToFlags(), modifierToFlag(), spanInSourceFileAtLocation()
+
+### Community 243 - "extractFunctionInScope"
+Cohesion: 0.20
+Nodes (11): createTypeParameterName(), extractFunctionInScope(), getArgumentTypesAndTypeParameters(), getCalledExpression(), getFirstDeclaration(), getPropertyAssignmentsForWritesAndVariableDeclarations(), importSymbols(), isAnonymousObjectConstraintType() (+3 more)
+
+### Community 244 - "isWhiteSpaceOnlyJsxText"
+Cohesion: 0.40
+Nodes (6): findRightmostChildNodeWithTokens(), findRightmostToken(), isJsxText(), isNonWhitespaceToken(), isWhiteSpaceOnlyJsxText(), nodeHasTokens()
+
+### Community 245 - "hasSyntacticModifier"
+Cohesion: 0.12
+Nodes (22): firstDefined(), getAddAsTypeOnly(), getClassLikeDeclarationOfSymbol(), getDefaultValueFromType(), getFirstSymbolInChain(), getFixesForAddImport(), getImportFixes(), getRecommendedCompletion() (+14 more)
+
+### Community 246 - "isStringLiteral"
+Cohesion: 0.10
+Nodes (25): flatMap(), getAlreadyUsedTypesInStringLiteralUnion(), getArgumentInfoForCompletions(), getFixes(), getPropertyArrayElementValue(), getPropertyAssignment(), getStringLiteralCompletionEntries(), getStringLiteralCompletionsFromModuleNames() (+17 more)
+
+### Community 247 - "security-scan.js"
+Cohesion: 0.20
+Nodes (9): { execFileSync }, findings, fs, ignoredExtensions, ignoredFiles, path, patterns, repoRoot (+1 more)
+
+### Community 248 - "isWhiteSpaceLike"
+Cohesion: 0.22
+Nodes (9): createTextWriter(), createWriter(), getFirstNonSpaceCharacterPosition(), guessIndentation(), isTextWhiteSpaceLike(), isWhiteSpaceLike(), setEnd(), setPos() (+1 more)
+
+### Community 249 - "getEmitFlags"
+Cohesion: 0.22
+Nodes (9): escapeTemplateSubstitution(), getEmitFlags(), getLiteralText(), isCallToHelper(), isCustomPrologue(), isExportName(), isHoistedFunction(), isInternalName() (+1 more)
+
+### Community 250 - "getAllSuperTypeNodes"
+Cohesion: 0.13
+Nodes (19): addEnumMemberDeclaration(), addMissingDeclarations(), addMissingMembers(), createMissingMemberNodes(), findBaseOfDeclaration(), getAllJSDocTags(), getAllSuperTypeNodes(), getClassExtendsHeritageElement() (+11 more)
+
+### Community 251 - "isBindingElement"
+Cohesion: 0.14
+Nodes (18): classifySymbol2(), declarationIsWriteAccess(), forEachTopLevelDeclarationInBindingName(), getCombinedFlags(), getCombinedNodeFlags(), getDeclarationForBindingElement(), getExportNode(), isBindingElement() (+10 more)
+
+### Community 252 - "getFunctionOrClassName"
+Cohesion: 0.12
+Nodes (23): checkForClassificationCancellation(), cleanText(), createSuperAccessVariableStatement(), declarationNameToString(), entityNameToString(), getCalledExpressionName(), getEncodedSemanticClassifications(), getFullWidth() (+15 more)
+
+### Community 253 - "createScanner"
+Cohesion: 0.20
+Nodes (10): convertClassificationsToSpans(), createClassifier2(), createScanner(), getClassificationTypeName(), getCookedText(), getEncodedSyntacticClassifications(), getSemanticClassifications(), getSyntacticClassifications() (+2 more)
+
+### Community 254 - "getNodeKind"
+Cohesion: 0.21
+Nodes (12): convertToPrimaryNavBarMenuItem(), convertToTree(), getModifiers2(), getNodeKind(), getNodeSpan(), getRootDeclaration(), getSpans(), isBlockOrCatchScoped() (+4 more)
+
+### Community 255 - "getRenameInfoForNode"
+Cohesion: 0.18
+Nodes (12): createTriggerSpanForNode(), getAdjustedRenameLocation(), getRenameInfo(), getRenameInfoError(), getRenameInfoForNode(), getRenameInfoSuccess(), isImportOrExportSpecifier(), isImportOrExportSpecifierName() (+4 more)
+
+### Community 256 - ""src/services/refactors/extractType.ts""
+Cohesion: 0.67
+Nodes (4): doInterfaceChange(), doTypeAliasChange(), ignoreSourceNewlines(), "src/services/refactors/extractType.ts"()
+
+### Community 257 - "getImmediatelyContainingArgumentInfo"
+Cohesion: 0.19
+Nodes (13): getApplicableSpanForTaggedTemplate(), getArgumentIndexForTemplatePiece(), getArgumentListInfoForTemplate(), getImmediatelyContainingArgumentInfo(), getNewEndOfLineState(), hasInvalidEscape(), isInsideTemplateLiteral(), isNoSubstitutionTemplateLiteral() (+5 more)
+
+### Community 258 - "getTouchingPropertyName"
+Cohesion: 0.22
+Nodes (9): classFromKind(), getRelevantTokens(), getTouchingPropertyName(), isBinaryExpressionOperatorToken(), isKeyword(), isPrefixUnaryExpressionOperatorToken(), isSimpleCopiableExpression(), isSimpleInlineableExpression() (+1 more)
+
+### Community 259 - "getEffectiveTypeAnnotationNode"
+Cohesion: 0.20
+Nodes (11): getEffectiveSetAccessorTypeAnnotationNode(), getEffectiveTypeAnnotationNode(), getInfo13(), getSetAccessorTypeAnnotationNode(), getSetAccessorValueParameter(), hasContextSensitiveParameters(), isJSDocOptionalParameter(), isJSDocPropertyLikeTag() (+3 more)
+
+### Community 260 - "resolve-release-version.js"
+Cohesion: 0.44
+Nodes (8): bumpVersion(), detectBumpType(), { execSync }, getHeadTag(), getLatestTag(), main(), parseVersion(), run()
+
+### Community 261 - "MonacoEditor.vue"
+Cohesion: 0.25
+Nodes (7): bookmarkDecorationIds, configureMonaco(), containerRef, emit, props, registeredCompletionLanguages, registerKeywordCompletions()
+
+### Community 262 - "createFromDiffResult"
+Cohesion: 0.23
+Nodes (13): _assertIndex(), createCharSequence(), createFromDiffChange(), createFromDiffResult(), getElements(), getEndColumn(), getEndLineNumber(), getStartColumn() (+5 more)
+
+### Community 263 - "EmitterObserver"
 Cohesion: 0.22
 Nodes (4): _addLeakageTraceLogic(), debounce(), defer(), EmitterObserver
 
-### Community 260 - "createRulesMap"
+### Community 264 - "createRulesMap"
 Cohesion: 0.25
 Nodes (9): addRule(), buildMap(), createRulesMap(), getFormatContext(), getInsertionIndex(), getRuleActionExclusion(), getRuleBucketIndex(), getRulesMap() (+1 more)
 
-### Community 261 - "organizeImports"
-Cohesion: 0.24
-Nodes (11): arrayIsSorted(), detectSortCaseSensitivity(), detectSorting(), detectSortingWorker(), getChanges(), getOrganizeImportsComparer(), getOrganizeImportsComparerWithDetection(), groupImportsByNewlineContiguous() (+3 more)
+### Community 265 - "cast"
+Cohesion: 0.14
+Nodes (18): assertType(), cast(), createTypeAliasFromInterface(), deleteTypeParameters(), doChange30(), getClass2(), getInfo2(), getPropertyAccessExpression() (+10 more)
 
-### Community 262 - "last"
-Cohesion: 0.33
-Nodes (9): betterMatch(), compareNavigateToItems(), createPatternMatcher(), getFullMatch(), getItemsFromNamedDeclaration(), getNavigateToItems(), last(), matchSegment() (+1 more)
+### Community 266 - "getMeaningFromDeclaration"
+Cohesion: 0.50
+Nodes (4): getJSDocEnumTag(), getMeaningFromDeclaration(), isJSDocEnumTag(), symbolHasMeaning()
 
-### Community 263 - "getEncodedSemanticClassifications"
+### Community 267 - "isWhiteSpaceSingleLine"
 Cohesion: 0.25
-Nodes (8): checkForClassificationCancellation(), convertClassificationsToSpans(), decodedTextSpanIntersectsWith(), getClassificationTypeName(), getEncodedSemanticClassifications(), getSemanticClassifications(), textSpanIntersectsWith(), textSpanIntersectsWithTextSpan()
+Nodes (9): calculateIndent(), doChanges2(), getIndentSize(), getIndentString(), getPrecedingNonSpaceCharacterPosition(), hasCommentsBeforeLineBreak(), isWhiteSpaceSingleLine(), writeCommentRange() (+1 more)
 
-### Community 264 - ""src/compiler/sys.ts""
+### Community 268 - "concatConsecutiveString"
+Cohesion: 0.31
+Nodes (9): concatConsecutiveString(), copyExpressionComments(), escapeRawStringForTemplate(), getExpressionFromParenthesesOrExpression(), getRawTextOfTemplate(), isTemplateExpression(), isTemplateHead(), isTemplateMiddle() (+1 more)
+
+### Community 269 - ""src/compiler/sys.ts""
 Cohesion: 0.25
 Nodes (9): createPollingIntervalBasedLevels(), hasRequiredAPI(), isNodeLikeSystem(), patchWriteFileEnsuringDirectory(), setCustomPollingValues(), "src/compiler/performanceCore.ts"(), "src/compiler/sys.ts"(), tryGetNodePerformanceHooks() (+1 more)
 
-### Community 265 - "getRelativeLuminance"
-Cohesion: 0.28
-Nodes (9): darken(), getDarkerColor(), getLighterColor(), getRelativeLuminance(), isDarkerThan(), isLighterThan(), lighten(), _relativeLuminanceForComponent() (+1 more)
+### Community 270 - "getBinderAndCheckerDiagnosticsOfFile"
+Cohesion: 0.67
+Nodes (3): filterSemanticDiagnostics(), getBinderAndCheckerDiagnosticsOfFile(), getSemanticDiagnosticsOfFile()
 
-### Community 266 - "isWhiteSpaceLike"
-Cohesion: 0.22
-Nodes (9): doChanges2(), getFirstNonSpaceCharacterPosition(), getPrecedingNonSpaceCharacterPosition(), guessIndentation(), hasCommentsBeforeLineBreak(), isTextWhiteSpaceLike(), isWhiteSpaceLike(), isWhiteSpaceSingleLine() (+1 more)
-
-### Community 267 - "getVariableDeclaration"
-Cohesion: 0.40
-Nodes (5): getVariableDeclaration(), isArrowFunctionBody(), isBlockStatement(), isFunctionBlock(), isLocalVariableOrFunction()
-
-### Community 268 - "getGroupedReferences"
-Cohesion: 0.40
-Nodes (6): equateValues(), findModifier(), getClassNames(), getFunctionNames(), getGroupedReferences(), hasNameOrDefault()
-
-### Community 269 - "_format"
+### Community 271 - "_format"
 Cohesion: 0.25
 Nodes (9): _format(), formatHex(), formatHexA(), formatRGB(), formatRGBA(), isOpaque(), localize(), makeOpaque() (+1 more)
 
-### Community 270 - "createTextSpan"
-Cohesion: 0.13
-Nodes (22): addReplacementSpans(), collapseTextChangeRangesAcrossMultipleVersions(), createTextChange(), createTextChangeFromStartLength(), createTextChangeRange(), createTextSpan(), createTextSpanFromBounds(), getApplicableSpanForTaggedTemplate() (+14 more)
+### Community 272 - "isStaticPropertyDeclaration"
+Cohesion: 0.67
+Nodes (3): getStaticPropertiesAndClassStaticBlock(), isStaticPropertyDeclaration(), isStaticPropertyDeclarationOrClassStaticBlockDeclaration()
 
-### Community 271 - "isVariableDeclarationInitializedToBareOrAccessedRequire"
-Cohesion: 0.25
-Nodes (9): getExternalModuleRequireArgument(), getLeftmostAccessExpression(), isAnyImportOrBareOrAccessedRequire(), isAnyImportSyntax(), isBindingElementOfBareOrAccessedRequire(), isExternalModuleImportEquals(), isNodeImport(), isVariableDeclarationInitializedToBareOrAccessedRequire() (+1 more)
+### Community 273 - "start"
+Cohesion: 0.22
+Nodes (9): getFix(), getInstallCommand(), getIsMatchingAsyncError(), getScriptSnapshot(), makeChange2(), "src/services/codefixes/addMissingAsync.ts"(), "src/services/codefixes/fixCannotFindModule.ts"(), "src/services/codefixes/fixOverrideModifier.ts"() (+1 more)
 
-### Community 272 - "getCompletionEntriesFromSymbols"
-Cohesion: 0.25
-Nodes (8): getCompletionEntriesFromSymbols(), getCompletionEntryCodeActionsAndSourceDisplay(), getPropertyNameForUniqueESSymbol(), getSymbolId(), getSymbolNameForPrivateIdentifier(), getUniqueSymbolId(), originIsObjectLiteralMethod(), originIsTypeOnlyAlias()
+### Community 274 - "identifierToKeywordKind"
+Cohesion: 0.40
+Nodes (6): identifierToKeywordKind(), isIdentifierANonContextualKeyword(), isModifier(), isModifierKind(), isModifierLike2(), keywordForNode()
 
-### Community 273 - "generate-icons.js"
+### Community 275 - ""src/compiler/factory/parenthesizerRules.ts""
+Cohesion: 0.32
+Nodes (8): isExpressionKind(), isLeftHandSideExpression(), isLeftHandSideExpressionKind(), isNodeArray(), isUnaryExpression(), isUnaryExpressionKind(), skipPartiallyEmittedExpressions(), "src/compiler/factory/parenthesizerRules.ts"()
+
+### Community 276 - "generate-icons.js"
 Cohesion: 0.29
 Nodes (7): fs, icoPath, path, pngPath, pngToIcoBuffer(), projectRoot, readPngDimensions()
 
-### Community 274 - "collectExportedVariableInfo"
+### Community 277 - "onMenuBarAction"
+Cohesion: 0.29
+Nodes (8): getCommandWorkingDirectory(), isTerminalProfileAvailable(), onMenuBarAction(), openContainingFolder(), openTerminalSession(), runCommandPrompt(), runHashTool(), runLastCommand()
+
+### Community 278 - "suppressLeadingAndTrailingTrivia"
+Cohesion: 0.29
+Nodes (8): addEmitFlagsRecursively(), getEditInfoForConvertToArrowFunction(), getFirstChild(), getLastChild(), nodeIsPresent(), suppressLeadingAndTrailingTrivia(), suppressLeadingTrivia(), suppressTrailingTrivia()
+
+### Community 279 - "getSelectionChildren"
+Cohesion: 0.24
+Nodes (12): addSyntheticNodes(), createChildren(), createNode(), createSyntaxList(), createSyntaxList2(), getSelectionChildren(), getSnippetElement(), groupChildren() (+4 more)
+
+### Community 280 - "getEntryForMemberCompletion"
 Cohesion: 0.20
-Nodes (10): addDefaultValueAssignmentForBindingPattern(), addDefaultValueAssignmentForInitializer(), addDefaultValueAssignmentIfNeeded(), addDefaultValueAssignmentsIfNeeded(), collectExportedVariableInfo(), isBindingPattern(), isEmptyBindingElement(), isEmptyBindingPattern() (+2 more)
+Nodes (10): doTypedefChange(), getEntryForMemberCompletion(), getNewLineOrDefaultFromHost(), getRawLiteral(), getSourceTextOfNodeFromSourceFile(), getTextOfNodeFromSourceText(), isJSDocTypeExpression(), isJSDocTypeExpressionOrChild() (+2 more)
 
-### Community 275 - "createChildren"
-Cohesion: 0.36
-Nodes (8): addSyntheticNodes(), createChildren(), createNode(), createSyntaxList(), getSnippetElement(), hasTabstop(), isNode(), isNodeKind()
+### Community 281 - "changeDefaultToNamedImport"
+Cohesion: 0.33
+Nodes (7): changeDefaultToNamedImport(), changeExport(), changeImports(), changeNamedToDefaultImport(), doChange33(), makeExportSpecifier(), makeImportSpecifier2()
 
-### Community 276 - "toHexString"
-Cohesion: 0.25
-Nodes (8): _createAsciiMap(), digest(), fill(), leftPad(), leftRotate(), _step(), toHexString(), _wrapUp()
-
-### Community 277 - "createExpressionForJsxFragment"
-Cohesion: 0.36
-Nodes (8): createExpressionForJsxElement(), createExpressionForJsxFragment(), createJsxFactoryExpression(), createJsxFactoryExpressionFromEntityName(), createJsxFragmentFactoryExpression(), createReactNamespace(), setStartsOnNewLine(), startOnNewLine()
-
-### Community 278 - "breakPatternIntoTextChunks"
+### Community 282 - "isExportOrDefaultKeywordKind"
 Cohesion: 0.67
-Nodes (4): breakIntoCharacterSpans(), breakPatternIntoTextChunks(), createSegment(), createTextChunk()
+Nodes (3): isExportOrDefaultKeywordKind(), isExportOrDefaultModifier(), isNonExportDefaultModifier()
 
-### Community 279 - "nodeIsMissing"
+### Community 285 - "getFixableErrorSpanExpression"
 Cohesion: 0.29
-Nodes (8): findNodeToFix(), getLastChild(), hasChildOfKind(), isCompletedNode(), nodeEndsWith(), nodeIsMissing(), nodeIsPresent(), positionBelongsToNode()
+Nodes (8): documentSpansEqual(), getAwaitErrorSpanExpression(), getFixableErrorSpanExpression(), getPropertiesToAdd(), isInsideAwaitableBody(), isMissingAwaitError(), shouldUseParentTypeOfProperty(), textSpansEqual()
 
-### Community 280 - "isQuestionOrPlusOrMinusToken"
-Cohesion: 0.29
-Nodes (8): isExclamationToken(), isMinusToken(), isPlusToken(), isQuestionOrExclamationToken(), isQuestionOrPlusOrMinusToken(), isQuestionToken(), isReadonlyKeyword(), isReadonlyKeywordOrPlusOrMinusToken()
+### Community 287 - "length"
+Cohesion: 0.32
+Nodes (8): getCombinedNodeFlagsAlwaysIncludeJSDoc(), getNodeModifiers(), getNormalizedSymbolModifiers(), getResolutionModeOverrideForClause(), isDeprecated(), isDeprecatedDeclaration(), isExportDefaultSymbol(), length()
 
-### Community 281 - "electron"
-Cohesion: 0.29
-Nodes (6): electron, { contextBridge, ipcRenderer }, files, electron, assets/**/*, dist/**/*
+### Community 288 - "getCompletionsAtPosition"
+Cohesion: 0.12
+Nodes (19): checkFixedAssignableTo(), createObjectTypeFromLabeledExpression(), createSymbolTable(), doChange19(), getCompletionsAtPosition(), getFixInfo(), getInfo6(), getJSDocTagCompletions() (+11 more)
 
-### Community 282 - "set-version.js"
+### Community 290 - "nodeIsASICandidate"
+Cohesion: 0.25
+Nodes (11): getFormatCodeSettingsForWriting(), isBlockStatement(), isFunctionBlock(), isLocalVariableOrFunction(), nodeIsASICandidate(), probablyUsesSemicolons(), "src/services/utilities.ts"(), syntaxRequiresTrailingCommaOrSemicolonOrASI() (+3 more)
+
+### Community 292 - "set-version.js"
 Cohesion: 0.29
 Nodes (5): fs, packageJsonPath, packageLockPath, path, rootDir
 
-### Community 284 - "createOverload"
-Cohesion: 0.29
-Nodes (7): addObjectAllocatorPatcher(), buildOverload(), createBinder2(), createOverload(), deprecate(), "src/deprecatedCompat/5.0/identifierProperties.ts"(), wrapFunction()
+### Community 294 - "addSyntheticLeadingComment"
+Cohesion: 0.38
+Nodes (7): addSyntheticLeadingComment(), addSyntheticTrailingComment(), getSyntheticLeadingComments(), getSyntheticTrailingComments(), moveSyntheticComments(), setSyntheticLeadingComments(), setSyntheticTrailingComments()
 
-### Community 285 - "propagateChildFlags"
-Cohesion: 0.33
-Nodes (7): aggregateChildrenFlags(), getTransformFlagsSubtreeExclusions(), isPropertyName(), propagateChildFlags(), propagateIdentifierNameFlags(), propagateNameFlags(), propagatePropertyNameFlagsOfChild()
-
-### Community 286 - "getNameOfDeclaration"
-Cohesion: 0.14
-Nodes (19): getAssignedName(), getCallHierarchItemContainerName(), getContainers(), getDeclarationIdentifier(), getDefaultLikeExportNameFromDeclaration(), getNameOfDeclaration(), getNameOfJSDocTypedef(), getNonAssignedNameOfDeclaration() (+11 more)
-
-### Community 287 - "indexOfNode"
+### Community 295 - "decodedTextSpanIntersectsWith"
 Cohesion: 0.67
-Nodes (3): findListItemInfo(), getPos(), indexOfNode()
+Nodes (3): decodedTextSpanIntersectsWith(), textSpanIntersectsWith(), textSpanIntersectsWithTextSpan()
 
-### Community 288 - "getConvertableOverloadListAtPosition"
-Cohesion: 0.33
-Nodes (7): getConvertableOverloadListAtPosition(), getJsDocTagAtPosition(), getRefactorActionsToConvertOverloadsToOneSignature(), getRefactorEditsToConvertOverloadsToOneSignature(), isConvertableSignatureDeclaration(), rangeContainsPosition(), "src/services/refactors/convertOverloadListToSingleSignature.ts"()
+### Community 296 - "nodeIsSynthesized"
+Cohesion: 0.25
+Nodes (9): canUseOriginalText(), flattenCommaList(), flattenCommaListWorker(), isBigIntLiteral(), isCommaExpression(), isCommaListExpression(), isCommaSequence(), isSyntheticParenthesizedExpression() (+1 more)
 
-### Community 289 - "getInfo20"
-Cohesion: 0.48
-Nodes (7): getExpression(), getInfo20(), getValidParentNodeContainingSpan(), getValidParentNodeOfEmptySpan(), isConditionalExpression(), isValidExpression(), isValidExpressionOrStatement()
+### Community 297 - "getInfo20"
+Cohesion: 0.29
+Nodes (10): canBeConvertedToExpression(), getExpression(), getInfo20(), getValidParentNodeContainingSpan(), getValidParentNodeOfEmptySpan(), isConditionalExpression(), isReturnStatement(), isValidExpression() (+2 more)
 
-### Community 290 - "isFileProbablyExternalModule"
+### Community 298 - "isFileProbablyExternalModule"
 Cohesion: 0.29
 Nodes (7): getImportMetaIfNecessary(), isFileProbablyExternalModule(), isImportMeta(), isImportMeta2(), isMetaProperty(), setExternalModuleIndicator(), walkTreeForImportMeta()
 
-### Community 291 - "getInfo6"
-Cohesion: 0.12
-Nodes (18): addOutliningForLeadingCommentsForNode(), findScope(), getInfo6(), getStatementOrExpressionRange(), getVariableLikeInitializer(), isFileModuleFromUsingJSXTag(), isInJSXContent(), isInJSXText() (+10 more)
-
-### Community 292 - "iterateCommentRanges"
+### Community 300 - "isBlockContext"
 Cohesion: 0.29
-Nodes (7): getInsertionPositionAtSourceFileTop(), getShebang(), isPinnedComment(), isRecognizedTripleSlashComment(), iterateCommentRanges(), reduceEachLeadingCommentRange(), reduceEachTrailingCommentRange()
+Nodes (7): isBlockContext(), isBraceWrappedContext(), isMultilineBlockContext(), isSingleLineBlockContext(), isTypeScriptDeclWithBlockContext(), nodeIsBlockContext(), nodeIsTypeScriptDeclWithBlockContext()
 
-### Community 293 - "useSiteAnalytics.ts"
+### Community 301 - "Toolbar.vue"
+Cohesion: 0.33
+Nodes (5): emit, eolLabel, isMac, nextEolLabel, props
+
+### Community 302 - "useSiteAnalytics.ts"
 Cohesion: 0.53
 Nodes (5): AnalyticsParams, hasTrackingConsent(), pushEvent(), useSiteAnalytics(), Window
 
-### Community 295 - "_acceptInsertText"
+### Community 303 - "ls"
+Cohesion: 0.33
+Nodes (4): ls, pu, Ua, vu
+
+### Community 304 - "_assertIndex"
+Cohesion: 0.67
+Nodes (6): _assertIndex(), createFromDiffChange(), getEndColumn(), getEndLineNumber(), getStartColumn(), getStartLineNumber()
+
+### Community 306 - "_acceptInsertText"
 Cohesion: 0.40
 Nodes (6): _acceptDeleteRange(), _acceptInsertText(), acceptModelChanged(), onEvents(), _setLineText(), splitLines()
 
-### Community 296 - "positionIsASICandidate"
-Cohesion: 0.67
-Nodes (3): insertLeadingSemicolonIfNeeded(), isSemicolonInsertionContext(), positionIsASICandidate()
+### Community 307 - "propagateChildFlags"
+Cohesion: 0.40
+Nodes (6): aggregateChildrenFlags(), getTransformFlagsSubtreeExclusions(), propagateChildFlags(), propagateIdentifierNameFlags(), propagateNameFlags(), propagatePropertyNameFlagsOfChild()
 
-### Community 298 - "parseComparator"
-Cohesion: 0.60
-Nodes (6): createComparator(), isWildcard(), parseComparator(), parseHyphen(), parsePartial(), parseRange()
-
-### Community 299 - "getContextualSignatureLocationInfo"
-Cohesion: 0.22
-Nodes (9): countBinaryExpressionParameters(), getApplicableSpanForArguments(), getArgumentCount(), getArgumentIndex(), getArgumentOrParameterListAndIndex(), getArgumentOrParameterListInfo(), getChildListThatStartsWithOpenerToken(), getContextualSignatureLocationInfo() (+1 more)
-
-### Community 300 - "getExpressionAssociativity"
+### Community 309 - "getExpressionAssociativity"
 Cohesion: 0.33
 Nodes (6): getBinaryOperatorPrecedence(), getExpressionAssociativity(), getExpressionPrecedence(), getOperator(), getOperatorAssociativity(), getOperatorPrecedence()
 
-### Community 301 - "vercel.json"
+### Community 310 - "isBeforeBlockContext"
+Cohesion: 0.33
+Nodes (6): isBeforeBlockContext(), isBeforeMultilineBlockContext(), isFunctionDeclContext(), isNotBeforeBlockInFunctionDeclarationContext(), isNotFunctionDeclContext(), isSameLineTokenOrBeforeBlockContext()
+
+### Community 312 - "vercel.json"
 Cohesion: 0.40
 Nodes (4): buildCommand, framework, outputDirectory, $schema
 
-### Community 304 - "encodeUtf16EscapeSequence"
-Cohesion: 0.50
-Nodes (5): encodeUtf16EscapeSequence(), escapeNonAsciiString(), escapeString(), getReplacement(), getTextOfConstantValue()
+### Community 313 - "updateExport"
+Cohesion: 0.47
+Nodes (6): createExport(), createExportSpecifiers(), doChange8(), doChanges(), tryGetExportDeclaration(), updateExport()
 
-### Community 305 - "updateErrorForNoInputFiles"
+### Community 315 - "getAssertion"
 Cohesion: 0.40
-Nodes (5): filterMutate(), getErrorForNoInputFiles(), isErrorNoInputFiles(), shouldReportNoInputFiles(), updateErrorForNoInputFiles()
+Nodes (5): getAssertion(), isAsExpression(), isTypeAssertionExpression(), needsParentheses(), removeBlockBodyBrace()
 
-### Community 306 - "getBoundaryScore"
-Cohesion: 0.40
-Nodes (5): getBoundaryScore(), getCategory(), getCategoryBoundaryScore(), getIndentation(), isSpace()
+### Community 316 - "getSourceFileOfNode"
+Cohesion: 0.29
+Nodes (8): getConvertableOverloadListAtPosition(), getRefactorActionsToConvertOverloadsToOneSignature(), getRefactorEditsToConvertOverloadsToOneSignature(), getSourceFileOfNode(), isConvertableSignatureDeclaration(), linkNamePart(), nodePosToString(), "src/services/refactors/convertOverloadListToSingleSignature.ts"()
 
-### Community 307 - "getCompletionEntryDisplayNameForSymbol"
-Cohesion: 0.50
-Nodes (5): getCompletionEntryDisplayNameForSymbol(), isSingleOrDoubleQuote(), originIncludesSymbolName(), originIsComputedPropertyName(), originIsIgnore()
-
-### Community 308 - "toUint32"
+### Community 317 - "toUint32"
 Cohesion: 0.40
 Nodes (5): getPrefixSum(), insertValues(), removeValues(), setValue(), toUint32()
 
-### Community 309 - "isValidTypeOnlyAliasUseSite"
+### Community 319 - "wrapCustomTransformerFactory"
 Cohesion: 0.40
-Nodes (5): isIdentifierInNonEmittingHeritageClause(), isPartOfPossiblyValidTypeOrAbstractComputedPropertyName(), isPartOfTypeQuery(), isShorthandPropertyNameUseSite(), isValidTypeOnlyAliasUseSite()
+Nodes (5): isBundle(), wrapCustomTransformer(), wrapCustomTransformerFactory(), wrapDeclarationTransformerFactory(), wrapScriptTransformerFactory()
 
-### Community 313 - "addObjectLiteralProperties"
+### Community 320 - "isQuestionOrPlusOrMinusToken"
 Cohesion: 0.50
-Nodes (4): addObjectLiteralProperties(), createPropertyNameFromSymbol(), createPropertyNameNodeForIdentifierOrLiteral(), isNumericLiteralName()
+Nodes (5): isMinusToken(), isPlusToken(), isQuestionOrPlusOrMinusToken(), isReadonlyKeyword(), isReadonlyKeywordOrPlusOrMinusToken()
 
-### Community 314 - "getData"
+### Community 324 - ""src/compiler/checker.ts""
+Cohesion: 0.50
+Nodes (4): and(), isNotAccessor(), isNotOverload(), "src/compiler/checker.ts"()
+
+### Community 325 - "getData"
 Cohesion: 0.50
 Nodes (4): codePoints(), getData(), getRawData(), isInvisibleCharacter()
 
-### Community 315 - "getSemanticClassifications2"
+### Community 326 - "getSemanticClassifications2"
 Cohesion: 0.50
 Nodes (4): collectTokens(), getEncodedSemanticClassifications2(), getSemanticClassifications2(), getSemanticTokens()
 
-### Community 316 - "reduceLeft"
+### Community 327 - "reduceLeft"
 Cohesion: 0.50
 Nodes (4): compare(), compose(), min(), reduceLeft()
 
-### Community 317 - "createImportTracker"
-Cohesion: 0.50
-Nodes (4): createImportTracker(), getImportersForExport(), getSearchesFromDirectImports(), nodeSeenTracker()
-
-### Community 318 - "createModeAwareCache"
+### Community 328 - "createModeAwareCache"
 Cohesion: 0.50
 Nodes (4): createModeAwareCache(), setResolvedModule(), setResolvedTypeReferenceDirective(), zipToModeAwareCache()
 
-### Community 319 - "forwardCall"
+### Community 330 - "forwardCall"
 Cohesion: 0.50
 Nodes (4): forwardCall(), forwardJSONCall(), logInternalError(), simpleForwardCall()
 
-### Community 320 - "getRecommendedCompletion"
+### Community 332 - "getInfo11"
 Cohesion: 0.50
-Nodes (4): getFirstSymbolInChain(), getRecommendedCompletion(), isAbstractConstructorSymbol(), isModuleSymbol()
+Nodes (4): getInfo11(), getType(), isJSDocNullableType(), isTypeContainer()
 
-### Community 321 - "isBinaryLogicalOperator"
+### Community 333 - "isBinaryLogicalOperator"
 Cohesion: 0.50
 Nodes (4): isBinaryLogicalOperator(), isLogicalOperator(), isLogicalOrCoalescingBinaryExpression(), isLogicalOrCoalescingBinaryOperator()
 
-### Community 322 - ""src/compiler/transformer.ts""
+### Community 334 - "tokenRangeFromRange"
 Cohesion: 0.50
-Nodes (4): noEmitNotification(), noEmitSubstitution(), returnUndefined(), "src/compiler/transformer.ts"()
+Nodes (4): rule(), tokenRangeFrom(), tokenRangeFromRange(), toTokenRange()
 
-### Community 328 - "arrayIsEqualTo"
+### Community 339 - "arrayIsEqualTo"
 Cohesion: 0.67
 Nodes (3): arrayIsEqualTo(), compareDataObjects(), isProgramUptoDate()
 
-### Community 329 - "convertToBase64"
+### Community 340 - "convertToBase64"
 Cohesion: 0.67
 Nodes (3): base64encode(), convertToBase64(), getExpandedCharCodes()
 
-### Community 330 - "getUsageInfo"
-Cohesion: 0.20
-Nodes (10): clone(), cloneCompilerOptions(), forEachReference(), getUsageInfo(), isInImport(), isNonVariableTopLevelDeclaration(), isTopLevelDeclaration(), isVariableDeclarationInImport() (+2 more)
+### Community 341 - "cloneCompilerOptions"
+Cohesion: 0.67
+Nodes (3): clone(), cloneCompilerOptions(), setConfigFileInOptions()
 
-### Community 332 - "selectionsEqual"
+### Community 342 - "selectionsEqual"
 Cohesion: 0.67
 Nodes (3): equalsSelection(), selectionsArrEqual(), selectionsEqual()
 
-### Community 333 - "joinPath"
-Cohesion: 0.67
-Nodes (3): fsPath(), joinPath(), uriToFsPath()
-
-### Community 334 - "getJSDocImplementsTags"
-Cohesion: 0.67
-Nodes (3): getAllJSDocTags(), getJSDocImplementsTags(), isJSDocImplementsTag()
-
-### Community 335 - "getSourceFileLikeForImportDeclaration"
-Cohesion: 0.67
-Nodes (3): getContainingModuleSymbol(), getSourceFileLikeForImportDeclaration(), isAmbientModuleDeclaration()
-
-### Community 336 - "getDirection"
+### Community 343 - "getDirection"
 Cohesion: 0.67
 Nodes (3): getDirection(), setEndPosition(), setStartPosition()
 
-### Community 337 - "onWatchedFileStat"
+### Community 344 - "onWatchedFileStat"
 Cohesion: 0.67
 Nodes (3): getFileWatcherEventKind(), onWatchedFileStat(), pollWatchedFileQueue()
 
-### Community 338 - "getOrganizeImportsLocale"
+### Community 345 - "getOrganizeImportsLocale"
 Cohesion: 0.67
 Nodes (3): getOrganizeImportsLocale(), getOrganizeImportsUnicodeStringComparer(), getUILocale()
 
-### Community 339 - "getValue"
+### Community 346 - "isFunctionCallOrNewContext"
 Cohesion: 0.67
-Nodes (3): getScriptText(), getValue(), minAndMax()
+Nodes (3): isFunctionCallContext(), isFunctionCallOrNewContext(), isNewContext()
 
-### Community 340 - "getPresentModifiers"
-Cohesion: 0.28
-Nodes (9): getPresentModifiers(), isExportOrDefaultKeywordKind(), isExportOrDefaultModifier(), isModifier(), isModifierKind(), isModifierLike2(), isNonExportDefaultModifier(), modifiersToFlags() (+1 more)
-
-### Community 341 - "isNamespaceReference"
+### Community 347 - "isNamespaceReference"
 Cohesion: 0.67
 Nodes (3): isNamespaceReference(), isPropertyAccessNamespaceReference(), isQualifiedNameNamespaceReference()
 
-### Community 342 - "getPossibleGenericSignatures"
-Cohesion: 0.24
-Nodes (10): getPossibleGenericSignatures(), isExpressionOfOptionalChainRoot(), isNonNullAccess(), isNonNullChain(), isNonNullExpression(), isOptionalChain(), isOptionalChainRoot(), isOutermostOptionalChain() (+2 more)
+### Community 348 - "isNonNullExpression"
+Cohesion: 0.67
+Nodes (3): isNonNullAccess(), isNonNullChain(), isNonNullExpression()
 
-### Community 343 - "isNotEmittedOrPartiallyEmittedNode"
+### Community 349 - "isNotEmittedOrPartiallyEmittedNode"
 Cohesion: 0.67
 Nodes (3): isNotEmittedOrPartiallyEmittedNode(), isNotEmittedStatement(), isPartiallyEmittedExpression()
 
-### Community 345 - "loadModuleFromNearestNodeModulesDirectoryWorker"
+### Community 350 - "isTypeOnlyImportOrExportDeclaration"
+Cohesion: 0.67
+Nodes (3): isTypeOnlyExportDeclaration(), isTypeOnlyImportDeclaration(), isTypeOnlyImportOrExportDeclaration()
+
+### Community 351 - "loadModuleFromNearestNodeModulesDirectoryWorker"
 Cohesion: 0.67
 Nodes (3): loadModuleFromNearestNodeModulesDirectory(), loadModuleFromNearestNodeModulesDirectoryTypesScope(), loadModuleFromNearestNodeModulesDirectoryWorker()
 
-### Community 346 - "prepareRangeContainsErrorFunction"
+### Community 352 - "prepareRangeContainsErrorFunction"
 Cohesion: 1.00
 Nodes (3): prepareRangeContainsErrorFunction(), rangeOverlapsWithStartEnd(), startEndOverlapsWithStartEnd()
 
 ## Knowledge Gaps
-- **537 isolated node(s):** `_`, `p`, `m`, `h`, `b` (+532 more)
+- **573 isolated node(s):** `_`, `p`, `m`, `h`, `b` (+568 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **59 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **52 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `_c()` connect `.has` to `BWdvOWGK.js`, `event`, `DoNMQGcP.js`, `.push`, `Dt-JubDU.js`, `some`, `.add`, `constructor`, `CHV4pif9.js`?**
-  _High betweenness centrality (0.185) - this node is a cross-community bridge._
-- **Why does `cp()` connect `je` to `css.worker.bundle.js`, `DoNMQGcP.js`, `computeUnicodeHighlights`, `some`, `computeUnicodeHighlights`, `value`?**
-  _High betweenness centrality (0.158) - this node is a cross-community bridge._
-- **Why does `event()` connect `some` to `ts.worker.bundle.js`, `push`, `fire`, `dispose`, `.has`?**
-  _High betweenness centrality (0.103) - this node is a cross-community bridge._
+- **Why does `_c()` connect `ie` to `.item`, `event`, `event`, `Dt-JubDU.js`, `DoNMQGcP.js`, `push`, `CHV4pif9.js`, `constructor`, `BWdvOWGK.js`?**
+  _High betweenness centrality (0.180) - this node is a cross-community bridge._
+- **Why does `cp()` connect `Dt-JubDU.js` to `html.worker.bundle.js`, `computeUnicodeHighlights`, `DoNMQGcP.js`, `add`, `value`, `ComputeDiff`?**
+  _High betweenness centrality (0.150) - this node is a cross-community bridge._
+- **Why does `event()` connect `push` to `ts.worker.bundle.js`, `dispose`, `split`, `ie`, `add`?**
+  _High betweenness centrality (0.100) - this node is a cross-community bridge._
 - **Are the 18 inferred relationships involving `isIdentifier()` (e.g. with `createSignatureDeclarationFromSignature()` and `createTypeChecker()`) actually correct?**
   _`isIdentifier()` has 18 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `_`, `p`, `m` to the rest of the system?**
-  _537 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _573 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ts.worker.bundle.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.0035149384885764497 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.004291845493562232 - nodes in this community are weakly interconnected._
 - **Should `css.worker.bundle.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.008276569252179008 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.008397730825925761 - nodes in this community are weakly interconnected._

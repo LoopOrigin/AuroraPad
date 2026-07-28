@@ -13,16 +13,17 @@
       @dragover.prevent
       @drop="onDrop(tab.id)"
     >
-      <i class="tab-icon" :class="iconForTab(tab.name)" aria-hidden="true"></i>
-      <span v-if="tab.isDirty" class="dirty-dot" title="Unsaved changes"></span>
+      <span class="tab-icon" :class="['file-badge', tabBadgeClass(tab.name)]" aria-hidden="true">{{ tabBadgeText(tab.name) }}</span>
+      <span v-if="tab.isDirty" class="dirty-dot" title="Unsaved changes">M</span>
       <span class="tab-label" :title="tab.path || tab.name">{{ tab.name }}</span>
       <button
         type="button"
         class="close-btn"
         aria-label="Close tab"
+        title="Close tab (Ctrl+W)"
         @click.stop="closeTab(tab.id)"
       >
-        ✕
+        <i class="fa-solid fa-xmark" style="font-size:9px"></i>
       </button>
     </div>
 
@@ -141,19 +142,39 @@ function onDrop(targetId) {
   tabs.splice(to, 0, moved)
 }
 
-function iconForTab(name = '') {
+function tabBadgeText(name = '') {
   const lower = name.toLowerCase()
-  if (lower.endsWith('.js') || lower.endsWith('.ts') || lower.endsWith('.jsx') || lower.endsWith('.tsx')) return 'fa-brands fa-js'
-  if (lower.endsWith('.vue')) return 'fa-brands fa-vuejs'
-  if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'fa-brands fa-html5'
-  if (lower.endsWith('.css') || lower.endsWith('.scss') || lower.endsWith('.less')) return 'fa-brands fa-css3-alt'
-  if (lower.endsWith('.json') || lower.endsWith('.yml') || lower.endsWith('.yaml') || lower.endsWith('.toml')) return 'fa-solid fa-brackets-curly'
-  if (lower.endsWith('.md')) return 'fa-solid fa-book'
-  if (lower.endsWith('.py')) return 'fa-brands fa-python'
-  if (lower.endsWith('.rb')) return 'fa-regular fa-gem'
-  if (lower.endsWith('.go')) return 'fa-solid fa-droplet'
-  if (lower.endsWith('.rs')) return 'fa-solid fa-gear'
-  return 'fa-regular fa-file-lines'
+  if (lower.endsWith('.tsx')) return 'TSX'
+  if (lower.endsWith('.jsx')) return 'JSX'
+  if (lower.endsWith('.ts')) return 'TS'
+  if (lower.endsWith('.js')) return 'JS'
+  if (lower.endsWith('.vue')) return 'VUE'
+  if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'HTM'
+  if (lower.endsWith('.scss')) return 'SCSS'
+  if (lower.endsWith('.css') || lower.endsWith('.less')) return 'CSS'
+  if (lower.endsWith('.json')) return 'JSON'
+  if (lower.endsWith('.yml') || lower.endsWith('.yaml')) return 'YML'
+  if (lower.endsWith('.md')) return 'MD'
+  if (lower.endsWith('.py')) return 'PY'
+  if (lower.endsWith('.go')) return 'GO'
+  if (lower.endsWith('.rs')) return 'RS'
+  const ext = lower.split('.').pop()
+  return ext && ext.length <= 4 ? ext.toUpperCase() : '···'
+}
+
+function tabBadgeClass(name = '') {
+  const lower = name.toLowerCase()
+  if (lower.endsWith('.ts') || lower.endsWith('.tsx')) return 'file-badge-ts'
+  if (lower.endsWith('.js') || lower.endsWith('.jsx')) return 'file-badge-js'
+  if (lower.endsWith('.vue')) return 'file-badge-vue'
+  if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'file-badge-html'
+  if (lower.endsWith('.css') || lower.endsWith('.scss') || lower.endsWith('.less')) return 'file-badge-css'
+  if (lower.endsWith('.json') || lower.endsWith('.yml') || lower.endsWith('.yaml')) return 'file-badge-json'
+  if (lower.endsWith('.md')) return 'file-badge-md'
+  if (lower.endsWith('.py')) return 'file-badge-py'
+  if (lower.endsWith('.go')) return 'file-badge-go'
+  if (lower.endsWith('.rs')) return 'file-badge-rs'
+  return ''
 }
 </script>
 

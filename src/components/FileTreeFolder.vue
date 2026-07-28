@@ -11,20 +11,14 @@
         @dblclick="entry.isDirectory && remoteMode ? enterDirectory(entry.path) : null"
         @contextmenu.prevent="onContextMenu(entry)"
       >
-        <span class="icon">
-          <i
-            v-if="entry.isDirectory"
-            class="fa-solid"
-            :class="isExpanded(entry.path) ? 'fa-folder-open' : 'fa-folder'"
-            aria-hidden="true"
-          ></i>
-          <i
-            v-else
-            :class="fileIcon(entry.name)"
-            aria-hidden="true"
-          ></i>
+        <span :class="['file-badge', entry.isDirectory ? 'file-badge-dir' : fileBadgeClass(entry.name)]" aria-hidden="true">
+          {{ entry.isDirectory ? (isExpanded(entry.path) ? '▾' : '▸') : fileBadgeText(entry.name) }}
         </span>
         <span class="file-tree-label" :title="entry.name">{{ entry.name }}</span>
+        <span
+          v-if="!entry.isDirectory && gitStatusChar(entry.path)"
+          :class="['git-status-badge', `git-status-${gitStatusChar(entry.path)}`]"
+        >{{ gitStatusChar(entry.path) }}</span>
         <button
           v-if="entry.isDirectory && remoteMode"
           type="button"
@@ -95,29 +89,58 @@ function onContextMenu(entry) {
   emit('move-entry', { fromPath: entry.path, toPath: destination })
 }
 
+function gitStatusChar(path) {
+  const status = fileTreeStore.gitStatus
+  if (!status) return ''
+  return status[path] || ''
+}
+
 function isActiveFile(path) {
   return tabsStore.activeTab?.path === path
 }
 
-function fileIcon(name = '') {
+function fileBadgeText(name = '') {
   const lower = name.toLowerCase()
-  if (lower.endsWith('.js') || lower.endsWith('.ts') || lower.endsWith('.jsx') || lower.endsWith('.tsx')) return 'fa-brands fa-js'
-  if (lower.endsWith('.vue')) return 'fa-brands fa-vuejs'
-  if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'fa-brands fa-html5'
-  if (lower.endsWith('.css') || lower.endsWith('.scss') || lower.endsWith('.less')) return 'fa-brands fa-css3-alt'
-  if (lower.endsWith('.json') || lower.endsWith('.yml') || lower.endsWith('.yaml') || lower.endsWith('.toml')) return 'fa-solid fa-brackets-curly'
-  if (lower.endsWith('.md')) return 'fa-solid fa-book'
-  if (lower.endsWith('.py')) return 'fa-brands fa-python'
-  if (lower.endsWith('.rb')) return 'fa-regular fa-gem'
-  if (lower.endsWith('.go')) return 'fa-solid fa-droplet'
-  if (lower.endsWith('.rs')) return 'fa-solid fa-gear'
-  return 'fa-regular fa-file-lines'
+  if (lower.endsWith('.tsx')) return 'TSX'
+  if (lower.endsWith('.jsx')) return 'JSX'
+  if (lower.endsWith('.ts')) return 'TS'
+  if (lower.endsWith('.js')) return 'JS'
+  if (lower.endsWith('.vue')) return 'VUE'
+  if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'HTM'
+  if (lower.endsWith('.scss')) return 'SCSS'
+  if (lower.endsWith('.css') || lower.endsWith('.less')) return 'CSS'
+  if (lower.endsWith('.json')) return 'JSON'
+  if (lower.endsWith('.yml') || lower.endsWith('.yaml')) return 'YML'
+  if (lower.endsWith('.toml')) return 'TOML'
+  if (lower.endsWith('.md')) return 'MD'
+  if (lower.endsWith('.py')) return 'PY'
+  if (lower.endsWith('.rb')) return 'RB'
+  if (lower.endsWith('.go')) return 'GO'
+  if (lower.endsWith('.rs')) return 'RS'
+  const ext = lower.split('.').pop()
+  return ext && ext.length <= 4 ? ext.toUpperCase() : '···'
+}
+
+function fileBadgeClass(name = '') {
+  const lower = name.toLowerCase()
+  if (lower.endsWith('.ts') || lower.endsWith('.tsx')) return 'file-badge-ts'
+  if (lower.endsWith('.js') || lower.endsWith('.jsx')) return 'file-badge-js'
+  if (lower.endsWith('.vue')) return 'file-badge-vue'
+  if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'file-badge-html'
+  if (lower.endsWith('.css') || lower.endsWith('.scss') || lower.endsWith('.less')) return 'file-badge-css'
+  if (lower.endsWith('.json') || lower.endsWith('.yml') || lower.endsWith('.yaml') || lower.endsWith('.toml')) return 'file-badge-json'
+  if (lower.endsWith('.md')) return 'file-badge-md'
+  if (lower.endsWith('.py')) return 'file-badge-py'
+  if (lower.endsWith('.rb')) return 'file-badge-rb'
+  if (lower.endsWith('.go')) return 'file-badge-go'
+  if (lower.endsWith('.rs')) return 'file-badge-rs'
+  return ''
 }
 </script>
 
 <style scoped>
 .file-tree-children {
-  padding-left: 12px;
+  padding-left: 8px;
 }
 
 .file-tree-enter-btn {
@@ -132,4 +155,20 @@ function fileIcon(name = '') {
 .file-tree-enter-btn:hover {
   color: var(--npp-accent);
 }
+
+.git-status-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 0 3px;
+  border-radius: 2px;
+  line-height: 14px;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+
+.git-status-M { color: #ffcb6b; }
+.git-status-A { color: #c3e88d; }
+.git-status-D { color: #f87171; }
+.git-status-\? { color: var(--npp-text-dim, #6b7a99); }
 </style>
