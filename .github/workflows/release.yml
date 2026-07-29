@@ -140,8 +140,7 @@ jobs:
               ;;
             mac)
               if [[ -z "$CSC_LINK" || -z "$CSC_KEY_PASSWORD" || -z "$APPLE_API_KEY" || -z "$APPLE_API_KEY_ID" || -z "$APPLE_API_ISSUER" ]]; then
-                echo "macOS signing or notarization secrets missing. Skipping macOS public release build."
-                exit 0
+                echo "macOS signing or notarization secrets missing. Building unsigned macOS DMG."
               else
                 echo "macOS signing enabled."
               fi
@@ -152,10 +151,8 @@ jobs:
 
       - name: Apply release version
         run: npm run version:set -- ${{ needs.metadata.outputs.version }}
-        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
 
       - name: Log build signing mode
-        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
         shell: bash
         run: |
           case "${{ matrix.name }}" in
@@ -170,7 +167,7 @@ jobs:
               if [[ "${{ needs.metadata.outputs.mac_signed }}" == "true" ]]; then
                 echo "macOS build mode: signed-and-notarized"
               else
-                echo "macOS build mode: skipped"
+                echo "macOS build mode: unsigned"
               fi
               ;;
             linux)
@@ -180,7 +177,6 @@ jobs:
 
       - name: Build packaged app
         run: ${{ matrix.command }}
-        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
         env:
           WIN_CSC_LINK: ${{ needs.metadata.outputs.windows_signed == 'true' && secrets.WIN_CSC_LINK || '' }}
           WIN_CSC_KEY_PASSWORD: ${{ needs.metadata.outputs.windows_signed == 'true' && secrets.WIN_CSC_KEY_PASSWORD || '' }}
@@ -189,11 +185,10 @@ jobs:
           APPLE_API_KEY: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.APPLE_API_KEY || '' }}
           APPLE_API_KEY_ID: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.APPLE_API_KEY_ID || '' }}
           APPLE_API_ISSUER: ${{ needs.metadata.outputs.mac_signed == 'true' && secrets.APPLE_API_ISSUER || '' }}
-          CSC_IDENTITY_AUTO_DISCOVERY: ${{ matrix.name == 'windows' && needs.metadata.outputs.windows_signed != 'true' && 'false' || (matrix.name == 'linux' && 'false' || '') }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ (matrix.name == 'windows' && needs.metadata.outputs.windows_signed != 'true' || matrix.name == 'mac' && needs.metadata.outputs.mac_signed != 'true' || matrix.name == 'linux') && 'false' || '' }}
 
       - name: Upload packaged artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ matrix.name != 'mac' || needs.metadata.outputs.mac_signed == 'true' }}
         with:
           name: release-${{ needs.metadata.outputs.version }}-${{ matrix.name }}
           path: |
@@ -327,6 +322,30 @@ jobs:
               windows::app-update.yml)
                 echo "AuroraPad-${VERSION}-windows-app-update.yml"
                 ;;
+              mac::AuroraPad-*-arm64.dmg)
+                echo "AuroraPad-${VERSION}-macos-arm64.dmg"
+                ;;
+              mac::AuroraPad-*-arm64.dmg.blockmap)
+                echo "AuroraPad-${VERSION}-macos-arm64.dmg.blockmap"
+                ;;
+              mac::AuroraPad-*-x64.dmg)
+                echo "AuroraPad-${VERSION}-macos-x64.dmg"
+                ;;
+              mac::AuroraPad-*-x64.dmg.blockmap)
+                echo "AuroraPad-${VERSION}-macos-x64.dmg.blockmap"
+                ;;
+              mac::AuroraPad-*-arm64-mac.zip)
+                echo "AuroraPad-${VERSION}-macos-arm64.zip"
+                ;;
+              mac::AuroraPad-*-arm64-mac.zip.blockmap)
+                echo "AuroraPad-${VERSION}-macos-arm64.zip.blockmap"
+                ;;
+              mac::AuroraPad-*-x64-mac.zip)
+                echo "AuroraPad-${VERSION}-macos-x64.zip"
+                ;;
+              mac::AuroraPad-*-x64-mac.zip.blockmap)
+                echo "AuroraPad-${VERSION}-macos-x64.zip.blockmap"
+                ;;
               mac::AuroraPad-*.dmg)
                 echo "AuroraPad-${VERSION}-macos-arm64.dmg"
                 ;;
@@ -404,8 +423,8 @@ jobs:
               windows::*-windows-setup.exe|windows::*-windows-portable.exe)
                 platform_downloads[windows]="$target_name"
                 ;;
-              mac::*-macos-arm64.dmg|mac::*-macos-arm64.zip)
-                if [[ -z "${platform_downloads[mac]:-}" || "$target_name" == *.dmg ]]; then
+              mac::*-macos-arm64.dmg|mac::*-macos-x64.dmg|mac::*-macos-arm64.zip|mac::*-macos-x64.zip)
+                if [[ -z "${platform_downloads[mac]:-}" || "$target_name" == *-arm64.dmg ]]; then
                   platform_downloads[mac]="$target_name"
                 fi
                 ;;
@@ -448,9 +467,11 @@ jobs:
               echo "- Windows: https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${platform_downloads[windows]}"
             fi
             if [[ -n "${platform_downloads[mac]:-}" ]]; then
-              echo "- macOS: https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${platform_downloads[mac]}"
-            else
-              echo "- macOS: not published in this release because Apple signing/notarization is not configured."
+              echo "- macOS (Apple Silicon): https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${platform_downloads[mac]}"
+              x64_dmg="AuroraPad-${VERSION}-macos-x64.dmg"
+              if [[ -f "$staging_dir/$x64_dmg" ]]; then
+                echo "- macOS (Intel): https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${x64_dmg}"
+              fi
             fi
             if [[ -n "${platform_downloads[linux]:-}" ]]; then
               echo "- Linux: https://github.com/${TARGET_REPO}/releases/download/${TAG_NAME}/${platform_downloads[linux]}"
@@ -464,7 +485,11 @@ jobs:
             echo "Binary downloads are listed first. GitHub may still show source archives automatically, but the platform installers and packages above are the intended downloads."
             if [[ "${{ needs.metadata.outputs.windows_signed }}" != "true" ]]; then
               echo
-              echo "Windows artifacts in this release are unsigned and may trigger SmartScreen warnings."
+              echo "**Windows**: Artifacts are unsigned and may trigger SmartScreen warnings. Click 'More info' → 'Run anyway' to proceed."
+            fi
+            if [[ "${{ needs.metadata.outputs.mac_signed }}" != "true" && -n "${platform_downloads[mac]:-}" ]]; then
+              echo
+              echo "**macOS**: DMG is unsigned (Apple signing not configured). After mounting, right-click the app → Open → Open to bypass Gatekeeper. Or run: \`sudo xattr -rd com.apple.quarantine /Applications/AuroraPad.app\`"
             fi
             echo
             echo "## Verification"
