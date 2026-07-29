@@ -594,7 +594,8 @@ const faqItems = [
 
 <style scoped>
 /* ── Tokens ─────────────────────────────────────────────────────────────── */
-:root {
+/* Defined on .site (not :root) so they cascade inside scoped styles */
+.site {
   --bg:     #0b0a1a;
   --bg-mid: #171338;
   --bg-te:  #103833;
