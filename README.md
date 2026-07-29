@@ -27,6 +27,7 @@ It is designed for developers, operators, and power users who want a practical l
 - [Quick Start](#quick-start)
 - [Packaging](#packaging)
 - [Website](#website)
+  - [Deploying to Vercel](#deploying-to-vercel)
 - [Release Management](#release-management)
 - [CI Workflows](#ci-workflows)
 - [Current Scope Notes](#current-scope-notes)
@@ -627,13 +628,82 @@ npm run site:preview
 
 The website is statically generated into `website/.output/public/`.
 
-**Vercel deployment**
+---
 
-| Setting | Value |
+### Deploying to Vercel
+
+The repository includes a [`vercel.json`](vercel.json) and [`.vercelignore`](.vercelignore) that handle all Vercel configuration automatically. No manual project settings are required after the initial import.
+
+**Prerequisites**
+
+- A [Vercel account](https://vercel.com)
+- The Vercel CLI installed globally (optional — the dashboard import is sufficient for most cases):
+  ```bash
+  npm install -g vercel
+  ```
+
+**Option A — Vercel dashboard (recommended for first-time setup)**
+
+1. Go to [vercel.com/new](https://vercel.com/new) and click **Add New → Project**.
+2. Import the AuroraPad GitHub repository.
+3. Vercel auto-detects `vercel.json`. Leave all framework and build settings at their defaults — the config file overrides everything.
+4. Click **Deploy**. No environment variables are required.
+
+After the first deploy, every push to `main` redeploys automatically. Pushes that only touch non-website files (Electron source, scripts, tests, etc.) are skipped via the `ignoreCommand`.
+
+**Option B — Vercel CLI**
+
+```bash
+# First deploy (links the project to Vercel and deploys)
+vercel
+
+# Subsequent production deploys
+vercel --prod
+```
+
+**What the configuration does**
+
+| Setting | Value | Why |
+|---|---|---|
+| `framework` | `nuxtjs` | Tells Vercel to use the Nuxt preset |
+| `installCommand` | `npm ci --ignore-scripts` | Skips `postinstall` which runs `electron-rebuild` — not needed on Vercel builders |
+| `buildCommand` | `npm run site:build` | Runs `nuxi generate website` to produce a static site |
+| `outputDirectory` | `website/.output/public` | Where Nuxt writes the static output |
+| `ignoreCommand` | `git diff --quiet HEAD^ HEAD -- website/` | Cancels the deploy if no files inside `website/` changed |
+
+**What `.vercelignore` excludes**
+
+The `.vercelignore` file prevents Vercel from uploading the Electron app source and build artifacts, keeping the upload small and build fast:
+
+```
+electron/
+src/
+assets/
+build/
+scripts/
+tests/
+release/
+dist/
+```
+
+**Previewing before deploy**
+
+```bash
+# Generate the static site locally
+npm run site:build
+
+# Serve the output and open in browser
+npm run site:preview
+```
+
+**Troubleshooting**
+
+| Problem | Fix |
 |---|---|
-| Build command | `npm run site:build` |
-| Output directory | `website/.output/public` |
-| Config file | [vercel.json](vercel.json) |
+| `electron-rebuild` fails on Vercel | Ensure `installCommand` is `npm ci --ignore-scripts` in `vercel.json` — this skips the `postinstall` script |
+| Deploy skipped unexpectedly | The `ignoreCommand` cancelled it because no `website/` files changed. Force a deploy from the Vercel dashboard or run `vercel --prod` |
+| Build output not found | Confirm `outputDirectory` is `website/.output/public` and that `nuxi generate website` completed without errors |
+| Whole repo uploaded (slow builds) | Check that `.vercelignore` is committed and present at the repo root |
 
 ---
 
