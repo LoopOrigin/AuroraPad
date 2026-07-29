@@ -1,7 +1,7 @@
 {
   "name": "aurorapad",
   "productName": "AuroraPad",
-  "version": "0.1.13",
+  "version": "0.2.1",
   "author": "Muhammad Ali",
   "description": "AuroraPad — a modern Notepad++-style editor powered by Monaco",
   "main": "electron/main/index.js",
