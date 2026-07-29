@@ -1,0 +1,1 @@
+import{R as e,at as t,i as n,q as r,xt as i}from"./QYBvCUcl.js";import{n as a,t as o}from"./CV4p0w2E.js";import{t as s}from"./BdIKsMrp.js";var c=r({__name:`terms`,setup(r){let c=a.terms;return n({title:`AuroraPad | ${c.title}`,description:c.summary}),(n,r)=>(t(),e(s,{page:i(c),"download-url":i(o)},null,8,[`page`,`download-url`]))}});export{c as default};
