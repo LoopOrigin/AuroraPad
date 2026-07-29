@@ -328,7 +328,7 @@
 
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
-import appIcon from '../assets/aurorapad-app-icon.png'
+const appIcon = '/aurorapad-app-icon.png'
 import { downloadUrl } from './data/site'
 const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
 

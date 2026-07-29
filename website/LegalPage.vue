@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import appIcon from '../assets/aurorapad-app-icon.png'
+const appIcon = '/aurorapad-app-icon.png'
 const { trackNavigation, trackOutboundLink } = useSiteAnalytics()
 
 defineProps({
