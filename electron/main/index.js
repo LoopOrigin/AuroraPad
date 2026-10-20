@@ -11,6 +11,7 @@ if (process.platform === 'win32') {
 const path = require('path')
 const fs = require('fs').promises
 const fsSync = require('fs')
+const os = require('os')
 const Store = require('electron-store')
 const chokidar = require('chokidar')
 const iconv = require('iconv-lite')
@@ -1225,7 +1226,17 @@ ipcMain.handle('terminal:create', async (_, options = {}) => {
       return { ok: true, id, shell: 'ssh' }
     }
 
-    const cwd = requestedCwd || process.cwd()
+    const homedir = os.homedir()
+    const safeCwd = (() => {
+      const candidates = [requestedCwd, process.cwd(), homedir]
+      for (const c of candidates) {
+        if (c) {
+          try { if (fsSync.statSync(c).isDirectory()) return c } catch {}
+        }
+      }
+      return homedir
+    })()
+    const cwd = safeCwd
     const terminalLaunch = resolveTerminalLaunch(shellType, requestedCwd) || resolveTerminalLaunch('default')
     if (!terminalLaunch) {
       return { error: `The ${shellType} terminal profile is not available on this platform.` }
