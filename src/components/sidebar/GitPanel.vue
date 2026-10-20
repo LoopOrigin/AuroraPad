@@ -5,21 +5,21 @@
       <span class="git-header-title">SOURCE CONTROL</span>
       <span v-if="changeCount" class="git-change-badge">{{ changeCount }}</span>
       <button type="button" class="git-icon-btn" title="Refresh" :disabled="loading" @click="refresh">
-        <i class="fa-solid fa-rotate" :class="{ 'fa-spin': loading }"></i>
+        <i class="mdi mdi-refresh" :class="{ 'mdi-spin': loading }"></i>
       </button>
     </div>
 
     <!-- Error bar -->
     <div v-if="errorMsg" class="git-error-bar">
-      <i class="fa-solid fa-triangle-exclamation"></i>
+      <i class="mdi mdi-alert"></i>
       {{ errorMsg }}
-      <button type="button" class="git-error-dismiss" @click="errorMsg = ''"><i class="fa-solid fa-xmark"></i></button>
+      <button type="button" class="git-error-dismiss" @click="errorMsg = ''"><i class="mdi mdi-close"></i></button>
     </div>
 
     <div v-if="!fileTreeStore.openFolderPath" class="git-no-folder">
       <p>Open a folder to use source control.</p>
       <button type="button" class="git-open-folder-btn" @click="$emit('open-folder')">
-        <i class="fa-solid fa-folder-open"></i> Open Folder
+        <i class="mdi mdi-folder-open"></i> Open Folder
       </button>
     </div>
 
@@ -35,7 +35,7 @@
         </svg>
         <button type="button" class="git-branch-btn" title="Switch branch" @click="toggleBranchPicker">
           {{ fileTreeStore.gitBranch || 'main' }}
-          <i class="fa-solid fa-chevron-down" style="font-size:9px;margin-left:4px"></i>
+          <i class="mdi mdi-chevron-down" style="font-size:14px;margin-left:4px"></i>
         </button>
       </div>
 
@@ -43,7 +43,7 @@
       <div v-if="showBranchPicker" class="git-branch-picker">
         <div class="git-branch-picker-header">
           <span>Switch Branch</span>
-          <button type="button" class="git-icon-btn" @click="showBranchPicker = false"><i class="fa-solid fa-xmark"></i></button>
+          <button type="button" class="git-icon-btn" @click="showBranchPicker = false"><i class="mdi mdi-close"></i></button>
         </div>
         <div v-if="branchesLoading" class="git-branch-loading">Loading…</div>
         <template v-else>
@@ -55,7 +55,7 @@
             :class="{ current: b.current }"
             @click="checkoutBranch(b.name)"
           >
-            <i v-if="b.current" class="fa-solid fa-check" style="font-size:10px;width:12px"></i>
+            <i v-if="b.current" class="mdi mdi-check" style="font-size:14px;width:14px"></i>
             <span v-else style="width:12px;display:inline-block"></span>
             {{ b.name }}
           </button>
@@ -65,13 +65,13 @@
       <!-- Sync actions (push/pull) -->
       <div class="git-sync-row">
         <button type="button" class="git-sync-btn" title="Pull from remote" :disabled="syncing" @click="pull">
-          <i class="fa-solid fa-arrow-down"></i> Pull
+          <i class="mdi mdi-arrow-down"></i> Pull
         </button>
         <button type="button" class="git-sync-btn" title="Push to remote" :disabled="syncing" @click="push">
-          <i class="fa-solid fa-arrow-up"></i> Push
+          <i class="mdi mdi-arrow-up"></i> Push
         </button>
         <button type="button" class="git-sync-btn git-sync-btn-accent" title="Pull then push" :disabled="syncing" @click="sync">
-          <i class="fa-solid fa-arrows-rotate" :class="{ 'fa-spin': syncing }"></i> Sync
+          <i class="mdi mdi-sync" :class="{ 'mdi-spin': syncing }"></i> Sync
         </button>
       </div>
 
@@ -87,11 +87,11 @@
         ></textarea>
         <div class="git-commit-actions">
           <button type="button" class="git-commit-btn" :disabled="!commitMessage.trim() || !hasStagedChanges || committing" @click="commit">
-            <i v-if="committing" class="fa-solid fa-circle-notch fa-spin"></i>
+            <i v-if="committing" class="mdi mdi-loading mdi-spin"></i>
             <span v-else>Commit</span>
           </button>
           <button type="button" class="git-stage-all-btn" title="Stage all changes" @click="stageAll">
-            <i class="fa-solid fa-plus"></i> Stage All
+            <i class="mdi mdi-plus"></i> Stage All
           </button>
         </div>
       </div>
@@ -109,7 +109,7 @@
             <span class="git-file-name" :title="f.path">{{ shortName(f.path) }}</span>
             <div class="git-file-actions">
               <button type="button" class="git-file-btn" title="Unstage" @click.stop="unstage(f.path)">
-                <i class="fa-solid fa-minus"></i>
+                <i class="mdi mdi-minus"></i>
               </button>
             </div>
           </div>
@@ -130,10 +130,10 @@
             <span class="git-file-name" :title="f.path">{{ shortName(f.path) }}</span>
             <div class="git-file-actions">
               <button type="button" class="git-file-btn" title="Stage file" @click.stop="stage(f.path)">
-                <i class="fa-solid fa-plus"></i>
+                <i class="mdi mdi-plus"></i>
               </button>
               <button type="button" class="git-file-btn git-file-btn-danger" title="Discard changes" @click.stop="discardFile(f.path)">
-                <i class="fa-solid fa-trash-can"></i>
+                <i class="mdi mdi-trash-can-outline"></i>
               </button>
             </div>
           </div>

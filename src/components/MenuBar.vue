@@ -25,13 +25,13 @@
         <span class="menu-overflow-glyph" aria-hidden="true">⋯</span>
       </button>
       <button type="button" class="menu-bar-icon" title="Minimize" @click="windowMinimize">
-        <i class="fa-solid fa-minus window-control-inner"></i>
+        <i class="mdi mdi-minus window-control-inner"></i>
       </button>
       <button type="button" class="menu-bar-icon" title="Maximize" @click="windowMaximize">
-        <i class="fa-regular fa-square window-control-inner"></i>
+        <i class="mdi mdi-crop-square window-control-inner"></i>
       </button>
       <button type="button" class="menu-bar-icon close-btn" title="Close" @click="windowClose">
-        <i class="fa-solid fa-xmark window-control-inner"></i>
+        <i class="mdi mdi-close window-control-inner"></i>
       </button>
     </div>
     <Teleport to="body">
@@ -256,7 +256,7 @@ onBeforeUnmount(() => {
 }
 
 .window-control-inner {
-  font-size: 10px;
+  font-size: 14px;
 }
 
 .menu-bar-icon:hover {

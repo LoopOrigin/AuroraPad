@@ -1,10 +1,10 @@
 <template>
   <div class="toolbar">
     <button type="button" class="toolbar-btn" :title="`New (${cmdCtrl}+N)`" @click="emit('new')">
-      <i class="fa-solid fa-file toolbar-fa-icon"></i>
+      <i class="mdi mdi-file-outline toolbar-icon"></i>
     </button>
     <button type="button" class="toolbar-btn" :title="`Open (${cmdCtrl}+O)`" @click="emit('open')">
-      <i class="fa-solid fa-folder-open toolbar-fa-icon"></i>
+      <i class="mdi mdi-folder-open toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -13,7 +13,7 @@
       :disabled="!canSave"
       @click="emit('save')"
     >
-      <i class="fa-solid fa-floppy-disk toolbar-fa-icon"></i>
+      <i class="mdi mdi-content-save toolbar-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -23,7 +23,7 @@
       :disabled="!canSaveAll"
       @click="emit('save-all')"
     >
-      <i class="fa-solid fa-layer-group toolbar-fa-icon"></i>
+      <i class="mdi mdi-layers-triple toolbar-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -33,7 +33,7 @@
       :disabled="!hasEditor"
       @click="emit('cut')"
     >
-      <i class="fa-solid fa-scissors toolbar-fa-icon"></i>
+      <i class="mdi mdi-content-cut toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -42,7 +42,7 @@
       :disabled="!hasEditor"
       @click="emit('copy')"
     >
-      <i class="fa-solid fa-copy toolbar-fa-icon"></i>
+      <i class="mdi mdi-content-copy toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -51,7 +51,7 @@
       :disabled="!hasEditor"
       @click="emit('paste')"
     >
-      <i class="fa-solid fa-clipboard toolbar-fa-icon"></i>
+      <i class="mdi mdi-clipboard-outline toolbar-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -61,7 +61,7 @@
       :disabled="!hasEditor"
       @click="emit('find')"
     >
-      <i class="fa-solid fa-magnifying-glass toolbar-fa-icon"></i>
+      <i class="mdi mdi-magnify toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -70,7 +70,7 @@
       :disabled="!hasEditor"
       @click="emit('replace')"
     >
-      <i class="fa-solid fa-magnifying-glass-arrow-right toolbar-fa-icon"></i>
+      <i class="mdi mdi-find-replace toolbar-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -80,7 +80,7 @@
       :disabled="!hasEditor"
       @click="emit('undo')"
     >
-      <i class="fa-solid fa-rotate-left toolbar-fa-icon"></i>
+      <i class="mdi mdi-undo-variant toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -89,7 +89,7 @@
       :disabled="!hasEditor"
       @click="emit('redo')"
     >
-      <i class="fa-solid fa-rotate-right toolbar-fa-icon"></i>
+      <i class="mdi mdi-redo-variant toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -99,7 +99,7 @@
       :disabled="!hasEditor"
       @click="emit('toggle-word-wrap')"
     >
-      <i class="fa-solid fa-align-left toolbar-fa-icon"></i>
+      <i class="mdi mdi-wrap toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -108,7 +108,7 @@
       :disabled="!hasEditor"
       @click="emit('go-to-line')"
     >
-      <i class="fa-solid fa-arrow-down-1-9 toolbar-fa-icon"></i>
+      <i class="mdi mdi-format-list-numbered toolbar-icon"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button
@@ -118,7 +118,7 @@
       :disabled="!hasEditor"
       @click="emit('zoom-in')"
     >
-      <i class="fa-solid fa-magnifying-glass-plus toolbar-fa-icon"></i>
+      <i class="mdi mdi-magnify-plus-outline toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -127,7 +127,7 @@
       :disabled="!hasEditor"
       @click="emit('zoom-out')"
     >
-      <i class="fa-solid fa-magnifying-glass-minus toolbar-fa-icon"></i>
+      <i class="mdi mdi-magnify-minus-outline toolbar-icon"></i>
     </button>
     <button
       type="button"
@@ -145,7 +145,7 @@
       title="Preferences"
       @click="emit('preferences')"
     >
-      <i class="fa-solid fa-gear toolbar-fa-icon"></i>
+      <i class="mdi mdi-cog toolbar-icon"></i>
     </button>
   </div>
 </template>

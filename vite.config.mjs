@@ -31,5 +31,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/vuetify')) return 'vendor-vuetify'
+          if (id.includes('node_modules/vue/') || id.includes('node_modules/@vue/')) return 'vendor-vue'
+          if (id.includes('node_modules/pinia') || id.includes('node_modules/@vueuse')) return 'vendor-state'
+        },
+      },
+    },
   },
 })

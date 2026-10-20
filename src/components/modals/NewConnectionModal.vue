@@ -14,9 +14,9 @@
 
         <!-- Inline notification -->
         <div v-if="notif.msg" class="new-conn-notif" :class="`notif-${notif.type}`">
-          <i :class="notif.type === 'success' ? 'fa-solid fa-check-circle' : notif.type === 'error' ? 'fa-solid fa-circle-xmark' : 'fa-solid fa-circle-info'"></i>
+          <i :class="notif.type === 'success' ? 'mdi mdi-check-circle' : notif.type === 'error' ? 'mdi mdi-close-circle' : 'mdi mdi-information'"></i>
           <span>{{ notif.msg }}</span>
-          <button type="button" class="notif-dismiss" @click="notif.msg = ''"><i class="fa-solid fa-xmark"></i></button>
+          <button type="button" class="notif-dismiss" @click="notif.msg = ''"><i class="mdi mdi-close"></i></button>
         </div>
 
         <!-- Body -->
@@ -138,11 +138,11 @@
           <div class="conn-footer-right">
             <button type="button" class="conn-cancel-btn" @click="$emit('update:modelValue', false)">Cancel</button>
             <button type="button" class="conn-save-only-btn" :disabled="saving" @click="saveOnly">
-              <i v-if="saving" class="fa-solid fa-circle-notch fa-spin"></i>
+              <i v-if="saving" class="mdi mdi-loading mdi-spin"></i>
               {{ saving ? 'Saving…' : 'Save' }}
             </button>
             <button type="button" class="conn-save-btn" :disabled="saving || testing" @click="saveAndConnect">
-              <i class="fa-solid fa-plug"></i> Save & Connect
+              <i class="mdi mdi-power-plug"></i> Save & Connect
             </button>
           </div>
         </div>

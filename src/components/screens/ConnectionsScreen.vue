@@ -19,14 +19,14 @@
     </div>
 
     <div v-if="notif?.msg" class="connections-notif" :class="`connections-notif-${notif.type}`">
-      <i :class="notif.type === 'error' ? 'fa-solid fa-circle-xmark' : notif.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-info'"></i>
+      <i :class="notif.type === 'error' ? 'mdi mdi-close-circle' : notif.type === 'success' ? 'mdi mdi-check-circle' : 'mdi mdi-information'"></i>
       <span>{{ notif.msg }}</span>
       <button type="button" class="connections-notif-dismiss" @click="$emit('dismiss-notif')">
-        <i class="fa-solid fa-xmark"></i>
+        <i class="mdi mdi-close"></i>
       </button>
     </div>
     <div v-else-if="connectingId" class="connections-connecting-bar">
-      <i class="fa-solid fa-circle-notch fa-spin"></i>
+      <i class="mdi mdi-loading mdi-spin"></i>
       Connecting to server…
     </div>
     <div v-else-if="loading" class="connections-loading">Loading profiles…</div>
@@ -69,7 +69,7 @@
                 title="Disconnect this session"
                 @click="$emit('disconnect', profile)"
               >
-                <i class="fa-solid fa-plug-circle-xmark"></i>
+                <i class="mdi mdi-power-plug-off"></i>
                 Disconnect
               </button>
               <button
@@ -81,14 +81,14 @@
                 title="Connect to this server"
                 @click="$emit('connect', profile)"
               >
-                <i :class="connectingId === profile.id ? 'fa-solid fa-circle-notch fa-spin' : 'fa-solid fa-plug'"></i>
+                <i :class="connectingId === profile.id ? 'mdi mdi-loading mdi-spin' : 'mdi mdi-power-plug'"></i>
                 {{ connectingId === profile.id ? 'Connecting…' : 'Connect' }}
               </button>
               <button type="button" class="card-edit-btn" title="Edit connection profile" :disabled="!!connectingId" @click="$emit('edit', profile)">
-                <i class="fa-solid fa-pen"></i>
+                <i class="mdi mdi-pencil"></i>
               </button>
               <button type="button" class="card-delete-btn" title="Delete this profile" :disabled="!!connectingId" @click="$emit('delete', profile)">
-                <i class="fa-solid fa-trash-can"></i>
+                <i class="mdi mdi-trash-can-outline"></i>
               </button>
             </div>
           </div>

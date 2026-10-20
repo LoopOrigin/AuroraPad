@@ -47,7 +47,7 @@
         title="Explorer (Ctrl+B)"
         @click="activateExplorer"
       >
-        <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+        <i class="mdi mdi-folder-open-outline" aria-hidden="true"></i>
       </button>
       <button
         type="button"
@@ -56,7 +56,7 @@
         title="Search (Ctrl+Shift+F)"
         @click="activateSearch"
       >
-        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <i class="mdi mdi-magnify" aria-hidden="true"></i>
       </button>
       <button
         type="button"
@@ -76,7 +76,7 @@
         title="SSH Connections"
         @click="settingsStore.setActiveScreen('connections'); loadRemoteProfiles()"
       >
-        <i class="fa-solid fa-server" aria-hidden="true"></i>
+        <i class="mdi mdi-server" aria-hidden="true"></i>
       </button>
       <button
         type="button"
@@ -96,7 +96,7 @@
         title="Terminal (Ctrl+`)"
         @click="openTerminalPanel"
       >
-        <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+        <i class="mdi mdi-console-line" aria-hidden="true"></i>
       </button>
       <div class="activity-bar-spacer"></div>
       <button
@@ -106,7 +106,7 @@
         title="Settings"
         @click="settingsStore.setActiveScreen('settings')"
       >
-        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+        <i class="mdi mdi-cog" aria-hidden="true"></i>
       </button>
     </nav>
 
@@ -623,7 +623,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, defineAsyncComponent } from 'vue'
 import { useTabsStore } from './stores/tabs'
 import { useSettingsStore } from './stores/settings'
 import { usePluginsStore } from './stores/plugins'
@@ -638,11 +638,11 @@ import Toolbar from './components/Toolbar.vue'
 import MenuBar from './components/MenuBar.vue'
 import FindInFiles from './components/FindInFiles.vue'
 import TerminalDock from './components/TerminalDock.vue'
-import ConnectionsScreen from './components/screens/ConnectionsScreen.vue'
-import SftpScreen from './components/screens/SftpScreen.vue'
-import SettingsScreen from './components/screens/SettingsScreen.vue'
-import SearchPanel from './components/sidebar/SearchPanel.vue'
-import GitPanel from './components/sidebar/GitPanel.vue'
+const ConnectionsScreen = defineAsyncComponent(() => import('./components/screens/ConnectionsScreen.vue'))
+const SftpScreen = defineAsyncComponent(() => import('./components/screens/SftpScreen.vue'))
+const SettingsScreen = defineAsyncComponent(() => import('./components/screens/SettingsScreen.vue'))
+const SearchPanel = defineAsyncComponent(() => import('./components/sidebar/SearchPanel.vue'))
+const GitPanel = defineAsyncComponent(() => import('./components/sidebar/GitPanel.vue'))
 import NewConnectionModal from './components/modals/NewConnectionModal.vue'
 
 const tabsStore = useTabsStore()
@@ -1196,13 +1196,13 @@ const menuBarMenus = computed(() => [
     id: 'file',
     label: 'File',
     items: [
-      { label: 'New', shortcut: isMacPlatform ? 'Cmd+N' : 'Ctrl+N', action: 'menu:new', icon: 'fa-solid fa-file' },
+      { label: 'New', shortcut: isMacPlatform ? 'Cmd+N' : 'Ctrl+N', action: 'menu:new', icon: 'mdi mdi-file-outline' },
       { type: 'separator' },
-      { label: 'Open...', shortcut: isMacPlatform ? 'Cmd+O' : 'Ctrl+O', action: 'menu:open-file', icon: 'fa-solid fa-folder-open' },
+      { label: 'Open...', shortcut: isMacPlatform ? 'Cmd+O' : 'Ctrl+O', action: 'menu:open-file', icon: 'mdi mdi-folder-open' },
       { label: 'Open Folder...', shortcut: isMacPlatform ? 'Cmd+Shift+O' : 'Ctrl+Shift+O', action: 'menu:open-folder' },
       { type: 'separator' },
-      { label: 'Save', shortcut: isMacPlatform ? 'Cmd+S' : 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-floppy-disk' },
-      { label: 'Save All', shortcut: isMacPlatform ? 'Cmd+Shift+S' : 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab, icon: 'fa-solid fa-layer-group' },
+      { label: 'Save', shortcut: isMacPlatform ? 'Cmd+S' : 'Ctrl+S', action: 'menu:save', enabled: !!tabsStore.activeTab, icon: 'mdi mdi-content-save' },
+      { label: 'Save All', shortcut: isMacPlatform ? 'Cmd+Shift+S' : 'Ctrl+Shift+S', action: 'menu:save-all', enabled: !!tabsStore.activeTab, icon: 'mdi mdi-layers-triple' },
       { label: 'Save As...', shortcut: 'F12', action: 'menu:save-as', enabled: !!tabsStore.activeTab },
       { label: 'Save a Copy As...', action: 'menu:save-copy-as', enabled: !!tabsStore.activeTab },
       { label: 'Rename...', action: 'menu:rename', enabled: !!tabsStore.activeTab },
@@ -1244,12 +1244,12 @@ const menuBarMenus = computed(() => [
     id: 'edit',
     label: 'Edit',
     items: [
-      { label: 'Undo', shortcut: isMacPlatform ? 'Cmd+Z' : 'Ctrl+Z', action: 'menu:undo', icon: 'fa-solid fa-rotate-left' },
-      { label: 'Redo', shortcut: isMacPlatform ? 'Cmd+Y' : 'Ctrl+Y', action: 'menu:redo', icon: 'fa-solid fa-rotate-right' },
+      { label: 'Undo', shortcut: isMacPlatform ? 'Cmd+Z' : 'Ctrl+Z', action: 'menu:undo', icon: 'mdi mdi-undo-variant' },
+      { label: 'Redo', shortcut: isMacPlatform ? 'Cmd+Y' : 'Ctrl+Y', action: 'menu:redo', icon: 'mdi mdi-redo-variant' },
       { type: 'separator' },
-      { label: 'Cut', shortcut: isMacPlatform ? 'Cmd+X' : 'Ctrl+X', action: 'menu:cut', icon: 'fa-solid fa-scissors' },
-      { label: 'Copy', shortcut: isMacPlatform ? 'Cmd+C' : 'Ctrl+C', action: 'menu:copy', icon: 'fa-solid fa-copy' },
-      { label: 'Paste', shortcut: isMacPlatform ? 'Cmd+V' : 'Ctrl+V', action: 'menu:paste', icon: 'fa-solid fa-clipboard' },
+      { label: 'Cut', shortcut: isMacPlatform ? 'Cmd+X' : 'Ctrl+X', action: 'menu:cut', icon: 'mdi mdi-content-cut' },
+      { label: 'Copy', shortcut: isMacPlatform ? 'Cmd+C' : 'Ctrl+C', action: 'menu:copy', icon: 'mdi mdi-content-copy' },
+      { label: 'Paste', shortcut: isMacPlatform ? 'Cmd+V' : 'Ctrl+V', action: 'menu:paste', icon: 'mdi mdi-clipboard-outline' },
       { type: 'separator' },
       { label: 'Duplicate Line', shortcut: isMacPlatform ? 'Cmd+D' : 'Ctrl+D', action: 'menu:duplicate-line' },
       { label: 'Delete Line', shortcut: isMacPlatform ? 'Cmd+L' : 'Ctrl+L', action: 'menu:delete-line' },
@@ -1262,9 +1262,9 @@ const menuBarMenus = computed(() => [
       { label: 'Lowercase', shortcut: isMacPlatform ? 'Cmd+U' : 'Ctrl+U', action: 'menu:lowercase' },
       { label: 'UPPERCASE', shortcut: isMacPlatform ? 'Cmd+Shift+U' : 'Ctrl+Shift+U', action: 'menu:uppercase' },
       { type: 'separator' },
-      { label: 'Find', shortcut: isMacPlatform ? 'Cmd+F' : 'Ctrl+F', action: 'menu:find', icon: 'fa-solid fa-magnifying-glass' },
-      { label: 'Replace', shortcut: isMacPlatform ? 'Cmd+H' : 'Ctrl+H', action: 'menu:replace', icon: 'fa-solid fa-magnifying-glass-arrow-right' },
-      { label: 'Go to Line...', shortcut: isMacPlatform ? 'Cmd+G' : 'Ctrl+G', action: 'menu:go-to-line', icon: 'fa-solid fa-arrow-down-1-9' },
+      { label: 'Find', shortcut: isMacPlatform ? 'Cmd+F' : 'Ctrl+F', action: 'menu:find', icon: 'mdi mdi-magnify' },
+      { label: 'Replace', shortcut: isMacPlatform ? 'Cmd+H' : 'Ctrl+H', action: 'menu:replace', icon: 'mdi mdi-find-replace' },
+      { label: 'Go to Line...', shortcut: isMacPlatform ? 'Cmd+G' : 'Ctrl+G', action: 'menu:go-to-line', icon: 'mdi mdi-format-list-numbered' },
       { type: 'separator' },
       { label: 'Toggle Bookmark', shortcut: isMacPlatform ? 'Cmd+F2' : 'Ctrl+F2', action: 'menu:toggle-bookmark' },
       { label: 'Next Bookmark', shortcut: 'F2', action: 'menu:next-bookmark' },

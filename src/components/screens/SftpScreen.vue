@@ -11,7 +11,7 @@
         :title="session.username + '@' + session.host"
         @click="switchSession(session.connectionId)"
       >
-        <i class="fa-solid fa-server" style="font-size:11px;margin-right:5px"></i>
+        <i class="mdi mdi-server" style="font-size:14px;margin-right:5px"></i>
         <span class="sftp-tab-label">{{ session.name || session.host }}</span>
         <button
           type="button"
@@ -19,20 +19,20 @@
           title="Disconnect and close session"
           @click.stop="$emit('disconnect-session', session)"
         >
-          <i class="fa-solid fa-xmark"></i>
+          <i class="mdi mdi-close"></i>
         </button>
       </div>
       <button type="button" class="sftp-session-add" title="New SSH connection" @click="$emit('new-session')">
-        <i class="fa-solid fa-plus"></i>
+        <i class="mdi mdi-plus"></i>
       </button>
     </div>
 
     <!-- ── No sessions ────────────────────────────────────── -->
     <div v-if="!sessions.length" class="sftp-empty">
-      <i class="fa-solid fa-plug" style="font-size:36px;color:var(--npp-text-dim)"></i>
+      <i class="mdi mdi-power-plug" style="font-size:36px;color:var(--npp-text-dim)"></i>
       <p>No active sessions</p>
       <button type="button" class="sftp-connect-btn" @click="$emit('new-session')">
-        <i class="fa-solid fa-plus"></i> Connect to Server
+        <i class="mdi mdi-plus"></i> Connect to Server
       </button>
     </div>
 
@@ -54,10 +54,10 @@
         </div>
         <div class="sftp-toolbar">
           <button type="button" class="sftp-toolbar-btn" title="Refresh both panes" @click="refreshBoth">
-            <i class="fa-solid fa-rotate"></i>
+            <i class="mdi mdi-refresh"></i>
           </button>
           <button type="button" class="sftp-toolbar-btn" title="New folder on remote" @click="doNewFolder('remote')">
-            <i class="fa-solid fa-folder-plus"></i>
+            <i class="mdi mdi-folder-plus"></i>
           </button>
           <button
             v-if="activeSession.protocol === 'sftp'"
@@ -66,10 +66,10 @@
             title="Open SSH terminal for this connection"
             @click="$emit('open-ssh-terminal', activeSession)"
           >
-            <i class="fa-solid fa-terminal"></i>
+            <i class="mdi mdi-console-line"></i>
           </button>
           <button type="button" class="sftp-toolbar-btn sftp-toolbar-btn-danger" title="Disconnect this session" @click="$emit('disconnect-session', activeSession)">
-            <i class="fa-solid fa-plug-circle-xmark"></i>
+            <i class="mdi mdi-power-plug-off"></i>
           </button>
         </div>
       </div>
@@ -86,16 +86,16 @@
             :title="bm.path"
             @click="navigateRemote(bm.path)"
           >
-            <i class="fa-solid fa-bookmark" style="font-size:10px"></i> {{ bm.label }}
+            <i class="mdi mdi-bookmark" style="font-size:14px"></i> {{ bm.label }}
           </div>
           <div v-if="!bookmarks.length" class="sftp-bookmark-empty">No bookmarks</div>
 
           <div class="sftp-section-label">LOCAL DRIVES</div>
           <div class="sftp-bookmark-item" @click="navigateLocal('/')">
-            <i class="fa-solid fa-hard-drive" style="font-size:10px"></i> /
+            <i class="mdi mdi-harddisk" style="font-size:14px"></i> /
           </div>
           <div v-if="homeDir" class="sftp-bookmark-item" @click="navigateLocal(homeDir)">
-            <i class="fa-solid fa-house" style="font-size:10px"></i> Home
+            <i class="mdi mdi-home" style="font-size:14px"></i> Home
           </div>
 
           <div class="sftp-section-label">SESSIONS</div>
@@ -107,11 +107,11 @@
             :title="s.username + '@' + s.host"
             @click="switchSession(s.connectionId)"
           >
-            <i class="fa-solid fa-server" style="font-size:10px"></i>
+            <i class="mdi mdi-server" style="font-size:14px"></i>
             {{ s.name || s.host }}
           </div>
           <button type="button" class="sftp-new-session-btn" @click="$emit('new-session')">
-            <i class="fa-solid fa-plus"></i> New session
+            <i class="mdi mdi-plus"></i> New session
           </button>
         </div>
 
@@ -122,8 +122,8 @@
             <div class="sftp-pane-header">
               <span class="sftp-pane-label">LOCAL</span>
               <div class="sftp-path-bar">
-                <button type="button" class="sftp-nav-btn" title="Go back" @click="localGoBack"><i class="fa-solid fa-arrow-left"></i></button>
-                <button type="button" class="sftp-nav-btn" title="Go up" @click="localGoUp"><i class="fa-solid fa-arrow-up"></i></button>
+                <button type="button" class="sftp-nav-btn" title="Go back" @click="localGoBack"><i class="mdi mdi-arrow-left"></i></button>
+                <button type="button" class="sftp-nav-btn" title="Go up" @click="localGoUp"><i class="mdi mdi-arrow-up"></i></button>
                 <input v-if="localPathEdit" ref="localPathInput" v-model="localPathDraft" class="sftp-path-input"
                   @keydown.enter="commitLocalPath" @keydown.escape="localPathEdit = false" @blur="commitLocalPath" />
                 <span v-else class="sftp-path-text" :title="localPath" @click="startLocalPathEdit">{{ localPath }}</span>
@@ -146,7 +146,7 @@
                 @contextmenu.prevent.stop="onLocalContext($event, entry)"
               >
                 <span class="file-row-name">
-                  <i :class="entry.isDirectory ? 'fa-solid fa-folder' : 'fa-regular fa-file'" class="file-row-icon"></i>
+                  <i :class="entry.isDirectory ? 'mdi mdi-folder' : 'mdi mdi-file-outline'" class="file-row-icon"></i>
                   {{ entry.name }}
                 </span>
                 <span class="file-row-size">{{ entry.isDirectory ? '' : formatSize(entry.size) }}</span>
@@ -155,11 +155,11 @@
               <div v-if="!localLoading && !localEntries.length && !localError" class="sftp-pane-empty">Empty directory</div>
             </div>
             <div v-if="localError" class="sftp-pane-error">
-              <i class="fa-solid fa-triangle-exclamation"></i> {{ localError }}
-              <button type="button" class="sftp-error-dismiss" @click="localError = ''"><i class="fa-solid fa-xmark"></i></button>
+              <i class="mdi mdi-alert"></i> {{ localError }}
+              <button type="button" class="sftp-error-dismiss" @click="localError = ''"><i class="mdi mdi-close"></i></button>
             </div>
             <div v-else class="sftp-pane-status">
-              <template v-if="localLoading"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:10px;margin-right:5px"></i> Loading…</template>
+              <template v-if="localLoading"><i class="mdi mdi-loading mdi-spin" style="font-size:12px;margin-right:5px"></i> Loading…</template>
               <template v-else>{{ localEntries.length }} items<span v-if="selectedLocal"> · {{ selectedLocal }}</span></template>
             </div>
           </div>
@@ -169,8 +169,8 @@
             <div class="sftp-pane-header">
               <span class="sftp-pane-label">REMOTE</span>
               <div class="sftp-path-bar">
-                <button type="button" class="sftp-nav-btn" title="Go back" @click="remoteGoBack"><i class="fa-solid fa-arrow-left"></i></button>
-                <button type="button" class="sftp-nav-btn" title="Go up" @click="remoteGoUp"><i class="fa-solid fa-arrow-up"></i></button>
+                <button type="button" class="sftp-nav-btn" title="Go back" @click="remoteGoBack"><i class="mdi mdi-arrow-left"></i></button>
+                <button type="button" class="sftp-nav-btn" title="Go up" @click="remoteGoUp"><i class="mdi mdi-arrow-up"></i></button>
                 <input v-if="remotePathEdit" ref="remotePathInput" v-model="remotePathDraft" class="sftp-path-input"
                   @keydown.enter="commitRemotePath" @keydown.escape="remotePathEdit = false" @blur="commitRemotePath" />
                 <span v-else class="sftp-path-text" :title="remotePath" @click="startRemotePathEdit">{{ remotePath }}</span>
@@ -193,7 +193,7 @@
                 @contextmenu.prevent.stop="onRemoteContext($event, entry)"
               >
                 <span class="file-row-name">
-                  <i :class="entry.isDirectory ? 'fa-solid fa-folder' : 'fa-regular fa-file'" class="file-row-icon"></i>
+                  <i :class="entry.isDirectory ? 'mdi mdi-folder' : 'mdi mdi-file-outline'" class="file-row-icon"></i>
                   {{ entry.name }}
                 </span>
                 <span class="file-row-size">{{ entry.isDirectory ? '' : formatSize(entry.size) }}</span>
@@ -202,11 +202,11 @@
               <div v-if="!remoteLoading && !remoteEntries.length && !remoteError" class="sftp-pane-empty">Empty directory</div>
             </div>
             <div v-if="remoteError" class="sftp-pane-error">
-              <i class="fa-solid fa-triangle-exclamation"></i> {{ remoteError }}
-              <button type="button" class="sftp-error-dismiss" @click="remoteError = ''"><i class="fa-solid fa-xmark"></i></button>
+              <i class="mdi mdi-alert"></i> {{ remoteError }}
+              <button type="button" class="sftp-error-dismiss" @click="remoteError = ''"><i class="mdi mdi-close"></i></button>
             </div>
             <div v-else class="sftp-pane-status">
-              <template v-if="remoteLoading"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:10px;margin-right:5px"></i> Loading…</template>
+              <template v-if="remoteLoading"><i class="mdi mdi-loading mdi-spin" style="font-size:12px;margin-right:5px"></i> Loading…</template>
               <template v-else>{{ remoteEntries.length }} items<span v-if="selectedRemote"> · {{ selectedRemote }}</span></template>
             </div>
           </div>
@@ -223,7 +223,7 @@
             <span v-if="tab.badge" class="sftp-tab-badge">{{ tab.badge }}</span>
           </button>
           <button type="button" class="sftp-log-clear" title="Clear log" @click="clearLog">
-            <i class="fa-solid fa-eraser"></i>
+            <i class="mdi mdi-eraser"></i>
           </button>
         </div>
         <div class="sftp-bottom-content">
@@ -232,10 +232,10 @@
               <div v-for="(entry, i) in sessionLog" :key="i" class="log-entry" :class="`log-${entry.type}`">
                 <span class="log-ts">{{ entry.ts }}</span>
                 <span class="log-icon">
-                  <i v-if="entry.type === 'success'" class="fa-solid fa-check"></i>
-                  <i v-else-if="entry.type === 'error'" class="fa-solid fa-xmark"></i>
-                  <i v-else-if="entry.type === 'transfer'" class="fa-solid fa-arrows-left-right"></i>
-                  <i v-else class="fa-solid fa-circle-info"></i>
+                  <i v-if="entry.type === 'success'" class="mdi mdi-check"></i>
+                  <i v-else-if="entry.type === 'error'" class="mdi mdi-close"></i>
+                  <i v-else-if="entry.type === 'transfer'" class="mdi mdi-arrow-left-right"></i>
+                  <i v-else class="mdi mdi-information"></i>
                 </span>
                 <span class="log-msg">{{ entry.msg }}</span>
               </div>
@@ -253,7 +253,7 @@
           <template v-else-if="bottomTab === 'ports'">
             <div class="port-forwarding-toolbar">
               <button type="button" class="sftp-action-btn" @click="addPortForward">
-                <i class="fa-solid fa-plus"></i> Add Tunnel
+                <i class="mdi mdi-plus"></i> Add Tunnel
               </button>
             </div>
             <div v-if="!portForwards.length" class="sftp-bottom-empty">No active tunnels</div>
@@ -263,7 +263,7 @@
               <span class="port-remote">{{ pf.remoteHost }}:{{ pf.remotePort }}</span>
               <span class="port-label">{{ pf.label || 'tunnel' }}</span>
               <button type="button" class="port-stop-btn" @click="stopPortForward(pf.id)">
-                <i class="fa-solid fa-trash-can"></i>
+                <i class="mdi mdi-trash-can-outline"></i>
               </button>
             </div>
           </template>
@@ -591,24 +591,24 @@ function onLocalContext(e, entry) {
   const items = []
   if (entry) {
     if (!entry.isDirectory) {
-      items.push({ label: 'Upload to Remote', icon: 'fa-solid fa-upload ctx-icon-accent', action: 'upload', entry })
-      items.push({ label: 'Open in Editor', icon: 'fa-solid fa-pen-to-square', action: 'open-editor-local', entry })
+      items.push({ label: 'Upload to Remote', icon: 'mdi mdi-upload ctx-icon-accent', action: 'upload', entry })
+      items.push({ label: 'Open in Editor', icon: 'mdi mdi-pencil-box-outline', action: 'open-editor-local', entry })
     }
-    items.push({ label: 'Rename', icon: 'fa-solid fa-pencil', action: 'rename-local', entry })
-    items.push({ label: 'Delete', icon: 'fa-solid fa-trash-can ctx-icon-danger', action: 'delete-local', entry })
+    items.push({ label: 'Rename', icon: 'mdi mdi-pencil', action: 'rename-local', entry })
+    items.push({ label: 'Delete', icon: 'mdi mdi-trash-can-outline ctx-icon-danger', action: 'delete-local', entry })
     items.push({ type: 'separator' })
   }
-  items.push({ label: 'New Folder', icon: 'fa-solid fa-folder-plus', action: 'new-folder-local' })
-  items.push({ label: 'New File', icon: 'fa-solid fa-file-circle-plus', action: 'new-file-local' })
+  items.push({ label: 'New Folder', icon: 'mdi mdi-folder-plus', action: 'new-folder-local' })
+  items.push({ label: 'New File', icon: 'mdi mdi-file-plus-outline', action: 'new-file-local' })
   showContext(e, 'local', entry, items)
 }
 
 function onLocalContextBlank(e) {
   showContext(e, 'local', null, [
-    { label: 'New Folder', icon: 'fa-solid fa-folder-plus', action: 'new-folder-local' },
-    { label: 'New File', icon: 'fa-solid fa-file-circle-plus', action: 'new-file-local' },
+    { label: 'New Folder', icon: 'mdi mdi-folder-plus', action: 'new-folder-local' },
+    { label: 'New File', icon: 'mdi mdi-file-plus-outline', action: 'new-file-local' },
     { type: 'separator' },
-    { label: 'Refresh', icon: 'fa-solid fa-rotate', action: 'refresh-local' },
+    { label: 'Refresh', icon: 'mdi mdi-refresh', action: 'refresh-local' },
   ])
 }
 
@@ -616,35 +616,35 @@ function onRemoteContext(e, entry) {
   const items = []
   if (entry) {
     if (!entry.isDirectory) {
-      items.push({ label: 'Download to Local', icon: 'fa-solid fa-download ctx-icon-accent', action: 'download', entry })
-      items.push({ label: 'Open in Editor', icon: 'fa-solid fa-pen-to-square', action: 'open-editor-remote', entry })
+      items.push({ label: 'Download to Local', icon: 'mdi mdi-download ctx-icon-accent', action: 'download', entry })
+      items.push({ label: 'Open in Editor', icon: 'mdi mdi-pencil-box-outline', action: 'open-editor-remote', entry })
     }
-    items.push({ label: 'Rename', icon: 'fa-solid fa-pencil', action: 'rename-remote', entry })
+    items.push({ label: 'Rename', icon: 'mdi mdi-pencil', action: 'rename-remote', entry })
     if (!entry.isDirectory) {
-      items.push({ label: 'Permissions', icon: 'fa-solid fa-lock', action: 'permissions', entry })
+      items.push({ label: 'Permissions', icon: 'mdi mdi-lock', action: 'permissions', entry })
     }
-    items.push({ label: 'Delete', icon: 'fa-solid fa-trash-can ctx-icon-danger', action: 'delete-remote', entry })
+    items.push({ label: 'Delete', icon: 'mdi mdi-trash-can-outline ctx-icon-danger', action: 'delete-remote', entry })
     items.push({ type: 'separator' })
   }
-  items.push({ label: 'New Folder', icon: 'fa-solid fa-folder-plus', action: 'new-folder-remote' })
-  items.push({ label: 'New File', icon: 'fa-solid fa-file-circle-plus', action: 'new-file-remote' })
+  items.push({ label: 'New Folder', icon: 'mdi mdi-folder-plus', action: 'new-folder-remote' })
+  items.push({ label: 'New File', icon: 'mdi mdi-file-plus-outline', action: 'new-file-remote' })
   if (selectedLocal.value && !entry) {
     items.push({ type: 'separator' })
-    items.push({ label: `Upload "${selectedLocal.value}"`, icon: 'fa-solid fa-upload ctx-icon-accent', action: 'upload-selected' })
+    items.push({ label: `Upload "${selectedLocal.value}"`, icon: 'mdi mdi-upload ctx-icon-accent', action: 'upload-selected' })
   }
   showContext(e, 'remote', entry, items)
 }
 
 function onRemoteContextBlank(e) {
   const items = [
-    { label: 'New Folder', icon: 'fa-solid fa-folder-plus', action: 'new-folder-remote' },
-    { label: 'New File', icon: 'fa-solid fa-file-circle-plus', action: 'new-file-remote' },
+    { label: 'New Folder', icon: 'mdi mdi-folder-plus', action: 'new-folder-remote' },
+    { label: 'New File', icon: 'mdi mdi-file-plus-outline', action: 'new-file-remote' },
     { type: 'separator' },
-    { label: 'Refresh', icon: 'fa-solid fa-rotate', action: 'refresh-remote' },
+    { label: 'Refresh', icon: 'mdi mdi-refresh', action: 'refresh-remote' },
   ]
   if (selectedLocal.value) {
     items.push({ type: 'separator' })
-    items.push({ label: `Upload "${selectedLocal.value}"`, icon: 'fa-solid fa-upload ctx-icon-accent', action: 'upload-selected' })
+    items.push({ label: `Upload "${selectedLocal.value}"`, icon: 'mdi mdi-upload ctx-icon-accent', action: 'upload-selected' })
   }
   showContext(e, 'remote', null, items)
 }

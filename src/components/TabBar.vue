@@ -23,7 +23,7 @@
         title="Close tab (Ctrl+W)"
         @click.stop="closeTab(tab.id)"
       >
-        <i class="fa-solid fa-xmark" style="font-size:9px"></i>
+        <i class="mdi mdi-close" style="font-size:13px"></i>
       </button>
     </div>
 

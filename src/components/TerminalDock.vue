@@ -9,7 +9,7 @@
       <span class="terminal-platform">{{ platformPill }}</span>
       <div class="terminal-toolbar-actions">
         <button type="button" class="terminal-action-btn" title="Clear active terminal" @click="clearActiveSession">
-          <i class="fa-solid fa-eraser"></i>
+          <i class="mdi mdi-eraser"></i>
         </button>
         <select
           v-model="profileShell"
@@ -26,10 +26,10 @@
           :title="`New ${profileLabel(profileShell)} terminal`"
           @click="newSession(profileShell)"
         >
-          <i class="fa-solid fa-plus"></i>
+          <i class="mdi mdi-plus"></i>
         </button>
         <button type="button" class="terminal-action-btn" title="Hide terminal" @click="$emit('close')">
-          <i class="fa-solid fa-chevron-down"></i>
+          <i class="mdi mdi-chevron-down"></i>
         </button>
       </div>
     </div>

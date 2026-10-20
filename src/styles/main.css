@@ -370,8 +370,8 @@ select:focus-visible,
   margin: 0 2px;
 }
 
-.toolbar-fa-icon {
-  font-size: 15px;
+.toolbar-icon {
+  font-size: 18px;
 }
 
 .bookmark-gutter {
