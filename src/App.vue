@@ -1,5 +1,5 @@
 <template>
-  <div class="app-layout" :class="{ 'is-mac': isMacPlatform, 'terminal-open': showTerminal }">
+  <div class="app-layout" :class="{ 'is-mac': isMacPlatform, 'terminal-open': showTerminal }" :data-density="settingsStore.uiDensity">
     <header class="app-menu-bar" :class="{ 'is-mac-header': isMacPlatform }">
       <MenuBar
         v-if="!isMacPlatform"
@@ -38,7 +38,7 @@
       @preferences="openPreferences"
     />
     <div class="app-body">
-    <nav class="activity-bar" aria-label="Activity bar">
+    <nav class="activity-bar" :class="{ 'has-labels': settingsStore.showActivityBarLabels }" aria-label="Activity bar">
 
       <button
         type="button"
@@ -48,6 +48,7 @@
         @click="activateExplorer"
       >
         <i class="mdi mdi-folder-open-outline" aria-hidden="true"></i>
+        <span v-if="settingsStore.showActivityBarLabels" class="activity-bar-label">Explorer</span>
       </button>
       <button
         type="button"
@@ -57,6 +58,7 @@
         @click="activateSearch"
       >
         <i class="mdi mdi-magnify" aria-hidden="true"></i>
+        <span v-if="settingsStore.showActivityBarLabels" class="activity-bar-label">Search</span>
       </button>
       <button
         type="button"
@@ -68,6 +70,7 @@
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
           <path d="M11.75 2.5a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0zm.75 3c-.98 0-1.81.626-2.12 1.5H7.93A2.5 2.5 0 0 0 5.5 9.25v1.5a.75.75 0 0 0 1.5 0v-1.5a1 1 0 0 1 1-1h2.37c.31.874 1.14 1.5 2.12 1.5a2.25 2.25 0 0 0 0-4.5zM2.75 5.5a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0zm.75 2.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5z"/>
         </svg>
+        <span v-if="settingsStore.showActivityBarLabels" class="activity-bar-label">Git</span>
       </button>
       <button
         type="button"
@@ -77,6 +80,7 @@
         @click="settingsStore.setActiveScreen('connections'); loadRemoteProfiles()"
       >
         <i class="mdi mdi-server" aria-hidden="true"></i>
+        <span v-if="settingsStore.showActivityBarLabels" class="activity-bar-label">SSH</span>
       </button>
       <button
         type="button"
@@ -88,6 +92,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M7 16V8m0 0l-3 3m3-3 3 3M17 8v8m0 0 3-3m-3 3-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
+        <span v-if="settingsStore.showActivityBarLabels" class="activity-bar-label">SFTP</span>
       </button>
       <button
         type="button"
@@ -97,6 +102,7 @@
         @click="openTerminalPanel"
       >
         <i class="mdi mdi-console-line" aria-hidden="true"></i>
+        <span v-if="settingsStore.showActivityBarLabels" class="activity-bar-label">Terminal</span>
       </button>
       <div class="activity-bar-spacer"></div>
       <button
@@ -107,6 +113,7 @@
         @click="settingsStore.setActiveScreen('settings')"
       >
         <i class="mdi mdi-cog" aria-hidden="true"></i>
+        <span v-if="settingsStore.showActivityBarLabels" class="activity-bar-label">Settings</span>
       </button>
     </nav>
 
@@ -456,87 +463,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="showPreferences" max-width="860">
-      <v-card class="aurora-dialog">
-        <v-toolbar color="transparent" density="comfortable">
-          <v-toolbar-title>Preferences</v-toolbar-title>
-          <v-spacer />
-          <v-btn icon="mdi-close" variant="text" @click="showPreferences = false" />
-        </v-toolbar>
-        <v-card-text class="dialog-body">
-          <v-row dense>
-            <v-col cols="12" md="5">
-              <div class="settings-group">
-                <div class="settings-group-title">Appearance</div>
-                <v-select
-                  :model-value="settingsStore.theme"
-                  :items="themeOptions"
-                  label="Theme"
-                  @update:model-value="settingsStore.setTheme"
-                />
-                <v-switch
-                  :model-value="settingsStore.toolbarVisible"
-                  label="Show Toolbar"
-                  @update:model-value="settingsStore.setToolbarVisible"
-                />
-                <v-switch
-                  :model-value="settingsStore.statusBarVisible"
-                  label="Show Status Bar"
-                  @update:model-value="settingsStore.setStatusBarVisible"
-                />
-                <v-text-field
-                  :model-value="settingsStore.fontSize"
-                  type="number"
-                  min="8"
-                  max="32"
-                  label="Editor Font Size"
-                  @update:model-value="settingsStore.setFontSize(Number($event) || 14)"
-                />
-              </div>
-            </v-col>
-            <v-col cols="12" md="7">
-              <div class="settings-group">
-                <div class="settings-group-title">Editor Behavior</div>
-                <v-switch
-                  :model-value="settingsStore.autoSave"
-                  label="Auto Save Saved Files"
-                  @update:model-value="settingsStore.setAutoSave"
-                />
-                <v-switch
-                  :model-value="settingsStore.wordWrap"
-                  label="Word Wrap"
-                  @update:model-value="settingsStore.setWordWrap"
-                />
-                <v-switch
-                  :model-value="settingsStore.lineNumbers"
-                  label="Line Numbers"
-                  @update:model-value="settingsStore.setLineNumbers"
-                />
-                <v-switch
-                  :model-value="settingsStore.showWhitespace"
-                  label="Show Whitespace and Tabs"
-                  @update:model-value="settingsStore.setShowWhitespace"
-                />
-                <v-switch
-                  :model-value="settingsStore.highlightCurrentLine"
-                  label="Highlight Current Line"
-                  @update:model-value="settingsStore.setHighlightCurrentLine"
-                />
-                <v-switch
-                  :model-value="settingsStore.showMinimap"
-                  label="Show Minimap"
-                  @update:model-value="settingsStore.setShowMinimap"
-                />
-              </div>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions class="dialog-actions">
-          <v-spacer />
-          <v-btn color="primary" @click="showPreferences = false">Done</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
     <NewConnectionModal
       v-model="showNewConnectionModal"
       :edit-profile="editingProfile"
@@ -750,7 +676,6 @@ const monacoTheme = computed(() => {
       return 'vs'
   }
 })
-const showPreferences = ref(false)
 const themeOptions = [
   { title: 'Aurora Light', value: 'light' },
   { title: 'Aurora Dark', value: 'dark' },

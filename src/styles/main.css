@@ -304,6 +304,63 @@ select:focus-visible,
   border-radius: 0 2px 2px 0;
 }
 
+/* Activity bar with labels */
+.activity-bar.has-labels {
+  width: 64px;
+}
+
+.activity-bar.has-labels .activity-bar-btn {
+  width: 100%;
+  height: auto;
+  min-height: 52px;
+  flex-direction: column;
+  padding: 6px 4px;
+  gap: 3px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+.activity-bar-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* UI density variants */
+[data-density="comfortable"] .editor-tabs,
+[data-density="comfortable"] .activity-bar-btn {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+[data-density="comfortable"] .toolbar {
+  height: 38px;
+  padding: 0 10px;
+}
+
+[data-density="spacious"] .activity-bar-btn {
+  height: 46px;
+  width: 44px;
+  font-size: 18px;
+}
+
+[data-density="spacious"] .activity-bar {
+  gap: 4px;
+  padding: 8px 0;
+}
+
+[data-density="spacious"] .toolbar {
+  height: 42px;
+  padding: 0 14px;
+}
+
+[data-density="spacious"] .tab-item {
+  padding: 0 20px;
+  height: 38px;
+}
+
 .sidebar {
   width: 240px;
   min-width: 180px;
